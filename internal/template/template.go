@@ -6,7 +6,6 @@ import (
 	"github.com/LazyMechanic/cyak/internal/config"
 	"github.com/LazyMechanic/cyak/internal/types"
 	"io/ioutil"
-	"os"
 	"text/template"
 )
 
@@ -75,10 +74,4 @@ func ProjectFile(file string, projectConfig *types.ProjectConfig) string {
 
 	fileContent := string(fileBytes)
 	return applyProject(fileContent, projectConfig)
-}
-
-func WriteToDisk(file string, content string) {
-	if err := ioutil.WriteFile(file, []byte(content), os.ModePerm); err != nil {
-		panic(err)
-	}
 }

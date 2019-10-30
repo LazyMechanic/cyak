@@ -15,6 +15,8 @@ func userDir() string {
 
 var (
 	PresetsFolder = "./presets" //filepath.Join(userDir(), ".cyak", "presets")
+	TemplatesFolder = "templates"
+	AsIsFolder = "asis"
 )
 
 const (

@@ -2,13 +2,13 @@ package actions
 
 import (
 	"fmt"
+	"github.com/LazyMechanic/cyak/internal/cli/assist"
 	"github.com/LazyMechanic/cyak/internal/cli/dialog"
 	"github.com/LazyMechanic/cyak/internal/cli/flags"
 	"github.com/LazyMechanic/cyak/internal/cli/questions"
 	"github.com/LazyMechanic/cyak/internal/config"
 	"github.com/LazyMechanic/cyak/internal/template"
 	"github.com/LazyMechanic/cyak/internal/types"
-	"github.com/otiai10/copy"
 	gocli "github.com/urfave/cli"
 	"io/ioutil"
 	"log"
@@ -113,10 +113,10 @@ func doCreate(createConfig *types.CreateConfig) error {
 		}
 
 		// Read and fill template and write to disk
-		var templateFile = filepath.Join(createConfig.PresetDir, config.ProjectTemplate)
+		var templateFile = filepath.Join(createConfig.PresetDir, config.TemplatesFolder, config.ProjectTemplate)
 		var templateContent = template.ProjectFile(templateFile, createConfig.Project)
 		var destFile = filepath.Join(createConfig.WorkingDirectory, "CMakeLists.txt")
-		template.WriteToDisk(destFile, templateContent)
+		assist.WriteToDisk(destFile, templateContent)
 	}
 
 	// Process targets
@@ -127,10 +127,10 @@ func doCreate(createConfig *types.CreateConfig) error {
 		if err := createDirIfNotExist(targetDestDir); err != nil {
 			return err
 		}
-		var targetTemplateFile = filepath.Join(createConfig.PresetDir, template.GetTargetTemplateFileName(target.Type))
+		var targetTemplateFile = filepath.Join(createConfig.PresetDir, config.TemplatesFolder, template.GetTargetTemplateFileName(target.Type))
 		var targetTemplateContent = template.TargetFile(targetTemplateFile, target)
 		var targetDestFile = filepath.Join(targetDestDir, "CMakeLists.txt")
-		template.WriteToDisk(targetDestFile, targetTemplateContent)
+		assist.WriteToDisk(targetDestFile, targetTemplateContent)
 
 		// Create config file for library and interface
 		if target.Type == template.Library || target.Type == template.Interface {
@@ -139,7 +139,7 @@ func doCreate(createConfig *types.CreateConfig) error {
 				return err
 			}
 			// Copy config file
-			var configTemplateFile = filepath.Join(createConfig.PresetDir, config.TargetConfigTemplate)
+			var configTemplateFile = filepath.Join(createConfig.PresetDir, config.TemplatesFolder, config.TargetConfigTemplate)
 			// Read config template file
 			fileBytes, err := ioutil.ReadFile(configTemplateFile)
 			if err != nil {
@@ -147,17 +147,18 @@ func doCreate(createConfig *types.CreateConfig) error {
 			}
 			var configTemplateContent = string(fileBytes)
 			var configDestFile = filepath.Join(cmakeWorkingDir, fmt.Sprintf("%s-config.cmake.in", target.Name))
-			template.WriteToDisk(configDestFile, configTemplateContent)
+			assist.WriteToDisk(configDestFile, configTemplateContent)
 		}
 	}
 
-	// Process cmake files
-	var cmakePresetDir = filepath.Join(createConfig.PresetDir, "cmake")
-	if _, err := os.Stat(cmakePresetDir); !os.IsNotExist(err) {
-		if err := copy.Copy(cmakePresetDir, cmakeWorkingDir); err != nil {
-			return err
-		}
+	// Process as is directory
+	var asIsDir = filepath.Join(createConfig.PresetDir, config.AsIsFolder)
+	if _, err := os.Stat(asIsDir); !os.IsNotExist(err) {
+		// Copy all files and folders in asis directory to working directory
+		assist.Copy(asIsDir, createConfig.WorkingDirectory)
 	}
+
+	fmt.Println("All done")
 
 	return nil
 }
@@ -208,10 +209,7 @@ func Create(context *gocli.Context) error {
 	var createConfig types.CreateConfig
 
 	// Set working directory
-	createConfig.WorkingDirectory, err = filepath.Abs(context.Args().Get(0))
-	if err != nil {
-		return err
-	}
+	createConfig.WorkingDirectory = context.Args().Get(0)
 
 	err = toSurvey(&createConfig)
 	if err != nil {

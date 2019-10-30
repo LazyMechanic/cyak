@@ -353,7 +353,7 @@ func AskPatchVersion() types.Version {
 func AskDirectoryAlreadyExists(dir string) types.Task {
 	var answer string
 	var prompt = &survey.Select{
-		Message: fmt.Sprintf("Project direcrory \"%s\" already exists. Pick an action:", dir),
+		Message: fmt.Sprintf("Project direcrory %s already exists. Pick an action:", dir),
 		Options: []string{
 			string(dialog.Overwrite),
 			string(dialog.Merge),
