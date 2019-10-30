@@ -3,6 +3,7 @@ package config
 import (
 	"log"
 	"os/user"
+	"path/filepath"
 )
 
 func userDir() string {
@@ -14,9 +15,7 @@ func userDir() string {
 }
 
 var (
-	PresetsFolder = "./presets" //filepath.Join(userDir(), ".cyak", "presets")
-	TemplatesFolder = "templates"
-	AsIsFolder = "asis"
+	PresetsFolder = filepath.Join(userDir(), ".cyak", "presets")
 )
 
 const (
@@ -25,5 +24,7 @@ const (
 	LibraryTemplate      string = "library.template"
 	ProjectTemplate      string = "project.template"
 	TargetConfigTemplate string = "config.template"
+	TemplatesFolder      string = "templates"
+	AsIsFolder           string = "asis"
 	Version                     = "0.1"
 )
