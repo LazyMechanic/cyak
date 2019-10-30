@@ -3,6 +3,7 @@ package actions
 import (
 	"fmt"
 	"github.com/LazyMechanic/cyak/internal/cli/dialog"
+	"github.com/LazyMechanic/cyak/internal/cli/flags"
 	"github.com/LazyMechanic/cyak/internal/cli/questions"
 	"github.com/LazyMechanic/cyak/internal/config"
 	"github.com/LazyMechanic/cyak/internal/template"
@@ -12,6 +13,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
 )
 
@@ -89,6 +91,14 @@ func doCreate(createConfig *types.CreateConfig) error {
 	// Check if working directory doesn't exists and create it
 	if err := createDirIfNotExist(createConfig.WorkingDirectory); err != nil {
 		return err
+	}
+
+	// Git init if needs
+	if flags.GitFlagValue {
+		var cmd = exec.Command("git", "init", createConfig.WorkingDirectory)
+		if err := cmd.Run(); err != nil {
+			return err
+		}
 	}
 
 	// Process project config

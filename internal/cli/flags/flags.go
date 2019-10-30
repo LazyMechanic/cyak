@@ -7,8 +7,7 @@ import (
 var (
 	DefaultFlagValue    bool
 	PresetFlagValue     string
-	ForceFlagValue      bool
-	GitFlagValue        string
+	GitFlagValue        bool
 	ExecutableFlagValue bool
 	LibraryFlagValue    bool
 	InterfaceFlagValue  bool
@@ -28,15 +27,9 @@ var (
 		Destination: &PresetFlagValue,
 	}
 
-	ForceFlag = gocli.BoolFlag{
-		Name:        "f, force",
-		Usage:       "overwrite target directory if it exists, for new project",
-		Destination: &ForceFlagValue,
-	}
-
-	GitFlag = gocli.StringFlag{
+	GitFlag = gocli.BoolFlag{
 		Name:        "g, git",
-		Usage:       "force git initialization with initial commit `message`",
+		Usage:       "force git initialization",
 		Destination: &GitFlagValue,
 	}
 
