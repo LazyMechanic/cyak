@@ -6,6 +6,7 @@
 ;Include Modern UI
 
   !include "MUI2.nsh"
+  !include "EnvVarUpdate.nsh"
 
 ;--------------------------------
 ;General
@@ -38,6 +39,15 @@
   
   !insertmacro MUI_UNPAGE_CONFIRM
   !insertmacro MUI_UNPAGE_INSTFILES
+
+  Function AddToPath
+  ${EnvVarUpdate} $0 "PATH" "A" "HKCU" "$INSTDIR\bin"
+  FunctionEnd
+
+  !define MUI_FINISHPAGE_SHOWREADME ""
+  !define MUI_FINISHPAGE_SHOWREADME_TEXT "Add to PATH"
+  !define MUI_FINISHPAGE_SHOWREADME_FUNCTION AddToPath
+  !insertmacro MUI_PAGE_FINISH
   
 ;--------------------------------
 ;Languages
@@ -48,7 +58,7 @@
 ;Installer Sections
 
 Section ""
-  SetOutPath "$INSTDIR"
+  SetOutPath "$INSTDIR\bin"
 
   ;ADD YOUR OWN FILES HERE...
   File ..\cyak.exe
@@ -80,9 +90,11 @@ Section "Uninstall"
   ;ADD YOUR OWN FILES HERE...
 
   RMDir /r "$PROFILE\.cyak\"
-  Delete "$INSTDIR\cyak.exe"
+  Delete "$INSTDIR\bin\cyak.exe"
   Delete "$INSTDIR\Uninstall.exe"
+  ${un.EnvVarUpdate} $0 "PATH" "R" "HKCU" "$INSTDIR\bin"
 
+  RMDir "$INSTDIR\bin"
   RMDir "$INSTDIR"
 
   DeleteRegKey /ifempty HKCU "Software\cyak"
