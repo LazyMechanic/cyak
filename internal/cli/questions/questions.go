@@ -25,7 +25,7 @@ func ProjectConfigureSurvey() *types.ProjectConfig {
 	return project
 }
 
-func AddTargetSurvey(project *types.ProjectConfig, targetType types.TargetType) *types.TargetConfig {
+func TargetSurvey(project *types.ProjectConfig, targetType types.TargetType) *types.TargetConfig {
 	var inherit bool = false
 	if project != nil {
 		inherit = AskInherit()
@@ -48,6 +48,7 @@ func AddTargetSurvey(project *types.ProjectConfig, targetType types.TargetType) 
 func executableSurvey(project *types.ProjectConfig, inherit bool) *types.TargetConfig {
 	var target = &types.TargetConfig{
 		Name: AskName(),
+		CreateTest: AskCreateTest(),
 		Type: template.Executable,
 	}
 
@@ -60,6 +61,7 @@ func librarySurvey(project *types.ProjectConfig, inherit bool) *types.TargetConf
 	var target = &types.TargetConfig{
 		Name:      AskName(),
 		Namespace: AskNamespace(),
+		CreateTest: AskCreateTest(),
 		Type:      template.Library,
 	}
 
@@ -72,6 +74,7 @@ func interfaceSurvey(project *types.ProjectConfig, inherit bool) *types.TargetCo
 	var target = &types.TargetConfig{
 		Name:      AskName(),
 		Namespace: AskNamespace(),
+		CreateTest: AskCreateTest(),
 		Type:      template.Interface,
 	}
 
@@ -348,6 +351,21 @@ func AskPatchVersion() types.Version {
 	}
 
 	return types.Version(answerInt)
+}
+
+func AskCreateTest() bool {
+	var answer bool
+	var prompt = &survey.Confirm{
+		Message: "Create test target:",
+		Default: true,
+	}
+
+	err := survey.AskOne(prompt, &answer)
+	if err != nil {
+		panic(err)
+	}
+
+	return answer
 }
 
 func AskDirectoryAlreadyExists(dir string) types.Task {

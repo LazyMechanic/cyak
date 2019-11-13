@@ -28,30 +28,26 @@ func GetTargetTemplateFileName(targetType types.TargetType) string {
 	}
 }
 
-func applyTarget(str string, targetConfig *types.TargetConfig) string {
-	content := str
+func applyTarget(content string, targetConfig *types.TargetConfig) string {
+	var tmpl = template.Must(template.New(targetConfig.Name).Parse(content))
 
-	tmpl, err := template.New(targetConfig.Name).Parse(content)
+	var tmplBuffer bytes.Buffer
+	var err = tmpl.Execute(&tmplBuffer, *targetConfig)
 	if err != nil {
 		panic(err)
 	}
-
-	var tmplBuffer bytes.Buffer
-	err = tmpl.Execute(&tmplBuffer, *targetConfig)
 
 	return tmplBuffer.String()
 }
 
-func applyProject(str string, projectConfig *types.ProjectConfig) string {
-	content := str
+func applyProject(content string, projectConfig *types.ProjectConfig) string {
+	var tmpl = template.Must(template.New(projectConfig.Name).Parse(content))
 
-	tmpl, err := template.New(projectConfig.Name).Parse(content)
+	var tmplBuffer bytes.Buffer
+	var err = tmpl.Execute(&tmplBuffer, *projectConfig)
 	if err != nil {
 		panic(err)
 	}
-
-	var tmplBuffer bytes.Buffer
-	err = tmpl.Execute(&tmplBuffer, *projectConfig)
 
 	return tmplBuffer.String()
 }

@@ -40,6 +40,7 @@ type TargetConfig struct {
 	MajorVersion        Version
 	MinorVersion        Version
 	PatchVersion        Version
+	CreateTest          bool
 }
 
 type ProjectConfig struct {
@@ -51,5 +52,5 @@ type ProjectConfig struct {
 	MajorVersion        Version
 	MinorVersion        Version
 	PatchVersion        Version
-	Targets             string
+	Targets             []*TargetConfig
 }

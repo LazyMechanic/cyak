@@ -45,11 +45,11 @@ func toSurvey(createConfig *types.CreateConfig) error {
 		case dialog.ConfigureProject:
 			createConfig.Project = questions.ProjectConfigureSurvey()
 		case dialog.AddExecutable:
-			createConfig.Targets = append(createConfig.Targets, questions.AddTargetSurvey(createConfig.Project, template.Executable))
+			createConfig.Targets = append(createConfig.Targets, questions.TargetSurvey(createConfig.Project, template.Executable))
 		case dialog.AddLibrary:
-			createConfig.Targets = append(createConfig.Targets, questions.AddTargetSurvey(createConfig.Project, template.Library))
+			createConfig.Targets = append(createConfig.Targets, questions.TargetSurvey(createConfig.Project, template.Library))
 		case dialog.AddInterface:
-			createConfig.Targets = append(createConfig.Targets, questions.AddTargetSurvey(createConfig.Project, template.Interface))
+			createConfig.Targets = append(createConfig.Targets, questions.TargetSurvey(createConfig.Project, template.Interface))
 		case dialog.Save:
 			/* Save all to disk */
 			return nil
@@ -103,14 +103,7 @@ func doCreate(createConfig *types.CreateConfig) error {
 
 	// Process project config
 	if createConfig.Project != nil {
-		// If there are no targets set ""
-		if len(createConfig.Targets) == 0 {
-			createConfig.Project.Targets = "\"\""
-		} else {
-			for _, target := range createConfig.Targets {
-				createConfig.Project.Targets += fmt.Sprintf("\n  %s/%s", getTargetDirSuffix(target.Type), target.Name)
-			}
-		}
+		createConfig.Project.Targets = createConfig.Targets
 
 		// Read and fill template and write to disk
 		var templateFile = filepath.Join(createConfig.PresetDir, config.TemplatesFolder, config.ProjectTemplate)
@@ -148,6 +141,19 @@ func doCreate(createConfig *types.CreateConfig) error {
 			var configTemplateContent = string(fileBytes)
 			var configDestFile = filepath.Join(cmakeWorkingDir, fmt.Sprintf("%s-config.cmake.in", target.Name))
 			assist.WriteToDisk(configDestFile, configTemplateContent)
+		}
+
+		// If need create test
+		if target.CreateTest {
+			var testDestDir = filepath.Join(createConfig.WorkingDirectory, "test", target.Name)
+			// Create test directory
+			if err := createDirIfNotExist(testDestDir); err != nil {
+				return err
+			}
+			var testTemplateFile = filepath.Join(createConfig.PresetDir, config.TemplatesFolder, config.TestTemplate)
+			var testTemplateContent = template.TargetFile(testTemplateFile, target)
+			var testDestFile = filepath.Join(testDestDir, "CMakeLists.txt")
+			assist.WriteToDisk(testDestFile, testTemplateContent)
 		}
 	}
 

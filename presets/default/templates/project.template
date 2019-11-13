@@ -7,7 +7,12 @@ set(_PROJECT_MAJOR_VERSION {{.MajorVersion}})
 set(_PROJECT_MINOR_VERSION {{.MinorVersion}})
 set(_PROJECT_PATCH_VERSION {{.PatchVersion}})
 
-set(SUBPROJECT_LIST        {{.Targets}})
+set(SUBPROJECT_LIST
+    {{range .Targets}}"{{if or (eq .Type "executable") (eq .Type "library")}}src/{{else if eq .Type "interface"}}include/{{end}}{{.Name}}"
+    {{else}}""{{end}})
+set(TEST_LIST
+    {{range .Targets}}{{if .CreateTest}}"test/{{.Name}}"{{end}}
+    {{else}}""{{end}})
 
 # Cmake module path
 set(PROJECT_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
@@ -20,4 +25,12 @@ project(${_PROJECT_NAME} LANGUAGES ${_PROJECT_LANGUAGE} VERSION ${_PROJECT_VERSI
 
 foreach(SUBPROJ ${SUBPROJECT_LIST})
     add_subdirectory(${SUBPROJ})
+endforeach()
+
+enable_testing()
+foreach(TEST ${TEST_LIST})
+    string(REGEX REPLACE "^test\/" "" TEST_NAME ${TEST})
+    if(${${TEST_NAME}_BUILD_TESTS})
+        add_subproject(${TEST})
+    endif()
 endforeach()
