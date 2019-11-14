@@ -16,16 +16,16 @@ func process() {
 	app := gocli.NewApp()
 	app.Name = "cyak"
 	app.Version = config.Version
-	app.Authors = []gocli.Author{
-		gocli.Author{
+	app.Authors = []*gocli.Author{
+		&gocli.Author{
 			Name:  "LazyMechanic",
 			Email: "asharnrus@gmail.com",
 		},
 	}
 	app.Usage = "utility for create cmake project or the only target cmake list file by presets"
 
-	app.Commands = []gocli.Command{
-		commands.Create,
+	app.Commands = []*gocli.Command{
+		&commands.Create,
 	}
 
 	err := app.Run(os.Args)
