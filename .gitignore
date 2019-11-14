@@ -2,3 +2,4 @@ build/
 cyak
 .idea/
 *.exe
+dist/
