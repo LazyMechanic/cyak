@@ -20,10 +20,10 @@ AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
 DefaultDirName={userappdata}\{#MyAppName}
 DefaultGroupName={#MyAppPublisher}
-LicenseFile=D:\gocode\src\github.com\LazyMechanic\cyak\LICENSE
+LicenseFile=..\LICENSE
 ; Uncomment the following line to run in non administrative install mode (install for current user only.)
 ;PrivilegesRequired=lowest
-OutputDir=D:\gocode\src\github.com\LazyMechanic\cyak\install
+OutputDir=.\
 OutputBaseFilename=cyak_setup
 Compression=lzma
 SolidCompression=yes
@@ -34,8 +34,8 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "russian"; MessagesFile: "compiler:Languages\Russian.isl"
 
 [Files]
-Source: "D:\gocode\src\github.com\LazyMechanic\cyak\cyak.exe"; DestDir: "{app}\bin"; Flags: ignoreversion
-Source: "D:\gocode\src\github.com\LazyMechanic\cyak\presets\*"; DestDir: "{%USERPROFILE}\.cyak\presets\"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\cyak.exe"; DestDir: "{app}\bin"; Flags: ignoreversion
+Source: "..\presets\*"; DestDir: "{app}\presets\"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
