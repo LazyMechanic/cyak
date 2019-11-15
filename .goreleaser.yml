@@ -15,6 +15,7 @@ builds:
       - "386"
     env:
       - CGO_ENABLED=0
+    binary: bin/cyak
 
 archives:
   - replacements:
