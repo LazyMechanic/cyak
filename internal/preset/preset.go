@@ -2,14 +2,14 @@ package preset
 
 import (
 	"fmt"
-	"github.com/LazyMechanic/cyak/internal/config"
+	"github.com/LazyMechanic/cyak/internal/cli/flags"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 )
 
 func PresetsNames() []string {
-	presetFiles, err := ioutil.ReadDir(config.PresetsFolder)
+	presetFiles, err := ioutil.ReadDir(flags.PresetFlagValue)
 	if err != nil {
 		panic(err)
 	}
@@ -27,6 +27,6 @@ func PresetsNames() []string {
 }
 
 func Exist(name string) bool {
-	_, err := os.Stat(filepath.Join(config.PresetsFolder, name))
+	_, err := os.Stat(filepath.Join(flags.PresetFlagValue, name))
 	return !os.IsNotExist(err)
 }

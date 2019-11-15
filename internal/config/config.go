@@ -1,23 +1,5 @@
 package config
 
-import (
-	"log"
-	"os"
-	"path/filepath"
-)
-
-func binDir() string {
-	binDir, err := filepath.Abs(filepath.Dir(os.Args[0]))
-	if err != nil {
-		log.Fatal(err)
-	}
-	return binDir
-}
-
-var (
-	PresetsFolder = filepath.Join(binDir(), "../", "presets")
-)
-
 const (
 	ExecutableTemplate   string = "executable.template"
 	InterfaceTemplate    string = "interface.template"

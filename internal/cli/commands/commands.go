@@ -14,6 +14,7 @@ var (
 		ArgsUsage: "<working-directory>",
 		Flags: []gocli.Flag{
 			flags.GitFlag,
+			flags.PresetFlag,
 		},
 		Action: actions.Create,
 	}

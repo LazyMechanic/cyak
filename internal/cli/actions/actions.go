@@ -36,7 +36,7 @@ func toSurvey(createConfig *types.CreateConfig) error {
 	}
 
 	// Set preset
-	createConfig.PresetDir = filepath.Join(config.PresetsFolder, questions.AskPresetName())
+	createConfig.PresetDir = filepath.Join(flags.PresetFlagValue, questions.AskPresetName())
 
 	// While not done
 	for {
