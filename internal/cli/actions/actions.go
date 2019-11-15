@@ -7,6 +7,7 @@ import (
 	"github.com/LazyMechanic/cyak/internal/cli/flags"
 	"github.com/LazyMechanic/cyak/internal/cli/questions"
 	"github.com/LazyMechanic/cyak/internal/config"
+	"github.com/LazyMechanic/cyak/internal/preset"
 	"github.com/LazyMechanic/cyak/internal/template"
 	"github.com/LazyMechanic/cyak/internal/types"
 	gocli "github.com/urfave/cli"
@@ -212,6 +213,10 @@ func Create(context *gocli.Context) error {
 	}
 
 	var err error
+	if err = preset.IsPresetsValid(preset.PresetsNames()); err != nil {
+		return fmt.Errorf("Invalid presets:\n%v", err)
+	}
+
 	var createConfig types.CreateConfig
 
 	// Set working directory
