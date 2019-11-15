@@ -15,7 +15,7 @@ func userDir() string {
 }
 
 var (
-	PresetsFolder = filepath.Join(userDir(), ".cyak", "presets")
+	PresetsFolder = filepath.Join("../", "presets")
 )
 
 const (
