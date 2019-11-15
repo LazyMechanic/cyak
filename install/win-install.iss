@@ -48,7 +48,7 @@ Name: addtopath; Description: "Add bin folder to PATH";
 const EnvironmentKey = 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment';
 var NeedsAddToPath: boolean;
 
-function GetPathFolder(): string;
+function GetBinDir(): string;
 begin
   Result:= ExpandConstant('{app}') + '\bin'
 end;
@@ -84,7 +84,7 @@ begin
   end
     else
   begin
-    Paths := Paths + ';' + GetPathFolder()
+    Paths := Paths + ';' + GetBinDir()
     if RegWriteStringValue(HKEY_LOCAL_MACHINE, EnvironmentKey, 'Path', Paths) then
       begin
         Log('PATH written');
@@ -101,7 +101,7 @@ procedure CurPageChanged(CurPageID: Integer);
 begin
   if CurPageID = wpSelectTasks then
   begin
-    NeedsAddToPath := WizardForm.TasksList.Checked[0] and NeedsAddPath(GetPathFolder())
+    NeedsAddToPath := WizardForm.TasksList.Checked[0] and NeedsAddPath(GetBinDir())
   end;
 end;
 
@@ -110,7 +110,7 @@ begin
   if CurStep = ssPostInstall then
   begin
     if NeedsAddToPath then
-      AddToPath(GetPathFolder())
+      AddToPath(GetBinDir())
   end;
 end;
 
@@ -155,7 +155,7 @@ procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
 begin
   if CurUninstallStep = usUninstall then
   begin
-    RemovePath(GetPathFolder());
+    RemovePath(GetBinDir());
   end;
 end;
 

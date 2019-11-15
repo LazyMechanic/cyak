@@ -13,6 +13,7 @@ func Run() {
 }
 
 func process() {
+	fmt.Println(config.PresetsFolder)
 	app := gocli.NewApp()
 	app.Name = "cyak"
 	app.Version = config.Version

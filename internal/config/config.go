@@ -2,20 +2,20 @@ package config
 
 import (
 	"log"
-	"os/user"
+	"os"
 	"path/filepath"
 )
 
-func userDir() string {
-	usr, err := user.Current()
+func binDir() string {
+	binDir, err := filepath.Abs(filepath.Dir(os.Args[0]))
 	if err != nil {
 		log.Fatal(err)
 	}
-	return usr.HomeDir
+	return binDir
 }
 
 var (
-	PresetsFolder = filepath.Join("../", "presets")
+	PresetsFolder = filepath.Join(binDir(), "../", "presets")
 )
 
 const (
