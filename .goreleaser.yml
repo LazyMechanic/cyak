@@ -38,7 +38,7 @@ archives:
       - README*
       - changelog*
       - CHANGELOG*
-      - presets/**/*
+      - share/**/*
 
 checksum:
   name_template: 'checksums.txt'
