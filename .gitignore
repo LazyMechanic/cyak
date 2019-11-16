@@ -1,5 +1,6 @@
-build/
-cyak
-.idea/
+./build/
+./.idea/
+./dist/
+
+./cyak
 *.exe
-dist/
