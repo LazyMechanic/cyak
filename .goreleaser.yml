@@ -40,6 +40,8 @@ archives:
       - CHANGELOG*
       - share/**/*
 
+    wrap_in_directory: true
+
 checksum:
   name_template: 'checksums.txt'
 
