@@ -4,7 +4,7 @@
     <p align="center">
         <a href="https://github.com/LazyMechanic/cyak/releases/latest"><img alt="Release" src="https://img.shields.io/github/v/release/LazyMechanic/cyak?style=for-the-badge"></a>
         <a href="/LICENSE.md"><img alt="Software License" src="https://img.shields.io/github/license/LazyMechanic/cyak?style=for-the-badge"></a>
-        <a href="https://travis-ci.org/LazyMechanic/cyak"><img alt="Travis" src="https://img.shields.io/travis/com/LazyMechanic/cyak/master?style=for-the-badge"></a>
+        <a href="https://travis-ci.org/LazyMechanic/cyak"><img alt="Travis" src="https://img.shields.io/travis/LazyMechanic/cyak?style=for-the-badge"></a>
     </p>
 </p>
 
