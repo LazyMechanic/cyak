@@ -2,7 +2,6 @@ package flags
 
 import (
 	gocli "github.com/urfave/cli"
-	"log"
 	"os"
 	"path/filepath"
 )
@@ -13,15 +12,16 @@ var (
 )
 
 func binDir() string {
-	binDir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	binDir, err := os.Executable()
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
-	return binDir
+
+	return filepath.Dir(binDir)
 }
 
 func presetDefaultDir() string {
-	abs, err := filepath.Abs(filepath.Join(binDir(), "../", "share", "cyak", "presets"))
+	abs, err := filepath.Abs(filepath.Join(binDir(), "..", "share", "cyak", "presets"))
 	if err != nil {
 		panic(err)
 	}
