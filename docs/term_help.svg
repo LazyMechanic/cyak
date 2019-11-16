@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="terminal" baseProfile="full" viewBox="0 0 767 455" width="767" version="1.1">
+    <defs>
+        <termtosvg:template_settings xmlns:termtosvg="https://github.com/nbedos/termtosvg">
+            <termtosvg:screen_geometry columns="90" rows="22"/>
+            <termtosvg:animation type="css"/>
+        </termtosvg:template_settings>
+        <style type="text/css" id="generated-style"><![CDATA[#screen {
+                font-family: 'DejaVu Sans Mono', monospace;
+                font-style: normal;
+                font-size: 14px;
+            }
+
+        text {
+            dominant-baseline: text-before-edge;
+            white-space: pre;
+        }
+    
+            :root {
+                --animation-duration: 6862ms;
+            }
+
+            @keyframes roll {
+                0.000%{transform:translateY(0px)}
+12.606%{transform:translateY(-408px)}
+14.354%{transform:translateY(-816px)}
+16.074%{transform:translateY(-1224px)}
+18.843%{transform:translateY(-1632px)}
+21.451%{transform:translateY(-2040px)}
+26.246%{transform:translateY(-2448px)}
+28.796%{transform:translateY(-2856px)}
+40.294%{transform:translateY(-3264px)}
+40.353%{transform:translateY(-3672px)}
+40.396%{transform:translateY(-4080px)}
+40.557%{transform:translateY(-4488px)}
+40.600%{transform:translateY(-4896px)}
+85.427%{transform:translateY(-5304px)}
+100.000%{transform:translateY(-5304px)}
+            }
+
+            #screen_view {
+                animation-duration: 6862ms;
+                animation-iteration-count:infinite;
+                animation-name:roll;
+                animation-timing-function: steps(1,end);
+                animation-fill-mode: forwards;
+            }
+        ]]></style>
+        <style type="text/css" id="user-style">
+            /* The colors defined below are the default 16 colors used for rendering text of the terminal. Adjust
+               them as needed.
+               PowerShell colors based on https://en.wikipedia.org/wiki/ANSI_escape_code#Colors */
+            .foreground {fill: #cccccc;}
+            .background {fill: #0c0c0c;}
+            .color0 {fill: #0c0c0c;}
+            .color1 {fill: #c50f1f;}
+            .color2 {fill: #13a10e;}
+            .color3 {fill: #c19c00;}
+            .color4 {fill: #0037da;}
+            .color5 {fill: #881798;}
+            .color6 {fill: #3a96dd;}
+            .color7 {fill: #cccccc;}
+            .color8 {fill: #767676;}
+            .color9 {fill: #e74856;}
+            .color10 {fill: #16c60c;}
+            .color11 {fill: #f9f1a5;}
+            .color12 {fill: #3b78ff;}
+            .color13 {fill: #b4009e;}
+            .color14 {fill: #61d6d6;}
+            .color15 {fill: #f2f2f2;}
+        </style>
+    </defs>
+    <rect id="terminalui" class="background" width="100%" height="100%" ry="4.5826941"/>
+    <circle cx="24" cy="23" r="7" class="color1"/>
+    <circle cx="44" cy="23" r="7" class="color3"/>
+    <circle cx="64" cy="23" r="7" class="color2"/>
+    <svg id="screen" width="720" height="374" x="23" y="50" viewBox="0 0 720 374" preserveAspectRatio="xMidYMin slice"><rect class="background" height="100%" width="100%" x="0" y="0"/><defs><g id="g1"><text x="0" textLength="64" fill="#87ff00">mechanic</text><text x="64" textLength="8" class="color15">@</text><text x="72" textLength="152" fill="#5f87d7">mechanic-VirtualBox</text><text x="224" textLength="8" class="color15">:</text><text x="232" textLength="88" class="color6">[~/example]</text><text x="320" textLength="16" class="color15">$ </text><text x="336" textLength="8" class="background"> </text></g><g id="g2"><text x="0" textLength="64" fill="#87ff00">mechanic</text><text x="64" textLength="8" class="color15">@</text><text x="72" textLength="152" fill="#5f87d7">mechanic-VirtualBox</text><text x="224" textLength="8" class="color15">:</text><text x="232" textLength="88" class="color6">[~/example]</text><text x="320" textLength="16" class="color15">$ </text><text x="336" textLength="8" class="foreground">c</text><text x="344" textLength="8" class="background"> </text></g><g id="g3"><text x="0" textLength="64" fill="#87ff00">mechanic</text><text x="64" textLength="8" class="color15">@</text><text x="72" textLength="152" fill="#5f87d7">mechanic-VirtualBox</text><text x="224" textLength="8" class="color15">:</text><text x="232" textLength="88" class="color6">[~/example]</text><text x="320" textLength="16" class="color15">$ </text><text x="336" textLength="16" class="foreground">cy</text><text x="352" textLength="8" class="background"> </text></g><g id="g4"><text x="0" textLength="64" fill="#87ff00">mechanic</text><text x="64" textLength="8" class="color15">@</text><text x="72" textLength="152" fill="#5f87d7">mechanic-VirtualBox</text><text x="224" textLength="8" class="color15">:</text><text x="232" textLength="88" class="color6">[~/example]</text><text x="320" textLength="16" class="color15">$ </text><text x="336" textLength="24" class="foreground">cya</text><text x="360" textLength="8" class="background"> </text></g><g id="g5"><text x="0" textLength="64" fill="#87ff00">mechanic</text><text x="64" textLength="8" class="color15">@</text><text x="72" textLength="152" fill="#5f87d7">mechanic-VirtualBox</text><text x="224" textLength="8" class="color15">:</text><text x="232" textLength="88" class="color6">[~/example]</text><text x="320" textLength="16" class="color15">$ </text><text x="336" textLength="32" class="foreground">cyak</text><text x="368" textLength="8" class="background"> </text></g><g id="g6"><text x="0" textLength="64" fill="#87ff00">mechanic</text><text x="64" textLength="8" class="color15">@</text><text x="72" textLength="152" fill="#5f87d7">mechanic-VirtualBox</text><text x="224" textLength="8" class="color15">:</text><text x="232" textLength="88" class="color6">[~/example]</text><text x="320" textLength="16" class="color15">$ </text><text x="336" textLength="40" class="foreground">cyak </text><text x="376" textLength="8" class="background"> </text></g><g id="g7"><text x="0" textLength="64" fill="#87ff00">mechanic</text><text x="64" textLength="8" class="color15">@</text><text x="72" textLength="152" fill="#5f87d7">mechanic-VirtualBox</text><text x="224" textLength="8" class="color15">:</text><text x="232" textLength="88" class="color6">[~/example]</text><text x="320" textLength="16" class="color15">$ </text><text x="336" textLength="48" class="foreground">cyak -</text><text x="384" textLength="8" class="background"> </text></g><g id="g8"><text x="0" textLength="64" fill="#87ff00">mechanic</text><text x="64" textLength="8" class="color15">@</text><text x="72" textLength="152" fill="#5f87d7">mechanic-VirtualBox</text><text x="224" textLength="8" class="color15">:</text><text x="232" textLength="88" class="color6">[~/example]</text><text x="320" textLength="16" class="color15">$ </text><text x="336" textLength="56" class="foreground">cyak -h</text><text x="392" textLength="8" class="background"> </text></g><g id="g9"><text x="0" textLength="64" fill="#87ff00">mechanic</text><text x="64" textLength="8" class="color15">@</text><text x="72" textLength="152" fill="#5f87d7">mechanic-VirtualBox</text><text x="224" textLength="8" class="color15">:</text><text x="232" textLength="88" class="color6">[~/example]</text><text x="320" textLength="16" class="color15">$ </text><text x="336" textLength="56" class="foreground">cyak -h</text></g><g id="g10"><text x="0" textLength="8" class="background"> </text></g><g id="g11"><text x="0" textLength="40" class="foreground">NAME:</text><text x="40" textLength="8" class="background"> </text></g><g id="g12"><text x="0" textLength="40" class="foreground">NAME:</text></g><g id="g13"><text x="0" textLength="704" class="foreground">   cyak - utility for create cmake project or the only target cmake list file by presets</text></g><g id="g14"><text x="0" textLength="48" class="foreground">USAGE:</text></g><g id="g15"><text x="0" textLength="520" class="foreground">   cyak [global options] command [command options] [arguments...]</text></g><g id="g16"><text x="0" textLength="64" class="foreground">VERSION:</text></g><g id="g17"><text x="0" textLength="48" class="foreground">   0.1</text></g><g id="g18"><text x="0" textLength="56" class="foreground">AUTHOR:</text></g><g id="g19"><text x="0" textLength="296" class="foreground">   LazyMechanic &lt;asharnrus@gmail.com&gt;</text></g><g id="g20"><text x="0" textLength="72" class="foreground">COMMANDS:</text></g><g id="g21"><text x="0" textLength="256" class="foreground">   create, c  create cmake files</text></g><g id="g22"><text x="0" textLength="496" class="foreground">   help, h    Shows a list of commands or help for one command</text></g><g id="g23"><text x="0" textLength="120" class="foreground">GLOBAL OPTIONS:</text></g><g id="g24"><text x="0" textLength="352" class="foreground">   --help, -h     show help (default: false)</text></g><g id="g25"><text x="0" textLength="416" class="foreground">   --version, -v  print the version (default: false)</text></g><g id="g26"><text x="0" textLength="64" fill="#87ff00">mechanic</text><text x="64" textLength="8" class="color15">@</text><text x="72" textLength="152" fill="#5f87d7">mechanic-VirtualBox</text><text x="224" textLength="8" class="color15">:</text><text x="232" textLength="88" class="color6">[~/example]</text><text x="320" textLength="16" class="color15">$ </text><text x="336" textLength="32" class="foreground">exit</text></g></defs><g id="screen_view"><g><rect x="336" y="0" width="8" height="17" class="foreground"/><use xlink:href="#g1" y="0"/></g><g><rect x="344" y="408" width="8" height="17" class="foreground"/><use xlink:href="#g2" y="408"/></g><g><rect x="352" y="816" width="8" height="17" class="foreground"/><use xlink:href="#g3" y="816"/></g><g><rect x="360" y="1224" width="8" height="17" class="foreground"/><use xlink:href="#g4" y="1224"/></g><g><rect x="368" y="1632" width="8" height="17" class="foreground"/><use xlink:href="#g5" y="1632"/></g><g><rect x="376" y="2040" width="8" height="17" class="foreground"/><use xlink:href="#g6" y="2040"/></g><g><rect x="384" y="2448" width="8" height="17" class="foreground"/><use xlink:href="#g7" y="2448"/></g><g><rect x="392" y="2856" width="8" height="17" class="foreground"/><use xlink:href="#g8" y="2856"/></g><g><use xlink:href="#g9" y="3264"/><rect x="0" y="3281" width="8" height="17" class="foreground"/><use xlink:href="#g10" y="3281"/></g><g><use xlink:href="#g9" y="3672"/><rect x="40" y="3689" width="8" height="17" class="foreground"/><use xlink:href="#g11" y="3689"/></g><g><use xlink:href="#g9" y="4080"/><use xlink:href="#g12" y="4097"/><rect x="0" y="4114" width="8" height="17" class="foreground"/><use xlink:href="#g10" y="4114"/></g><g><use xlink:href="#g9" y="4488"/><use xlink:href="#g12" y="4505"/><use xlink:href="#g13" y="4522"/><use xlink:href="#g14" y="4556"/><use xlink:href="#g15" y="4573"/><use xlink:href="#g16" y="4607"/><use xlink:href="#g17" y="4624"/><use xlink:href="#g18" y="4658"/><use xlink:href="#g19" y="4675"/><use xlink:href="#g20" y="4709"/><use xlink:href="#g21" y="4726"/><use xlink:href="#g22" y="4743"/><use xlink:href="#g23" y="4777"/><use xlink:href="#g24" y="4794"/><use xlink:href="#g25" y="4811"/><rect x="0" y="4828" width="8" height="17" class="foreground"/><use xlink:href="#g10" y="4828"/></g><g><use xlink:href="#g9" y="4896"/><use xlink:href="#g12" y="4913"/><use xlink:href="#g13" y="4930"/><use xlink:href="#g14" y="4964"/><use xlink:href="#g15" y="4981"/><use xlink:href="#g16" y="5015"/><use xlink:href="#g17" y="5032"/><use xlink:href="#g18" y="5066"/><use xlink:href="#g19" y="5083"/><use xlink:href="#g20" y="5117"/><use xlink:href="#g21" y="5134"/><use xlink:href="#g22" y="5151"/><use xlink:href="#g23" y="5185"/><use xlink:href="#g24" y="5202"/><use xlink:href="#g25" y="5219"/><rect x="336" y="5236" width="8" height="17" class="foreground"/><use xlink:href="#g1" y="5236"/></g><g><use xlink:href="#g9" y="5304"/><use xlink:href="#g12" y="5321"/><use xlink:href="#g13" y="5338"/><use xlink:href="#g14" y="5372"/><use xlink:href="#g15" y="5389"/><use xlink:href="#g16" y="5423"/><use xlink:href="#g17" y="5440"/><use xlink:href="#g18" y="5474"/><use xlink:href="#g19" y="5491"/><use xlink:href="#g20" y="5525"/><use xlink:href="#g21" y="5542"/><use xlink:href="#g22" y="5559"/><use xlink:href="#g23" y="5593"/><use xlink:href="#g24" y="5610"/><use xlink:href="#g25" y="5627"/><use xlink:href="#g26" y="5644"/><rect x="0" y="5661" width="8" height="17" class="foreground"/><use xlink:href="#g10" y="5661"/></g></g></svg>
+</svg>
