@@ -1,0 +1,88 @@
+version: '{build}'
+
+environment:
+  matrix:
+    - compiler: gcc-8.1.0-posix
+      generator: "MinGW Makefiles"
+      build_system: cmake
+      cxx_path: 'C:\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\bin'
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+    - compiler: gcc-7.3.0-posix
+      generator: "MinGW Makefiles"
+      build_system: cmake
+      cxx_path: 'C:\mingw-w64\x86_64-7.3.0-posix-seh-rt_v5-rev0\mingw64\bin'
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+    - compiler: msvc-16-seh
+      generator: "Visual Studio 16 2019"
+      build_system: cmake
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+    - compiler: msvc-15-seh
+      generator: "Visual Studio 15 2017"
+      build_system: cmake
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+    - compiler: msvc-14-seh
+      generator: "Visual Studio 14 2015"
+      build_system: cmake
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+
+configuration: Release
+
+build:
+  verbosity: minimal
+
+install:
+  - ps: |
+      Write-Output "Env: $env"
+      Write-Output "Env:Compiler: $env:compiler"
+      Write-Output "Env:Generator: $env:generator"
+      Write-Output "Env:Configuation: $env:configuration"
+
+      # Add C++ and C MinGW compilers in path
+      if ($env:generator -eq "MinGW Makefiles") {
+          if ($env:cxx_path -ne "") {
+              $env:path += ";$env:cxx_path"
+          }
+      }
+
+      ## For example use googletest for testing
+      ## Donwload googletest
+      #
+      # appveyor DownloadFile https://github.com/google/googletest/archive/release-1.10.0.tar.gz -FileName release-1.10.0.tar.gz
+      # tar -xzf release-1.10.0.tar.gz
+      #
+      # $env:gtest = Resolve-Path "./googletest-release-1.10.0"
+      # Write-Output "Env:gtest: $env:gtest"
+
+before_build:
+  - ps: |
+      ## Build googletest
+      #
+      # cd $env:gtest
+      # md build
+      # cd build
+      # 
+      # $env:buildtype = if ($env:generator -eq "MinGW Makefiles") {"-DCMAKE_BUILD_TYPE=$env:configuration"} else {"-DCMAKE_CONFIGURATION_TYPES=Debug;Release"}
+      # $env:noshell = if ($env:generator -eq "MinGW Makefiles") {"-DCMAKE_SH=CMAKE_SH-NOTFOUND"} else { "" }
+      # 
+      # & cmake .. -G "$env:generator" $env:buildtype -Dgtest_force_shared_crt=ON $env:noshell
+      # & cmake --build . --config $env:configuration
+      # & cmake --install . --prefix ../install
+
+build_script:
+  - ps: |
+      # Insert here your build script
+      
+      cd $env:APPVEYOR_BUILD_FOLDER
+
+      md build
+      cd build
+
+      & cmake .. -G "$env:generator" $env:buildtype $env:noshell
+      & cmake --build . --config $env:configuration
+      
+
+test_script:
+  - ps: |
+      # Insert here your test script
+
+      & ctest -C "$env:configuration" --verbose
