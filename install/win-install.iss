@@ -35,7 +35,7 @@ Name: "russian"; MessagesFile: "compiler:Languages\Russian.isl"
 
 [Files]
 Source: "..\cyak.exe"; DestDir: "{app}\bin"; Flags: ignoreversion
-Source: "..\presets\*"; DestDir: "{app}\presets\"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\share\*"; DestDir: "{app}\share\"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]

@@ -20,12 +20,21 @@ func binDir() string {
 	return binDir
 }
 
+func presetDefaultDir() string {
+	abs, err := filepath.Abs(filepath.Join(binDir(), "../", "share", "cyak", "presets"))
+	if err != nil {
+		panic(err)
+	}
+	
+	return abs
+}
+
 var (
 	PresetFlag gocli.Flag = &gocli.StringFlag{
 		Name:        "p, preset",
 		Usage:       "presets folder",
 		Destination: &PresetFlagValue,
-		Value:       filepath.Join(binDir(), "../", "presets"),
+		Value:       presetDefaultDir(),
 	}
 
 	GitFlag gocli.Flag = &gocli.BoolFlag{
