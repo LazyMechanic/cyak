@@ -2,7 +2,6 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "cyak"
-#define MyAppVersion "0.3"
 #define MyAppPublisher "LazyMechanic"
 #define MyAppURL "https://github.com/LazyMechanic/cyak"
 #define MyAppExeName "cyak.exe"
