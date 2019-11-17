@@ -10,6 +10,7 @@ import (
 	"github.com/LazyMechanic/cyak/internal/preset"
 	"github.com/LazyMechanic/cyak/internal/template"
 	"github.com/LazyMechanic/cyak/internal/types"
+	"github.com/disiqueira/gotree"
 	gocli "github.com/urfave/cli"
 	"io/ioutil"
 	"log"
@@ -46,11 +47,26 @@ func toSurvey(createConfig *types.CreateConfig) error {
 		case dialog.ConfigureProject:
 			createConfig.Project = questions.ProjectConfigureSurvey()
 		case dialog.AddExecutable:
-			createConfig.Targets = append(createConfig.Targets, questions.TargetSurvey(createConfig.Project, template.Executable))
+			var target = questions.TargetSurvey(createConfig.Project, template.Executable)
+			if target != nil {
+				createConfig.Targets = append(createConfig.Targets, target)
+			} else {
+				fmt.Println("Target are discard")
+			}
 		case dialog.AddLibrary:
-			createConfig.Targets = append(createConfig.Targets, questions.TargetSurvey(createConfig.Project, template.Library))
+			var target = questions.TargetSurvey(createConfig.Project, template.Library)
+			if target != nil {
+				createConfig.Targets = append(createConfig.Targets, target)
+			} else {
+				fmt.Println("Target are discard")
+			}
 		case dialog.AddInterface:
-			createConfig.Targets = append(createConfig.Targets, questions.TargetSurvey(createConfig.Project, template.Interface))
+			var target = questions.TargetSurvey(createConfig.Project, template.Interface)
+			if target != nil {
+				createConfig.Targets = append(createConfig.Targets, target)
+			} else {
+				fmt.Println("Target are discard")
+			}
 		case dialog.Save:
 			/* Save all to disk */
 			return nil
@@ -165,9 +181,43 @@ func doCreate(createConfig *types.CreateConfig) error {
 		assist.Copy(asIsDir, createConfig.WorkingDirectory)
 	}
 
-	fmt.Println("All done")
+	return showDirTree(createConfig.WorkingDirectory)
+}
 
+func showDirTree(rootDir string) error {
+	tree, err := subDirTree(rootDir)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(tree.Print())
 	return nil
+}
+
+func subDirTree(file string) (gotree.Tree, error) {
+	var root = gotree.New(filepath.Base(file))
+
+	fileStat, err := os.Stat(file)
+	if err != nil {
+		return nil, err
+	}
+
+	if fileStat.Mode().IsDir() {
+		subdirs, err := ioutil.ReadDir(file)
+		if err != nil {
+			return nil, err
+		}
+		for _, subdir := range subdirs {
+			subTree, err := subDirTree(filepath.Join(file, subdir.Name()))
+			if err != nil {
+				return nil, err
+			}
+
+			root.AddTree(subTree)
+		}
+	}
+
+	return root, nil
 }
 
 func createDirIfNotExist(dir string) error {

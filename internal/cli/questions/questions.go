@@ -26,6 +26,8 @@ func ProjectConfigureSurvey() *types.ProjectConfig {
 }
 
 func TargetSurvey(project *types.ProjectConfig, targetType types.TargetType) *types.TargetConfig {
+	var target *types.TargetConfig
+
 	var inherit bool = false
 	if project != nil {
 		inherit = AskInherit()
@@ -33,13 +35,18 @@ func TargetSurvey(project *types.ProjectConfig, targetType types.TargetType) *ty
 
 	switch targetType {
 	case template.Executable:
-		return executableSurvey(project, inherit)
+		target = executableSurvey(project, inherit)
 	case template.Library:
-		return librarySurvey(project, inherit)
+		target = librarySurvey(project, inherit)
 	case template.Interface:
-		return interfaceSurvey(project, inherit)
+		target = interfaceSurvey(project, inherit)
 	default:
 		panic(fmt.Errorf("Invalid target type"))
+	}
+
+	var isCorrect = AskIsConfigCorrect()
+	if isCorrect {
+		return target
 	}
 
 	return nil
@@ -47,9 +54,9 @@ func TargetSurvey(project *types.ProjectConfig, targetType types.TargetType) *ty
 
 func executableSurvey(project *types.ProjectConfig, inherit bool) *types.TargetConfig {
 	var target = &types.TargetConfig{
-		Name: AskName(),
+		Name:       AskName(),
 		CreateTest: AskCreateTest(),
-		Type: template.Executable,
+		Type:       template.Executable,
 	}
 
 	inheritOptions(project, inherit, target)
@@ -59,10 +66,10 @@ func executableSurvey(project *types.ProjectConfig, inherit bool) *types.TargetC
 
 func librarySurvey(project *types.ProjectConfig, inherit bool) *types.TargetConfig {
 	var target = &types.TargetConfig{
-		Name:      AskName(),
-		Namespace: AskNamespace(),
+		Name:       AskName(),
+		Namespace:  AskNamespace(),
 		CreateTest: AskCreateTest(),
-		Type:      template.Library,
+		Type:       template.Library,
 	}
 
 	inheritOptions(project, inherit, target)
@@ -72,10 +79,10 @@ func librarySurvey(project *types.ProjectConfig, inherit bool) *types.TargetConf
 
 func interfaceSurvey(project *types.ProjectConfig, inherit bool) *types.TargetConfig {
 	var target = &types.TargetConfig{
-		Name:      AskName(),
-		Namespace: AskNamespace(),
+		Name:       AskName(),
+		Namespace:  AskNamespace(),
 		CreateTest: AskCreateTest(),
-		Type:      template.Interface,
+		Type:       template.Interface,
 	}
 
 	inheritOptions(project, inherit, target)
@@ -107,11 +114,11 @@ func inheritOptions(project *types.ProjectConfig, inherit bool, target *types.Ta
 	}
 }
 
-func AskInherit() bool {
+func confirm(msg string, defaultValue bool) bool {
 	var answer bool
 	var prompt = &survey.Confirm{
-		Message: "Inherit project options:",
-		Default: true,
+		Message: msg,
+		Default: defaultValue,
 	}
 
 	err := survey.AskOne(prompt, &answer)
@@ -119,90 +126,75 @@ func AskInherit() bool {
 		panic(err)
 	}
 	return answer
+}
+
+func selectOptions(msg string, defaultValue string, options []string) string {
+	var answer string
+	var prompt = &survey.Select{
+		Message: msg,
+		Options: options,
+		Default: defaultValue,
+	}
+
+	err := survey.AskOne(prompt, &answer)
+	if err != nil {
+		panic(err)
+	}
+	return answer
+}
+
+func input(msg string, defaultValue string, opts ...survey.AskOpt) string {
+	var answer string
+	var prompt = &survey.Input{
+		Message: msg,
+		Default: defaultValue,
+	}
+
+	err := survey.AskOne(prompt, &answer, opts...)
+	if err != nil {
+		panic(err)
+	}
+
+	return answer
+}
+
+func AskIsConfigCorrect() bool {
+	return confirm("Is config correct:", true)
+}
+
+func AskInherit() bool {
+	return confirm("Inherit project options:", true)
 }
 
 func AskPresetName() string {
 	var presets = preset.PresetsNames()
-
-	var answer string
-	var prompt = &survey.Select{
-		Message: "Pick a preset:",
-		Options: presets,
-	}
-
-	err := survey.AskOne(prompt, &answer)
-	if err != nil {
-		panic(err)
-	}
-	return answer
+	return selectOptions("Pick a preset:", presets[0], presets)
 }
 
 func AskTask() types.Task {
-	var answer string
-	var prompt = &survey.Select{
-		Message: "What to do:",
-		Options: []string{
-			string(dialog.ConfigureProject),
-			string(dialog.AddExecutable),
-			string(dialog.AddLibrary),
-			string(dialog.AddInterface),
-			string(dialog.Save),
-			string(dialog.Cancel),
-		},
-	}
-
-	err := survey.AskOne(prompt, &answer)
-	if err != nil {
-		panic(err)
-	}
-
-	return types.Task(answer)
+	return types.Task(selectOptions("What to do:", string(dialog.ConfigureProject), []string{
+		string(dialog.ConfigureProject),
+		string(dialog.AddExecutable),
+		string(dialog.AddLibrary),
+		string(dialog.AddInterface),
+		string(dialog.Save),
+		string(dialog.Cancel),
+	}))
 }
 
 func AskLanguage() types.LanguageType {
-	var answer string
-	var prompt = &survey.Select{
-		Message: "Pick project language:",
-		Options: []string{
-			string(types.Cxx),
-			string(types.C),
-		},
-	}
-
-	err := survey.AskOne(prompt, &answer)
-	if err != nil {
-		panic(err)
-	}
-
-	return types.LanguageType(answer)
+	return types.LanguageType(selectOptions("Pick project language:", string(types.Cxx), []string{
+		string(types.Cxx),
+		string(types.C),
+	}))
 }
 
 func AskName() string {
-	var answer string
-	var prompt = &survey.Input{
-		Message: "Enter name:",
-	}
-
-	err := survey.AskOne(prompt, &answer, survey.WithValidator(survey.Required))
-	if err != nil {
-		panic(err)
-	}
-
-	return answer
+	return input("Enter name:", "", survey.WithValidator(survey.Required))
 }
 
 func AskNamespace() string {
-	var answer string
-	var prompt = &survey.Input{
-		Message: "Enter namespace:",
-	}
-
-	err := survey.AskOne(prompt, &answer, survey.WithValidator(survey.Required))
-	if err != nil {
-		panic(err)
-	}
-
-	return answer
+	return input("Enter namespace:", "", survey.WithValidator(survey.Required))
 }
 
 func integerValidator(val interface{}) error {
@@ -236,17 +228,7 @@ func cxxStandardValidator(val interface{}) error {
 }
 
 func AskCxxStandard() int {
-	var answer string
-	var prompt = &survey.Input{
-		Message: "Enter C++ standard:",
-		Default: "17",
-	}
-
-	err := survey.AskOne(prompt, &answer, survey.WithValidator(cxxStandardValidator))
-	if err != nil {
-		panic(err)
-	}
-
+	var answer = input("Enter C++ standard:", "17", survey.WithValidator(cxxStandardValidator))
 	answerInt, err := strconv.Atoi(answer)
 	if err != nil {
 		panic(err)
@@ -256,55 +238,22 @@ func AskCxxStandard() int {
 }
 
 func AskCxxExtensions() types.OnOffType {
-	var answer string
-	var prompt = &survey.Select{
-		Message: "Turn on C++ extensions:",
-		Options: []string{
-			string(types.On),
-			string(types.Off),
-		},
-		Default: string(types.Off),
-	}
-
-	err := survey.AskOne(prompt, &answer)
-	if err != nil {
-		panic(err)
-	}
-
-	return types.OnOffType(answer)
+	return types.OnOffType(selectOptions("Turn on C++ extensions:", string(types.Off), []string{
+		string(types.On),
+		string(types.Off),
+	}))
 }
 
 func AskCxxStandardRequired() types.YesNoType {
-	var answer string
-	var prompt = &survey.Select{
-		Message: "Required C++ standard:",
-		Options: []string{
-			string(types.Yes),
-			string(types.No),
-		},
-		Default: string(types.Yes),
-	}
 
-	err := survey.AskOne(prompt, &answer)
-	if err != nil {
-		panic(err)
-	}
-
-	return types.YesNoType(answer)
+	return types.YesNoType(selectOptions("Required C++ standard:", string(types.Yes), []string{
+		string(types.Yes),
+		string(types.No),
+	}))
 }
 
 func AskMajorVersion() types.Version {
-	var answer string
-	var prompt = &survey.Input{
-		Message: "Enter major version:",
-		Default: "0",
-	}
-
-	err := survey.AskOne(prompt, &answer, survey.WithValidator(integerValidator))
-	if err != nil {
-		panic(err)
-	}
-
+	var answer = input("Enter major version:", "0", survey.WithValidator(integerValidator))
 	answerInt, err := strconv.Atoi(answer)
 	if err != nil {
 		panic(err)
@@ -314,17 +263,7 @@ func AskMajorVersion() types.Version {
 }
 
 func AskMinorVersion() types.Version {
-	var answer string
-	var prompt = &survey.Input{
-		Message: "Enter minor version:",
-		Default: "0",
-	}
-
-	err := survey.AskOne(prompt, &answer, survey.WithValidator(integerValidator))
-	if err != nil {
-		panic(err)
-	}
-
+	var answer = input("Enter minor version:", "0", survey.WithValidator(integerValidator))
 	answerInt, err := strconv.Atoi(answer)
 	if err != nil {
 		panic(err)
@@ -334,17 +273,7 @@ func AskMinorVersion() types.Version {
 }
 
 func AskPatchVersion() types.Version {
-	var answer string
-	var prompt = &survey.Input{
-		Message: "Enter patch version:",
-		Default: "0",
-	}
-
-	err := survey.AskOne(prompt, &answer, survey.WithValidator(integerValidator))
-	if err != nil {
-		panic(err)
-	}
-
+	var answer = input("Enter patch version:", "0", survey.WithValidator(integerValidator))
 	answerInt, err := strconv.Atoi(answer)
 	if err != nil {
 		panic(err)
@@ -354,49 +283,17 @@ func AskPatchVersion() types.Version {
 }
 
 func AskCreateTest() bool {
-	var answer bool
-	var prompt = &survey.Confirm{
-		Message: "Create test target:",
-		Default: true,
-	}
-
-	err := survey.AskOne(prompt, &answer)
-	if err != nil {
-		panic(err)
-	}
-
-	return answer
+	return confirm("Create test target:", true)
 }
 
 func AskDirectoryAlreadyExists(dir string) types.Task {
-	var answer string
-	var prompt = &survey.Select{
-		Message: fmt.Sprintf("Project direcrory %s already exists. Pick an action:", dir),
-		Options: []string{
-			string(dialog.Overwrite),
-			string(dialog.Merge),
-			string(dialog.Cancel),
-		},
-	}
-
-	err := survey.AskOne(prompt, &answer)
-	if err != nil {
-		panic(err)
-	}
-
-	return types.Task(answer)
+	return types.Task(selectOptions(fmt.Sprintf("Project direcrory %s already exists. Pick an action:", dir), string(dialog.Overwrite), []string{
+		string(dialog.Overwrite),
+		string(dialog.Merge),
+		string(dialog.Cancel),
+	}))
 }
 
 func AskAreYouSure() bool {
-	var answer bool
-	var prompt = &survey.Confirm{
-		Message: "Are you sure:",
-	}
-
-	err := survey.AskOne(prompt, &answer)
-	if err != nil {
-		panic(err)
-	}
-
-	return answer
+	return confirm("Are you sure:", true)
 }
