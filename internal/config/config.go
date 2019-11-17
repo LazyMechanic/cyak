@@ -9,5 +9,5 @@ const (
 	TestTemplate         string = "test.template"
 	TemplatesFolder      string = "templates"
 	AsIsFolder           string = "asis"
-	Version                     = "0.1"
+	Version                     = "0.4"
 )
