@@ -22,7 +22,12 @@ func ProjectConfigureSurvey() *types.ProjectConfig {
 		PatchVersion:        AskPatchVersion(),
 	}
 
-	return project
+	var isCorrect = AskIsInformationCorrect()
+	if isCorrect {
+		return project
+	}
+
+	return nil
 }
 
 func TargetSurvey(project *types.ProjectConfig, targetType types.TargetType) *types.TargetConfig {
@@ -44,7 +49,7 @@ func TargetSurvey(project *types.ProjectConfig, targetType types.TargetType) *ty
 		panic(fmt.Errorf("Invalid target type"))
 	}
 
-	var isCorrect = AskIsConfigCorrect()
+	var isCorrect = AskIsInformationCorrect()
 	if isCorrect {
 		return target
 	}
@@ -158,8 +163,8 @@ func input(msg string, defaultValue string, opts ...survey.AskOpt) string {
 	return answer
 }
 
-func AskIsConfigCorrect() bool {
-	return confirm("Is config correct:", true)
+func AskIsInformationCorrect() bool {
+	return confirm("Is information correct:", true)
 }
 
 func AskInherit() bool {
