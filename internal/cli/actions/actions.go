@@ -42,8 +42,8 @@ func toSurvey(createConfig *types.CreateConfig) error {
 
 	// While not done
 	for {
-		whatCreate := questions.AskTask()
-		switch whatCreate {
+		whatToDo := questions.AskTask(createConfig)
+		switch whatToDo {
 		case dialog.ConfigureProject:
 			createConfig.Project = questions.ProjectConfigureSurvey()
 		case dialog.AddExecutable:
@@ -67,6 +67,8 @@ func toSurvey(createConfig *types.CreateConfig) error {
 			} else {
 				fmt.Println("Target are discard")
 			}
+		case types.Task(fmt.Sprintf("%s [%v]", dialog.CopyAsIs, createConfig.CopyAsIs)):
+			createConfig.CopyAsIs = !createConfig.CopyAsIs
 		case dialog.Save:
 			/* Save all to disk */
 			return nil
@@ -153,7 +155,7 @@ func doCreate(createConfig *types.CreateConfig) error {
 			// Read config template file
 			fileBytes, err := ioutil.ReadFile(configTemplateFile)
 			if err != nil {
-				panic(err)
+				return err
 			}
 			var configTemplateContent = string(fileBytes)
 			var configDestFile = filepath.Join(cmakeWorkingDir, fmt.Sprintf("%s-config.cmake.in", target.Name))
@@ -174,11 +176,13 @@ func doCreate(createConfig *types.CreateConfig) error {
 		}
 	}
 
-	// Process as is directory
-	var asIsDir = filepath.Join(createConfig.PresetDir, config.AsIsFolder)
-	if _, err := os.Stat(asIsDir); !os.IsNotExist(err) {
-		// Copy all files and folders in asis directory to working directory
-		assist.Copy(asIsDir, createConfig.WorkingDirectory)
+	if createConfig.CopyAsIs {
+		// Process as is directory
+		var asIsDir = filepath.Join(createConfig.PresetDir, config.AsIsFolder)
+		if _, err := os.Stat(asIsDir); !os.IsNotExist(err) {
+			// Copy all files and folders in asis directory to working directory
+			assist.Copy(asIsDir, createConfig.WorkingDirectory)
+		}
 	}
 
 	return showDirTree(createConfig.WorkingDirectory)
@@ -271,6 +275,7 @@ func Create(context *gocli.Context) error {
 
 	// Set working directory
 	createConfig.WorkingDirectory = context.Args().Get(0)
+	createConfig.CopyAsIs = true
 
 	err = toSurvey(&createConfig)
 	if err != nil {

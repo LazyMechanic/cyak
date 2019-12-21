@@ -26,6 +26,7 @@ type CreateConfig struct {
 	WorkingDirectory string
 	PresetDir        string
 	CleanDirectory   bool
+	CopyAsIs         bool
 	Project          *ProjectConfig
 	Targets          []*TargetConfig
 }

@@ -176,12 +176,13 @@ func AskPresetName() string {
 	return selectOptions("Pick a preset:", presets[0], presets)
 }
 
-func AskTask() types.Task {
+func AskTask(config *types.CreateConfig) types.Task {
 	return types.Task(selectOptions("What to do:", string(dialog.ConfigureProject), []string{
 		string(dialog.ConfigureProject),
 		string(dialog.AddExecutable),
 		string(dialog.AddLibrary),
 		string(dialog.AddInterface),
+		fmt.Sprintf("%s [%v]", dialog.CopyAsIs, config.CopyAsIs),
 		string(dialog.Save),
 		string(dialog.Cancel),
 	}))
@@ -285,6 +286,10 @@ func AskPatchVersion() types.Version {
 	}
 
 	return types.Version(answerInt)
+}
+
+func AskCopyAsIs() bool {
+	return confirm("Copy \"asis\" directory", true)
 }
 
 func AskCreateTest() bool {
