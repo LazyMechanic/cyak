@@ -1,12 +1,14 @@
 package actions
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/LazyMechanic/cyak/internal/cli/assist"
 	"github.com/LazyMechanic/cyak/internal/cli/dialog"
 	"github.com/LazyMechanic/cyak/internal/cli/flags"
 	"github.com/LazyMechanic/cyak/internal/cli/questions"
 	"github.com/LazyMechanic/cyak/internal/config"
+	"github.com/LazyMechanic/cyak/internal/licenses"
 	"github.com/LazyMechanic/cyak/internal/preset"
 	"github.com/LazyMechanic/cyak/internal/template"
 	"github.com/LazyMechanic/cyak/internal/types"
@@ -17,6 +19,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	texttemplate "text/template"
 )
 
 func toSurvey(createConfig *types.CreateConfig) error {
@@ -69,6 +72,58 @@ func toSurvey(createConfig *types.CreateConfig) error {
 			}
 		case types.Task(fmt.Sprintf("%s [%v]", dialog.CopyAsIs, createConfig.CopyAsIs)):
 			createConfig.CopyAsIs = !createConfig.CopyAsIs
+		case dialog.AddLicense:
+			var licenseConfig types.LicenseConfig
+			var licenseName = questions.AskChooseTheLicense()
+
+			switch licenseName {
+			case "GNU GPLv2", "GNU GPLv3":
+				/* do nothing */
+			case "MIT", "ISC", "Apache license 2.0":
+				licenseConfig = types.LicenseConfig{
+					Owner: questions.AskLicenseOwner(),
+					Year:  questions.AskLicenseYear(),
+				}
+			case "None":
+				createConfig.LicenseText = ""
+				fmt.Println("License are discard")
+				/* Go to next question (next loop cycle) */
+				continue
+			default:
+				return fmt.Errorf("Invalid license name")
+			}
+
+			var sure = questions.AskAreYouSure()
+			if sure {
+				switch licenseName {
+				case "MIT":
+					createConfig.LicenseText = licenses.MIT
+				case "ISC":
+					createConfig.LicenseText = licenses.ISC
+				case "GNU GPLv2":
+					createConfig.LicenseText = licenses.GPLv2
+				case "GNU GPLv3":
+					createConfig.LicenseText = licenses.GPLv3
+				case "Apache license 2.0":
+					createConfig.LicenseText = licenses.Apache2
+				default:
+					return fmt.Errorf("Invalid license name")
+				}
+
+				// Complete license text with owner name and year date
+				var tmpl = texttemplate.Must(texttemplate.New("license").Parse(createConfig.LicenseText))
+
+				var tmplBuffer bytes.Buffer
+				var err = tmpl.Execute(&tmplBuffer, licenseConfig)
+				if err != nil {
+					panic(err)
+				}
+
+				createConfig.LicenseText = tmplBuffer.String()
+			} else {
+				fmt.Println("License change are discard")
+			}
+
 		case dialog.Save:
 			/* Save all to disk */
 			return nil
@@ -174,6 +229,11 @@ func doCreate(createConfig *types.CreateConfig) error {
 			var testDestFile = filepath.Join(testDestDir, "CMakeLists.txt")
 			assist.WriteToDisk(testDestFile, testTemplateContent)
 		}
+	}
+
+	if createConfig.LicenseText != "" {
+		var destFile = filepath.Join(createConfig.WorkingDirectory, "LICENSE")
+		assist.WriteToDisk(destFile, createConfig.LicenseText)
 	}
 
 	if createConfig.CopyAsIs {

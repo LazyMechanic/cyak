@@ -7,7 +7,9 @@ import (
 	"github.com/LazyMechanic/cyak/internal/preset"
 	"github.com/LazyMechanic/cyak/internal/template"
 	"github.com/LazyMechanic/cyak/internal/types"
+	"github.com/LazyMechanic/cyak/internal/licenses"
 	"strconv"
+	"time"
 )
 
 func ProjectConfigureSurvey() *types.ProjectConfig {
@@ -183,6 +185,7 @@ func AskTask(config *types.CreateConfig) types.Task {
 		string(dialog.AddLibrary),
 		string(dialog.AddInterface),
 		fmt.Sprintf("%s [%v]", dialog.CopyAsIs, config.CopyAsIs),
+		string(dialog.AddLicense),
 		string(dialog.Save),
 		string(dialog.Cancel),
 	}))
@@ -288,8 +291,22 @@ func AskPatchVersion() types.Version {
 	return types.Version(answerInt)
 }
 
-func AskCopyAsIs() bool {
-	return confirm("Copy \"asis\" directory", true)
+func AskChooseTheLicense() string {
+	return selectOptions("ChooseTheLicense:", licenses.List[0], licenses.List)
+}
+
+func AskLicenseOwner() string {
+	return input("Enter owner name:", "", survey.WithValidator(survey.Required))
+}
+
+func AskLicenseYear() int {
+	var answer = input("Enter year:", fmt.Sprint(time.Now().Year()), survey.WithValidator(integerValidator))
+	answerInt, err := strconv.Atoi(answer)
+	if err != nil {
+		panic(err)
+	}
+
+	return answerInt
 }
 
 func AskCreateTest() bool {

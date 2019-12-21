@@ -27,6 +27,7 @@ type CreateConfig struct {
 	PresetDir        string
 	CleanDirectory   bool
 	CopyAsIs         bool
+	LicenseText      string
 	Project          *ProjectConfig
 	Targets          []*TargetConfig
 }
@@ -54,4 +55,9 @@ type ProjectConfig struct {
 	MinorVersion        Version
 	PatchVersion        Version
 	Targets             []*TargetConfig
+}
+
+type LicenseConfig struct {
+	Owner string
+	Year  int
 }
