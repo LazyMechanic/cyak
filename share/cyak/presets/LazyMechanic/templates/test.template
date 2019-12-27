@@ -20,6 +20,20 @@ set(${SUBPROJ_NAME}_SOURCES
 # .............................................
 
 # ############################################################### #
+# Pre-build commands ############################################ #
+# ############################################################### #
+
+# Insert here pre-build commands:
+# .............................................
+
+# ############################################################### #
+# After-build commands ########################################## #
+# ############################################################### #
+
+# Insert here after-build commands:
+# .............................................
+
+# ############################################################### #
 # Set all target sources ######################################## #
 # ############################################################### #
 
@@ -57,9 +71,37 @@ target_include_directories(
     PRIVATE   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 
+# ############################################################### #
+# Link libraries ################################################ #
+# ############################################################### #
+
+# Insert here linking libraries:
+# For example:
+### find_package(GTest CONFIG REQUIRED)
+### target_link_libraries(
+###     ${SUBPROJ_NAME}
+###     ${TESTABLE_TARGET}
+###     GTest::gtest
+###     GTest::gtest_main)
+# .............................................
+
 target_link_libraries(
     ${SUBPROJ_NAME}
     ${TESTABLE_TARGET})
+
+# ############################################################### #
+# Link libraries ################################################ #
+# ############################################################### #
+
+# Insert here linking libraries:
+# For example:
+find_package(GTest CONFIG REQUIRED)
+target_link_libraries(
+    ${SUBPROJ_NAME}
+    ${TESTABLE_TARGET}
+    GTest::gtest
+    GTest::gtest_main)
+# .............................................
 
 add_test(
     NAME All${TESTABLE_TARGET}Tests

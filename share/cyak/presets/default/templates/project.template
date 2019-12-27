@@ -23,9 +23,27 @@ set(_PROJECT_VERSION
 
 project(${_PROJECT_NAME} LANGUAGES ${_PROJECT_LANGUAGE} VERSION ${_PROJECT_VERSION})
 
+# ############################################################### #
+# Find global libraries ######################################### #
+# ############################################################### #
+
+# Insert here finding libraries if they use in several subdirectories:
+# For example:
+### find_package(SFML 2.5 COMPONENTS system graphics REQUIRED)
+### find_package(Boost CONFIG COMPONENTS random REQUIRED)
+# .............................................
+
+# ############################################################### #
+# Add subdirectories ############################################ #
+# ############################################################### #
+
 foreach(SUBPROJ ${SUBPROJECT_LIST})
     add_subdirectory(${SUBPROJ})
 endforeach()
+
+# ############################################################### #
+# Add test subdirectories ####################################### #
+# ############################################################### #
 
 enable_testing()
 foreach(TEST ${TEST_LIST})
