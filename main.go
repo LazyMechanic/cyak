@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/LazyMechanic/cyak/internal/cli"
+	"github.com/LazyMechanic/cyak/cli"
 )
 
 func main() {

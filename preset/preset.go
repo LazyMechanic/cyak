@@ -2,7 +2,7 @@ package preset
 
 import (
 	"fmt"
-	"github.com/LazyMechanic/cyak/internal/cli/flags"
+	"github.com/LazyMechanic/cyak/cli/flags"
 	"io/ioutil"
 	"os"
 	"path/filepath"

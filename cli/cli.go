@@ -2,8 +2,8 @@ package cli
 
 import (
 	"fmt"
-	"github.com/LazyMechanic/cyak/internal/cli/commands"
-	"github.com/LazyMechanic/cyak/internal/config"
+	"github.com/LazyMechanic/cyak/cli/commands"
+	"github.com/LazyMechanic/cyak/config"
 	gocli "github.com/urfave/cli"
 	"os"
 )

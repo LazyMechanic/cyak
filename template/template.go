@@ -3,8 +3,8 @@ package template
 import (
 	"bytes"
 	"fmt"
-	"github.com/LazyMechanic/cyak/internal/config"
-	"github.com/LazyMechanic/cyak/internal/types"
+	"github.com/LazyMechanic/cyak/config"
+	"github.com/LazyMechanic/cyak/types"
 	"io/ioutil"
 	"text/template"
 )

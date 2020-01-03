@@ -1,6 +1,6 @@
 package dialog
 
-import "github.com/LazyMechanic/cyak/internal/types"
+import "github.com/LazyMechanic/cyak/types"
 
 const (
 	ConfigureProject types.Task = "Configure project"

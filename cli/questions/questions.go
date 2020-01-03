@@ -3,11 +3,11 @@ package questions
 import (
 	"fmt"
 	"github.com/AlecAivazis/survey"
-	"github.com/LazyMechanic/cyak/internal/cli/dialog"
-	"github.com/LazyMechanic/cyak/internal/preset"
-	"github.com/LazyMechanic/cyak/internal/template"
-	"github.com/LazyMechanic/cyak/internal/types"
-	"github.com/LazyMechanic/cyak/internal/licenses"
+	"github.com/LazyMechanic/cyak/cli/dialog"
+	"github.com/LazyMechanic/cyak/preset"
+	"github.com/LazyMechanic/cyak/template"
+	"github.com/LazyMechanic/cyak/types"
+	"github.com/LazyMechanic/cyak/licenses"
 	"strconv"
 	"time"
 )

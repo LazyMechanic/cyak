@@ -1,8 +1,8 @@
 package commands
 
 import (
-	"github.com/LazyMechanic/cyak/internal/cli/actions"
-	"github.com/LazyMechanic/cyak/internal/cli/flags"
+	"github.com/LazyMechanic/cyak/cli/actions"
+	"github.com/LazyMechanic/cyak/cli/flags"
 	gocli "github.com/urfave/cli"
 )
 
