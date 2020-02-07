@@ -25,7 +25,7 @@ func main() {
 		Authors: []*cli.Author{
 			&cli.Author{
 				Name:  "LazyMechanic",
-				Email: "AsharnRus.work@gmail.com",
+				Email: "asharnrus.work@gmail.com",
 			},
 		},
 		UseShortOptionHandling: true,
