@@ -8,8 +8,9 @@ var (
 		Aliases:                []string{"c"},
 		Usage:                  "Create new cmake project",
 		ArgsUsage:              "[project_folder]",
-		Action:                 nil,
-		Before:                 nil,
+		Before:                 createBefore,
+		Action:                 createAction,
+		After:                  createAfter,
 		Flags:                  nil,
 		SkipFlagParsing:        false,
 		HideHelp:               false,
@@ -17,3 +18,15 @@ var (
 		UseShortOptionHandling: true,
 	}
 )
+
+func createBefore(c *cli.Context) error {
+	return nil
+}
+
+func createAction(c *cli.Context) error {
+	return nil
+}
+
+func createAfter(c *cli.Context) error {
+	return nil
+}
