@@ -26,23 +26,22 @@ generate_basic_options_executable(${SUBPROJ_NAME})
 # .............................................
 
 # ############################################################### #
-# Set all target sources ######################################## #
+# Pre-build commands ############################################ #
 # ############################################################### #
 
-# Include file with all source and header files
-include(${SUBPROJ_NAME}Files)
+# Insert here pre-build commands:
+# .............................................
 
-set(
-    ${SUBPROJ_NAME}_HEADERS
-    ${HEADERS})
+# ############################################################### #
+# After-build commands ########################################## #
+# ############################################################### #
 
-set(
-    ${SUBPROJ_NAME}_SOURCES
-    ${SOURCES})
+# Insert here after-build commands:
+# .............................................
 
-# Unset temp variable
-unset(HEADERS)
-unset(SOURCES)
+# ############################################################### #
+# Set all target sources ######################################## #
+# ############################################################### #
 
 set(
     ${SUBPROJ_NAME}_ALL_SRCS
@@ -82,6 +81,19 @@ target_include_directories(
     ${SUBPROJ_NAME}
     PRIVATE   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
+
+# ############################################################### #
+# Link libraries ################################################ #
+# ############################################################### #
+
+# Insert here linking libraries:
+# For example:
+### find_package(SFML 2.5 COMPONENTS system graphics REQUIRED)
+### target_link_libraries(
+###     ${SUBPROJ_NAME}
+###     sfml-system
+###     sfml-graphics)
+# .............................................
     
 # ############################################################### #
 # Installing #################################################### #
