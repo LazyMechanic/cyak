@@ -21,7 +21,7 @@ func mkdirIfNotExist(path string, joins ...string) error {
 		finalPath = filepath.Join(finalPath, joins[i])
 	}
 
-	if _, err := os.Stat(finalPath); os.IsNotExist(err) {
+	if !isDirExist(finalPath) {
 		return os.MkdirAll(finalPath, os.ModePerm)
 	}
 	return nil
