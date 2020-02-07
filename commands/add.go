@@ -6,7 +6,7 @@ type Add struct {
 	command *cli.Command
 }
 
-func NewAddCommand() Command {
+func NewAddCommand() *Add {
 	add := &Add{
 		command: &cli.Command{
 			Name:                   "add",
