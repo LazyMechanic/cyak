@@ -14,8 +14,8 @@ func main() {
 		Usage:   "Utility for creating an cmake entire project or cmake  targets in existed project",
 		Version: "v0.7",
 		Commands: []*cli.Command{
-			commands.Create,
-			commands.Add,
+			commands.NewCreateCommand().CliCommand(),
+			commands.NewAddCommand().CliCommand(),
 		},
 		Flags:                nil,
 		EnableBashCompletion: true,
