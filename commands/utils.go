@@ -5,6 +5,16 @@ import (
 	"path/filepath"
 )
 
+type cancelError struct {}
+
+func newCancelError() *cancelError {
+	return &cancelError{}
+}
+
+func (c *cancelError) Error() string {
+	return "canceled"
+}
+
 func isDirExist(path string, joins ...string) bool {
 	finalPath := path
 	for i, _ := range joins {
