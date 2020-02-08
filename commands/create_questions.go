@@ -1,6 +1,9 @@
 package commands
 
-import "github.com/AlecAivazis/survey/v2"
+import (
+	"errors"
+	"github.com/AlecAivazis/survey/v2"
+)
 
 func newExecInheritedQuestions() []*survey.Question {
 	return []*survey.Question{
@@ -37,24 +40,24 @@ func newExecInheritedQuestions() []*survey.Question {
 		{
 			Name: "major",
 			Prompt: &survey.Input{
-				Message:       "Enter major version:",
-				Default:       "0",
+				Message: "Enter major version:",
+				Default: "0",
 			},
 			Validate: isInt,
 		},
 		{
-			Name:     "minor",
+			Name: "minor",
 			Prompt: &survey.Input{
-				Message:       "Enter minor version:",
-				Default:       "1",
+				Message: "Enter minor version:",
+				Default: "1",
 			},
 			Validate: isInt,
 		},
 		{
-			Name:     "patch",
+			Name: "patch",
 			Prompt: &survey.Input{
-				Message:       "Enter patch version:",
-				Default:       "0",
+				Message: "Enter patch version:",
+				Default: "0",
 			},
 			Validate: isInt,
 		},
@@ -115,24 +118,24 @@ func newLibInheritedQuestions() []*survey.Question {
 		{
 			Name: "major",
 			Prompt: &survey.Input{
-				Message:       "Enter major version:",
-				Default:       "0",
+				Message: "Enter major version:",
+				Default: "0",
 			},
 			Validate: isInt,
 		},
 		{
-			Name:     "minor",
+			Name: "minor",
 			Prompt: &survey.Input{
-				Message:       "Enter minor version:",
-				Default:       "1",
+				Message: "Enter minor version:",
+				Default: "1",
 			},
 			Validate: isInt,
 		},
 		{
-			Name:     "patch",
+			Name: "patch",
 			Prompt: &survey.Input{
-				Message:       "Enter patch version:",
-				Default:       "0",
+				Message: "Enter patch version:",
+				Default: "0",
 			},
 			Validate: isInt,
 		},
@@ -193,24 +196,24 @@ func newIntInheritedQuestions() []*survey.Question {
 		{
 			Name: "major",
 			Prompt: &survey.Input{
-				Message:       "Enter major version:",
-				Default:       "0",
+				Message: "Enter major version:",
+				Default: "0",
 			},
 			Validate: isInt,
 		},
 		{
-			Name:     "minor",
+			Name: "minor",
 			Prompt: &survey.Input{
-				Message:       "Enter minor version:",
-				Default:       "1",
+				Message: "Enter minor version:",
+				Default: "1",
 			},
 			Validate: isInt,
 		},
 		{
-			Name:     "patch",
+			Name: "patch",
 			Prompt: &survey.Input{
-				Message:       "Enter patch version:",
-				Default:       "0",
+				Message: "Enter patch version:",
+				Default: "0",
 			},
 			Validate: isInt,
 		},
@@ -229,19 +232,104 @@ func newIntNonInheritedQuestions() []*survey.Question {
 	}
 }
 
-func (c *Create) qProjectDirAlreadyExist() (string, error) {
-	var answer string
-	prompt := &survey.Select{
-		Message:       "Project directory already exist:",
-		Options:       []string{
-			"Merge",
-			"Overwrite",
-			"Cancel",
-		},
-		Default:       "Merge",
-		Help:          "Merge - append files and overwrite if conflict\nOverwrite - clear directory and create project\nCancel - exit",
+func qSelect(actions []*action, def *action, msg string, help string) error {
+	var options []string
+	for i, _ := range actions {
+		options = append(options, actions[i].Option)
 	}
 
+	prompt := &survey.Select{
+		Message: msg,
+		Options: options,
+		Default: def,
+		Help:    help,
+	}
+
+	var answer string
 	err := survey.AskOne(prompt, &answer)
-	return answer, err
+	if err != nil {
+		return err
+	}
+
+	for i, _ := range actions {
+		if actions[i].Option == answer {
+			return actions[i].Func()
+		}
+	}
+
+	return errors.New("Action function not found")
+}
+
+func (c *Create) qProjectDirAlreadyExist() error {
+	actions := []*action{
+		{
+			Option: "Merge",
+			Func: func() error {
+				c.needRemoveProjectDir = false
+				return nil
+			},
+		},
+		{
+			Option: "Clear directory",
+			Func: func() error {
+				c.needRemoveProjectDir = true
+				return nil
+			},
+		},
+		{
+			Option: "Cancel",
+			Func: func() error {
+				return &exit{"Nothing done"}
+			},
+		},
+	}
+
+	return qSelect(
+		actions,
+		actions[0],
+		"Project directory already exist:",
+		"Merge - append files and overwrite if conflict\nOverwrite - clear directory and create project\nCancel - exit")
+}
+
+func (c *Create) qMainMenu() error {
+	actions := []*action{
+		{
+			Option: "Add",
+			Func: func() error {
+				c.needRemoveProjectDir = false
+				return nil
+			},
+		},
+		{
+			Option: "Remove",
+			Func: func() error {
+				c.needRemoveProjectDir = true
+				return nil
+			},
+		},
+		{
+			Option: "Show",
+			Func: func() error {
+				return nil
+			},
+		},
+		{
+			Option: "Save",
+			Func: func() error {
+				return nil
+			},
+		},
+		{
+			Option: "Cancel",
+			Func: func() error {
+				return &exit{"Nothing done"}
+			},
+		},
+	}
+
+	return qSelect(
+		actions,
+		nil,
+		"Select action:",
+		"")
 }

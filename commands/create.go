@@ -8,7 +8,8 @@ import (
 )
 
 type Create struct {
-	command *cli.Command
+	command   *cli.Command
+	isRunning bool
 
 	project              targets.Project
 	projectDir           string
@@ -36,7 +37,9 @@ func NewCreateCommand() *Create {
 			HideHelp:               false,
 			Hidden:                 false,
 			UseShortOptionHandling: true,
+			OnUsageError:           onUsageError,
 		},
+		isRunning:                 true,
 		projectDir:                "",
 		needRemoveProjectDir:      false,
 		execInheritedQuestions:    newExecInheritedQuestions(),
@@ -65,18 +68,9 @@ func (c *Create) before(ctx *cli.Context) error {
 
 	c.projectDir = ctx.Args().Get(0)
 	if isDirExist(c.projectDir) {
-		action, err := c.qProjectDirAlreadyExist()
+		err := c.qProjectDirAlreadyExist()
 		if err != nil {
 			return err
-		}
-
-		switch action {
-		case "Merge":
-			c.needRemoveProjectDir = false
-		case "Overwrite":
-			c.needRemoveProjectDir = true
-		case "Cancel":
-			return nil
 		}
 	}
 
@@ -84,7 +78,12 @@ func (c *Create) before(ctx *cli.Context) error {
 }
 
 func (c *Create) action(ctx *cli.Context) error {
-
+	for c.isRunning {
+		err := c.qMainMenu()
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
