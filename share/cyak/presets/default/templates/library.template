@@ -1,13 +1,14 @@
-set(SUBPROJ_NAME                          {{.Name}})
-set(${SUBPROJ_NAME}_NAMESPACE             {{.Namespace}})
+set(SUBPROJ_NAME                                                {{.Name}})
+set(${SUBPROJ_NAME}_LANG                                        {{if eq .IsInherited true}}${_PROJECT_LANG}{{else}}{{.Lang}}{{end}})
+set(${SUBPROJ_NAME}_NAMESPACE                                   {{if eq .IsInherited true}}${_PROJECT_NAMESPACE}{{else}}{{.Namespace}}{{end}})
 
-set(${SUBPROJ_NAME}_CXX_STANDARD          {{.CxxStandard}})
-set(${SUBPROJ_NAME}_CXX_EXTENSIONS        {{.CxxExtensions}})
-set(${SUBPROJ_NAME}_CXX_STANDARD_REQUIRED {{.CxxStandardRequired}})
+set(${SUBPROJ_NAME}_${${SUBPROJ_NAME}_LANG}_STANDARD            {{if eq .IsInherited true}}${_PROJECT_LANG_STANDARD}{{else}}{{.LangStandard}}{{end}})
+set(${SUBPROJ_NAME}_${${SUBPROJ_NAME}_LANG}_EXTENSIONS          {{if eq .IsInherited true}}${_PROJECT_LANG_EXTENSIONS}{{else}}{{.LangExtensions}}{{end}})
+set(${SUBPROJ_NAME}_${${SUBPROJ_NAME}_LANG}_STANDARD_REQUIRED   {{if eq .IsInherited true}}${_PROJECT_LANG_STANDARD_REQUIRED}{{else}}{{.LangStandardRequired}}{{end}})
 
-set(${SUBPROJ_NAME}_MAJOR_VERSION         {{.MajorVersion}})
-set(${SUBPROJ_NAME}_MINOR_VERSION         {{.MinorVersion}})
-set(${SUBPROJ_NAME}_PATCH_VERSION         {{.PatchVersion}})
+set(${SUBPROJ_NAME}_MAJOR_VERSION                               {{if eq .IsInherited true}}${_PROJECT_MAJOR_VERSION}{{else}}{{.MajorVersion}}{{end}})
+set(${SUBPROJ_NAME}_MINOR_VERSION                               {{if eq .IsInherited true}}${_PROJECT_MINOR_VERSION}{{else}}{{.MinorVersion}}{{end}})
+set(${SUBPROJ_NAME}_PATCH_VERSION                               {{if eq .IsInherited true}}${_PROJECT_PATCH_VERSION}{{else}}{{.PatchVersion}}{{end}})
 
 # Insert here your source files
 set(${SUBPROJ_NAME}_HEADERS
@@ -79,9 +80,9 @@ add_library(
 # Enable C++ standard
 set_target_properties(
     ${SUBPROJ_NAME} PROPERTIES
-    CXX_STANDARD          ${${SUBPROJ_NAME}_CXX_STANDARD}
-    CXX_EXTENSIONS        ${${SUBPROJ_NAME}_CXX_EXTENSIONS}
-    CXX_STANDARD_REQUIRED ${${SUBPROJ_NAME}_CXX_STANDARD_REQUIRED})
+    ${${SUBPROJ_NAME}_LANG}_STANDARD          ${SUBPROJ_NAME}_${${SUBPROJ_NAME}_LANG}_STANDARD
+    ${${SUBPROJ_NAME}_LANG}_EXTENSIONS        ${${SUBPROJ_NAME}_${${SUBPROJ_NAME}_LANG}_EXTENSIONS}
+    ${${SUBPROJ_NAME}_LANG}_STANDARD_REQUIRED ${${SUBPROJ_NAME}_${${SUBPROJ_NAME}_LANG}_STANDARD_REQUIRED})
 
 set_target_properties(
     ${SUBPROJ_NAME} PROPERTIES
