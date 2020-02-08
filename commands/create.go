@@ -11,7 +11,7 @@ type Create struct {
 	command   *cli.Command
 	isRunning bool
 
-	project              targets.Project
+	project              *targets.Project
 	projectDir           string
 	needRemoveProjectDir bool
 
@@ -38,6 +38,7 @@ func NewCreateCommand() *Create {
 			Hidden:                 false,
 			UseShortOptionHandling: true,
 		},
+		project:                   targets.NewProject(),
 		isRunning:                 true,
 		projectDir:                "",
 		needRemoveProjectDir:      false,
