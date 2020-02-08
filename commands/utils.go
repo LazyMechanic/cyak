@@ -1,9 +1,34 @@
 package commands
 
 import (
+	"fmt"
+	"github.com/urfave/cli/v2"
 	"os"
 	"path/filepath"
 )
+
+type exit struct {
+	Text string
+}
+
+func (e *exit) Error() string {
+	return e.Text
+}
+
+func onUsageError (c *cli.Context, err error, isSubcommand bool) error {
+	if isSubcommand {
+		return err
+	}
+
+	switch err.(type) {
+	case *exit:
+		fmt.Fprintf(c.App.Writer, "%#v\n", err)
+	default:
+		fmt.Fprintf(c.App.Writer, "ERROR: %#v\n", err)
+	}
+
+	return nil
+}
 
 func isDirExist(path string, joins ...string) bool {
 	finalPath := path
