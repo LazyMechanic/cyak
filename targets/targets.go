@@ -10,6 +10,11 @@ type Project struct {
 	MajorVersion         string `survey:"major"`
 	MinorVersion         string `survey:"minor"`
 	PatchVersion         string `survey:"patch"`
+
+	Executables []*Executable
+	Libraries   []*Library
+	Interfaces  []*Interface
+	Tests       []*Test
 }
 
 type Executable struct {
