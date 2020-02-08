@@ -17,6 +17,10 @@ type Project struct {
 	Tests       []*Test
 }
 
+func NewProject() *Project {
+	return &Project{}
+}
+
 type Executable struct {
 	Name                 string `survey:"name"`
 	Lang                 string `survey:"lang"`
@@ -28,6 +32,10 @@ type Executable struct {
 	PatchVersion         string `survey:"patch"`
 	HasTest              bool   `survey:"hastest"`
 	IsInherited          bool   `survey:"inherit"`
+}
+
+func NewExecutable() *Executable {
+	return &Executable{}
 }
 
 type Library struct {
@@ -44,6 +52,10 @@ type Library struct {
 	IsInherited          bool   `survey:"inherit"`
 }
 
+func NewLibrary() *Library {
+	return &Library{}
+}
+
 type Interface struct {
 	Name                 string `survey:"name"`
 	Lang                 string `survey:"lang"`
@@ -58,10 +70,18 @@ type Interface struct {
 	IsInherited          bool   `survey:"inherit"`
 }
 
+func NewInterface() *Interface {
+	return &Interface{}
+}
+
 type Test struct {
 	Name                 string `survey:"name"`
 	Lang                 string `survey:"lang"`
 	LangStandard         string `survey:"standard"`
 	LangExtensions       string `survey:"extensions"`
 	LangStandardRequired string `survey:"standardrequired"`
+}
+
+func NewTest() *Test {
+	return &Test{}
 }
