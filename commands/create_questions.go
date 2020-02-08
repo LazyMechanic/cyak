@@ -2,6 +2,7 @@ package commands
 
 import (
 	"github.com/AlecAivazis/survey/v2"
+	"github.com/urfave/cli/v2"
 )
 
 func newExecInheritedQuestions() []*survey.Question {
@@ -250,7 +251,7 @@ func (c *Create) qProjectDirAlreadyExist() error {
 		{
 			Option: "Cancel",
 			Func: func() error {
-				return &exit{"Nothing done"}
+				return cli.NewExitError("Nothing done", 0)
 			},
 		},
 	}
@@ -266,9 +267,7 @@ func (c *Create) qMainMenu() error {
 	actions := []*action{
 		{
 			Option: "Add",
-			Func: func() error {
-				return nil
-			},
+			Func: c.qAdd,
 		},
 		{
 			Option: "Remove",
@@ -291,7 +290,7 @@ func (c *Create) qMainMenu() error {
 		{
 			Option: "Cancel",
 			Func: func() error {
-				return &exit{"Nothing done"}
+				return cli.NewExitError("Nothing done", 0)
 			},
 		},
 	}
@@ -301,4 +300,9 @@ func (c *Create) qMainMenu() error {
 		nil,
 		"Select action:",
 		"")
+}
+
+func (c *Create) qAdd() error {
+
+	return nil
 }

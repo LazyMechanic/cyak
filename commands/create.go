@@ -37,7 +37,6 @@ func NewCreateCommand() *Create {
 			HideHelp:               false,
 			Hidden:                 false,
 			UseShortOptionHandling: true,
-			OnUsageError:           onUsageError,
 		},
 		isRunning:                 true,
 		projectDir:                "",
@@ -63,7 +62,7 @@ func (c *Create) CliCommand() *cli.Command {
 
 func (c *Create) before(ctx *cli.Context) error {
 	if ctx.NArg() != 1 {
-		return errors.New("invalid argument count")
+		return errors.New("Invalid argument count")
 	}
 
 	c.projectDir = ctx.Args().Get(0)
