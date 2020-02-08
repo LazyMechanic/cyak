@@ -3,12 +3,14 @@ package commands
 import (
 	"errors"
 	"github.com/AlecAivazis/survey/v2"
+	"github.com/LazyMechanic/cyak/targets"
 	"github.com/urfave/cli/v2"
 )
 
 type Create struct {
 	command *cli.Command
 
+	project              targets.Project
 	projectDir           string
 	needRemoveProjectDir bool
 
@@ -63,7 +65,7 @@ func (c *Create) before(ctx *cli.Context) error {
 
 	c.projectDir = ctx.Args().Get(0)
 	if isDirExist(c.projectDir) {
-		action, err := qProjectDirAlreadyExist()
+		action, err := c.qProjectDirAlreadyExist()
 		if err != nil {
 			return err
 		}
@@ -81,5 +83,9 @@ func (c *Create) before(ctx *cli.Context) error {
 	return nil
 }
 
-func (c *Create) action(ctx *cli.Context) error { return nil }
-func (c *Create) after(ctx *cli.Context) error  { return nil }
+func (c *Create) action(ctx *cli.Context) error {
+
+	return nil
+}
+
+func (c *Create) after(ctx *cli.Context) error { return nil }

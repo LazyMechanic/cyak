@@ -229,7 +229,7 @@ func newIntNonInheritedQuestions() []*survey.Question {
 	}
 }
 
-func qProjectDirAlreadyExist() (string, error) {
+func (c *Create) qProjectDirAlreadyExist() (string, error) {
 	var answer string
 	prompt := &survey.Select{
 		Message:       "Project directory already exist:",
