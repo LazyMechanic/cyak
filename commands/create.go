@@ -2,13 +2,24 @@ package commands
 
 import (
 	"errors"
-	"fmt"
+	"github.com/AlecAivazis/survey/v2"
 	"github.com/urfave/cli/v2"
 )
 
 type Create struct {
-	command    *cli.Command
-	projectDir string
+	command *cli.Command
+
+	projectDir           string
+	needRemoveProjectDir bool
+
+	execInheritedQuestions    []*survey.Question
+	execNonInheritedQuestions []*survey.Question
+
+	libInheritedQuestions    []*survey.Question
+	libNonInheritedQuestions []*survey.Question
+
+	intInheritedQuestions    []*survey.Question
+	intNonInheritedQuestions []*survey.Question
 }
 
 func NewCreateCommand() *Create {
@@ -24,6 +35,14 @@ func NewCreateCommand() *Create {
 			Hidden:                 false,
 			UseShortOptionHandling: true,
 		},
+		projectDir:                "",
+		needRemoveProjectDir:      false,
+		execInheritedQuestions:    newExecInheritedQuestions(),
+		execNonInheritedQuestions: newExecNonInheritedQuestions(),
+		libInheritedQuestions:     newLibInheritedQuestions(),
+		libNonInheritedQuestions:  newLibNonInheritedQuestions(),
+		intInheritedQuestions:     newIntInheritedQuestions(),
+		intNonInheritedQuestions:  newIntNonInheritedQuestions(),
 	}
 
 	create.command.Before = create.before
@@ -44,9 +63,19 @@ func (c *Create) before(ctx *cli.Context) error {
 
 	c.projectDir = ctx.Args().Get(0)
 	if isDirExist(c.projectDir) {
-		fmt.Println("Project directory already exist")
-	} else {
-		fmt.Println("Project directory not exist")
+		action, err := qProjectDirAlreadyExist()
+		if err != nil {
+			return err
+		}
+
+		switch action {
+		case "Merge":
+			c.needRemoveProjectDir = false
+		case "Overwrite":
+			c.needRemoveProjectDir = true
+		case "Cancel":
+			return nil
+		}
 	}
 
 	return nil
