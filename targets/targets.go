@@ -34,6 +34,16 @@ type Executable struct {
 	IsInherited          bool   `survey:"inherit"`
 }
 
+func (e *Executable) Inherit(p *Project) {
+	e.Lang = p.Lang
+	e.LangStandard = p.LangStandard
+	e.LangExtensions = p.LangExtensions
+	e.LangStandardRequired = p.LangStandardRequired
+	e.MajorVersion = p.MajorVersion
+	e.MinorVersion = p.MinorVersion
+	e.PatchVersion = p.PatchVersion
+}
+
 func NewExecutable() *Executable {
 	return &Executable{}
 }
@@ -52,6 +62,17 @@ type Library struct {
 	IsInherited          bool   `survey:"inherit"`
 }
 
+func (l *Library) Inherit(p *Project) {
+	l.Lang = p.Lang
+	l.Namespace = p.Namespace
+	l.LangStandard = p.LangStandard
+	l.LangExtensions = p.LangExtensions
+	l.LangStandardRequired = p.LangStandardRequired
+	l.MajorVersion = p.MajorVersion
+	l.MinorVersion = p.MinorVersion
+	l.PatchVersion = p.PatchVersion
+}
+
 func NewLibrary() *Library {
 	return &Library{}
 }
@@ -68,6 +89,17 @@ type Interface struct {
 	PatchVersion         string `survey:"patch"`
 	HasTest              bool   `survey:"hastest"`
 	IsInherited          bool   `survey:"inherit"`
+}
+
+func (i *Interface) Inherit(p *Project) {
+	i.Lang = p.Lang
+	i.Namespace = p.Namespace
+	i.LangStandard = p.LangStandard
+	i.LangExtensions = p.LangExtensions
+	i.LangStandardRequired = p.LangStandardRequired
+	i.MajorVersion = p.MajorVersion
+	i.MinorVersion = p.MinorVersion
+	i.PatchVersion = p.PatchVersion
 }
 
 func NewInterface() *Interface {
