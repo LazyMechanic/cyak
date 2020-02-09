@@ -44,6 +44,19 @@ func (e *Executable) Inherit(p *Project) {
 	e.PatchVersion = p.PatchVersion
 }
 
+func (e *Executable) CreateTest() *Test {
+	test := &Test{
+		Name:                 e.Name,
+		Lang:                 e.Lang,
+		LangStandard:         e.LangStandard,
+		LangExtensions:       e.LangExtensions,
+		LangStandardRequired: e.LangStandardRequired,
+	}
+
+	return test
+}
+
+
 func NewExecutable() *Executable {
 	return &Executable{}
 }
@@ -73,6 +86,19 @@ func (l *Library) Inherit(p *Project) {
 	l.PatchVersion = p.PatchVersion
 }
 
+func (l *Library) CreateTest() *Test {
+	test := &Test{
+		Name:                 l.Name,
+		Lang:                 l.Lang,
+		LangStandard:         l.LangStandard,
+		LangExtensions:       l.LangExtensions,
+		LangStandardRequired: l.LangStandardRequired,
+	}
+
+	return test
+}
+
+
 func NewLibrary() *Library {
 	return &Library{}
 }
@@ -100,6 +126,18 @@ func (i *Interface) Inherit(p *Project) {
 	i.MajorVersion = p.MajorVersion
 	i.MinorVersion = p.MinorVersion
 	i.PatchVersion = p.PatchVersion
+}
+
+func (i *Interface) CreateTest() *Test {
+	test := &Test{
+		Name:                 i.Name,
+		Lang:                 i.Lang,
+		LangStandard:         i.LangStandard,
+		LangExtensions:       i.LangExtensions,
+		LangStandardRequired: i.LangStandardRequired,
+	}
+
+	return test
 }
 
 func NewInterface() *Interface {
