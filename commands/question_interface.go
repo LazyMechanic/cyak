@@ -14,8 +14,11 @@ func qSelect(actions []*action, def *action, msg string, help string) error {
 	prompt := &survey.Select{
 		Message: msg,
 		Options: options,
-		Default: def,
 		Help:    help,
+	}
+
+	if def != nil {
+		prompt.Default = def.Option
 	}
 
 	var answer string

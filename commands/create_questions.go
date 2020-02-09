@@ -2,235 +2,9 @@ package commands
 
 import (
 	"github.com/AlecAivazis/survey/v2"
+	"github.com/LazyMechanic/cyak/targets"
 	"github.com/urfave/cli/v2"
 )
-
-func newExecInheritedQuestions() []*survey.Question {
-	return []*survey.Question{
-		{
-			Name: "standard",
-			Prompt: &survey.Input{
-				Message: "Enter standard:",
-				Default: "17",
-			},
-			Validate: isInt,
-		},
-		{
-			Name: "extensions",
-			Prompt: &survey.Select{
-				Message: "Enable extensions:",
-				Options: []string{
-					"On",
-					"Off",
-				},
-				Default: "Off",
-			},
-		},
-		{
-			Name: "standardrequired",
-			Prompt: &survey.Select{
-				Message: "Enable standard required:",
-				Options: []string{
-					"Yes",
-					"Off",
-				},
-				Default: "Yes",
-			},
-		},
-		{
-			Name: "major",
-			Prompt: &survey.Input{
-				Message: "Enter major version:",
-				Default: "0",
-			},
-			Validate: isInt,
-		},
-		{
-			Name: "minor",
-			Prompt: &survey.Input{
-				Message: "Enter minor version:",
-				Default: "1",
-			},
-			Validate: isInt,
-		},
-		{
-			Name: "patch",
-			Prompt: &survey.Input{
-				Message: "Enter patch version:",
-				Default: "0",
-			},
-			Validate: isInt,
-		},
-	}
-}
-
-func newExecNonInheritedQuestions() []*survey.Question {
-	return []*survey.Question{
-		{
-			Name: "name",
-			Prompt: &survey.Input{
-				Message: "Enter target name:",
-			},
-			Validate: survey.Required,
-		},
-	}
-}
-
-func newLibInheritedQuestions() []*survey.Question {
-	return []*survey.Question{
-		{
-			Name: "namespace",
-			Prompt: &survey.Input{
-				Message: "Enter namespace:",
-			},
-			Validate: survey.Required,
-		},
-		{
-			Name: "standard",
-			Prompt: &survey.Input{
-				Message: "Enter standard:",
-				Default: "17",
-			},
-			Validate: isInt,
-		},
-		{
-			Name: "extensions",
-			Prompt: &survey.Select{
-				Message: "Enable extensions:",
-				Options: []string{
-					"On",
-					"Off",
-				},
-				Default: "Off",
-			},
-		},
-		{
-			Name: "standardrequired",
-			Prompt: &survey.Select{
-				Message: "Enable standard required:",
-				Options: []string{
-					"Yes",
-					"Off",
-				},
-				Default: "Yes",
-			},
-		},
-		{
-			Name: "major",
-			Prompt: &survey.Input{
-				Message: "Enter major version:",
-				Default: "0",
-			},
-			Validate: isInt,
-		},
-		{
-			Name: "minor",
-			Prompt: &survey.Input{
-				Message: "Enter minor version:",
-				Default: "1",
-			},
-			Validate: isInt,
-		},
-		{
-			Name: "patch",
-			Prompt: &survey.Input{
-				Message: "Enter patch version:",
-				Default: "0",
-			},
-			Validate: isInt,
-		},
-	}
-}
-
-func newLibNonInheritedQuestions() []*survey.Question {
-	return []*survey.Question{
-		{
-			Name: "name",
-			Prompt: &survey.Input{
-				Message: "Enter target name:",
-			},
-			Validate: survey.Required,
-		},
-	}
-}
-
-func newIntInheritedQuestions() []*survey.Question {
-	return []*survey.Question{
-		{
-			Name: "namespace",
-			Prompt: &survey.Input{
-				Message: "Enter namespace:",
-			},
-			Validate: survey.Required,
-		},
-		{
-			Name: "standard",
-			Prompt: &survey.Input{
-				Message: "Enter standard:",
-				Default: "17",
-			},
-			Validate: isInt,
-		},
-		{
-			Name: "extensions",
-			Prompt: &survey.Select{
-				Message: "Enable extensions:",
-				Options: []string{
-					"On",
-					"Off",
-				},
-				Default: "Off",
-			},
-		},
-		{
-			Name: "standardrequired",
-			Prompt: &survey.Select{
-				Message: "Enable standard required:",
-				Options: []string{
-					"Yes",
-					"Off",
-				},
-				Default: "Yes",
-			},
-		},
-		{
-			Name: "major",
-			Prompt: &survey.Input{
-				Message: "Enter major version:",
-				Default: "0",
-			},
-			Validate: isInt,
-		},
-		{
-			Name: "minor",
-			Prompt: &survey.Input{
-				Message: "Enter minor version:",
-				Default: "1",
-			},
-			Validate: isInt,
-		},
-		{
-			Name: "patch",
-			Prompt: &survey.Input{
-				Message: "Enter patch version:",
-				Default: "0",
-			},
-			Validate: isInt,
-		},
-	}
-}
-
-func newIntNonInheritedQuestions() []*survey.Question {
-	return []*survey.Question{
-		{
-			Name: "name",
-			Prompt: &survey.Input{
-				Message: "Enter target name:",
-			},
-			Validate: survey.Required,
-		},
-	}
-}
 
 func (c *Create) qProjectDirAlreadyExist() error {
 	actions := []*action{
@@ -267,7 +41,15 @@ func (c *Create) qMainMenu() error {
 	actions := []*action{
 		{
 			Option: "Add",
-			Func: c.qAdd,
+			Func: func() error {
+				err := c.qAdd()
+				switch err.(type) {
+				case *cancelError:
+					return nil
+				default:
+					return err
+				}
+			},
 		},
 		{
 			Option: "Remove",
@@ -303,6 +85,189 @@ func (c *Create) qMainMenu() error {
 }
 
 func (c *Create) qAdd() error {
+	qInheritedFunc := func() (bool, error) {
+		prompt := &survey.Confirm{
+			Message: "Inherit project properties:",
+			Default: true,
+			Help:    "Properties: namespace, lang standard, lang extensions, lang standard required, version",
+		}
 
-	return nil
+		var answer bool
+		err := survey.AskOne(prompt, &answer)
+		return answer, err
+	}
+
+	qIsInformationCorrect := func() (bool, error) {
+		prompt := &survey.Confirm{
+			Message: "Is information correct:",
+			Default: true,
+			Help:    "If true, then adds to project, else discard target",
+		}
+
+		var answer bool
+		err := survey.AskOne(prompt, &answer)
+		return answer, err
+	}
+
+	actions := []*action{
+		{
+			Option: "Executable",
+			Func: func() error {
+				inherits, err := qInheritedFunc()
+				if err != nil {
+					return err
+				}
+
+				// Create target
+				target := targets.NewExecutable()
+				target.IsInherited = inherits
+
+				if !target.IsInherited {
+					err := survey.Ask(target.InheritedQuestions(), target)
+					if err != nil {
+						return err
+					}
+				} else {
+					target.Inherit(c.project)
+				}
+
+				err = survey.Ask(target.NonInheritedQuestions(), target)
+				if err != nil {
+					return err
+				}
+
+				// Discard target
+				isCorrect, err := qIsInformationCorrect()
+				if err != nil {
+					return err
+				}
+
+				if !isCorrect {
+					return nil
+				}
+
+				// Add target and test
+				err = c.project.AddTarget(target)
+				if err != nil {
+					return err
+				}
+
+				if target.HasTest {
+					c.project.AddTest(target.CreateTestTarget())
+				}
+
+				return nil
+			},
+		},
+		{
+			Option: "Library",
+			Func: func() error {
+				inherits, err := qInheritedFunc()
+				if err != nil {
+					return err
+				}
+
+				// Create target
+				target := targets.NewLibrary()
+				target.IsInherited = inherits
+
+				if !target.IsInherited {
+					err := survey.Ask(target.InheritedQuestions(), target)
+					if err != nil {
+						return err
+					}
+				} else {
+					target.Inherit(c.project)
+				}
+
+				err = survey.Ask(target.NonInheritedQuestions(), target)
+				if err != nil {
+					return err
+				}
+
+				// Discard target
+				isCorrect, err := qIsInformationCorrect()
+				if err != nil {
+					return err
+				}
+
+				if !isCorrect {
+					return nil
+				}
+
+				// Add target and test
+				err = c.project.AddTarget(target)
+				if err != nil {
+					return err
+				}
+
+				if target.HasTest {
+					c.project.AddTest(target.CreateTestTarget())
+				}
+
+				return nil
+			},
+		},
+		{
+			Option: "Interface",
+			Func: func() error {
+				inherits, err := qInheritedFunc()
+				if err != nil {
+					return err
+				}
+
+				// Create target
+				target := targets.NewInterface()
+				target.IsInherited = inherits
+
+				if !target.IsInherited {
+					err := survey.Ask(target.InheritedQuestions(), target)
+					if err != nil {
+						return err
+					}
+				} else {
+					target.Inherit(c.project)
+				}
+
+				err = survey.Ask(target.NonInheritedQuestions(), target)
+				if err != nil {
+					return err
+				}
+
+				// Discard target
+				isCorrect, err := qIsInformationCorrect()
+				if err != nil {
+					return err
+				}
+
+				if !isCorrect {
+					return nil
+				}
+
+				// Add target and test
+				err = c.project.AddTarget(target)
+				if err != nil {
+					return err
+				}
+
+				if target.HasTest {
+					c.project.AddTest(target.CreateTestTarget())
+				}
+
+				return nil
+			},
+		},
+		{
+			Option: "Cancel",
+			Func: func() error {
+				return newCancelError()
+			},
+		},
+	}
+
+	return qSelect(
+		actions,
+		nil,
+		"Select target for adds to project:",
+		"")
 }

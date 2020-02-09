@@ -2,7 +2,6 @@ package commands
 
 import (
 	"errors"
-	"github.com/AlecAivazis/survey/v2"
 	"github.com/LazyMechanic/cyak/targets"
 	"github.com/urfave/cli/v2"
 )
@@ -14,15 +13,6 @@ type Create struct {
 	project              *targets.Project
 	projectDir           string
 	needRemoveProjectDir bool
-
-	execInheritedQuestions    []*survey.Question
-	execNonInheritedQuestions []*survey.Question
-
-	libInheritedQuestions    []*survey.Question
-	libNonInheritedQuestions []*survey.Question
-
-	intInheritedQuestions    []*survey.Question
-	intNonInheritedQuestions []*survey.Question
 }
 
 func NewCreateCommand() *Create {
@@ -42,12 +32,6 @@ func NewCreateCommand() *Create {
 		isRunning:                 true,
 		projectDir:                "",
 		needRemoveProjectDir:      false,
-		execInheritedQuestions:    newExecInheritedQuestions(),
-		execNonInheritedQuestions: newExecNonInheritedQuestions(),
-		libInheritedQuestions:     newLibInheritedQuestions(),
-		libNonInheritedQuestions:  newLibNonInheritedQuestions(),
-		intInheritedQuestions:     newIntInheritedQuestions(),
-		intNonInheritedQuestions:  newIntNonInheritedQuestions(),
 	}
 
 	create.command.Before = create.before
