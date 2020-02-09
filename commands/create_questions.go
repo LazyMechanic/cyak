@@ -37,6 +37,10 @@ func (c *Create) qProjectDirAlreadyExist() error {
 		"Merge - append files and overwrite if conflict\nOverwrite - clear directory and create project\nCancel - exit")
 }
 
+func (c *Create) qCreateProject() error {
+	return survey.Ask(c.project.Questions(), c.project)
+}
+
 func (c *Create) qMainMenu() error {
 	actions := []*action{
 		{

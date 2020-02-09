@@ -1,6 +1,9 @@
 package targets
 
-import "errors"
+import (
+	"errors"
+	"github.com/AlecAivazis/survey/v2"
+)
 
 type Project struct {
 	Name                 string `survey:"name"`
@@ -17,6 +20,90 @@ type Project struct {
 	Libraries   []*Library
 	Interfaces  []*Interface
 	Tests       []*Test
+}
+
+func (p *Project) Questions() []*survey.Question {
+	return []*survey.Question{
+		{
+			Name: "name",
+			Prompt: &survey.Input{
+				Message: "Enter project name:",
+			},
+			Validate: survey.Required,
+		},
+		{
+			Name: "namespace",
+			Prompt: &survey.Input{
+				Message: "Enter general namespace:",
+			},
+			Validate: survey.Required,
+		},
+		{
+			Name: "lang",
+			Prompt: &survey.Select{
+				Message: "Select project language:",
+				Options: []string{
+					"CXX",
+					"C",
+				},
+				Default: "CXX",
+			},
+		},
+		{
+			Name: "standard",
+			Prompt: &survey.Input{
+				Message: "Enter general lang standard:",
+				Default: "17",
+			},
+			Validate: isInt,
+		},
+		{
+			Name: "extensions",
+			Prompt: &survey.Select{
+				Message: "Enable general lang extensions:",
+				Options: []string{
+					"On",
+					"Off",
+				},
+				Default: "Off",
+			},
+		},
+		{
+			Name: "standardrequired",
+			Prompt: &survey.Select{
+				Message: "Enable general lang standard required:",
+				Options: []string{
+					"Yes",
+					"Off",
+				},
+				Default: "Yes",
+			},
+		},
+		{
+			Name: "major",
+			Prompt: &survey.Input{
+				Message: "Enter project major version:",
+				Default: "0",
+			},
+			Validate: isInt,
+		},
+		{
+			Name: "minor",
+			Prompt: &survey.Input{
+				Message: "Enter project minor version:",
+				Default: "1",
+			},
+			Validate: isInt,
+		},
+		{
+			Name: "patch",
+			Prompt: &survey.Input{
+				Message: "Enter project patch version:",
+				Default: "0",
+			},
+			Validate: isInt,
+		},
+	}
 }
 
 func (p *Project) AddTarget(t Targeter) error {

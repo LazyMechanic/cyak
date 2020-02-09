@@ -62,6 +62,11 @@ func (c *Create) before(ctx *cli.Context) error {
 }
 
 func (c *Create) action(ctx *cli.Context) error {
+	err := c.qCreateProject()
+	if err != nil {
+		return err
+	}
+
 	for c.isRunning {
 		err := c.qMainMenu()
 		if err != nil {
