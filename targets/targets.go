@@ -17,6 +17,22 @@ type Project struct {
 	Tests       []*Test
 }
 
+func (p *Project) AddExecutable(e *Executable) {
+	p.Executables = append(p.Executables, e)
+}
+
+func (p *Project) AddLibrary(l *Library) {
+	p.Libraries = append(p.Libraries, l)
+}
+
+func (p *Project) AddInterface(i *Interface) {
+	p.Interfaces = append(p.Interfaces, i)
+}
+
+func (p *Project) AddTest(t *Test) {
+	p.Tests = append(p.Tests, t)
+}
+
 func NewProject() *Project {
 	return &Project{}
 }
@@ -55,7 +71,6 @@ func (e *Executable) CreateTest() *Test {
 
 	return test
 }
-
 
 func NewExecutable() *Executable {
 	return &Executable{}
@@ -97,7 +112,6 @@ func (l *Library) CreateTest() *Test {
 
 	return test
 }
-
 
 func NewLibrary() *Library {
 	return &Library{}
