@@ -37,12 +37,40 @@ func (c *Create) qProjectDirAlreadyExist() error {
 		"Merge - append files and overwrite if conflict\nOverwrite - clear directory and create project\nCancel - exit")
 }
 
-func (c *Create) qCreateProject() error {
+func (c *Create) qConfigureProject() error {
 	return survey.Ask(c.project.Questions(), c.project)
 }
 
 func (c *Create) qMainMenu() error {
 	actions := []*action{
+		{
+			Option: "Reconfigure project",
+			Func: func() error {
+				newProject := targets.NewProject()
+				err := survey.Ask(c.project.Questions(), newProject)
+				if err != nil {
+					return err
+				}
+
+				prompt := &survey.Confirm{
+					Message: "Is information correct:",
+					Default: true,
+					Help:    "If select 'yes', then overwrite project properties, else discard changes",
+				}
+
+				var isCorrect bool
+				err = survey.AskOne(prompt, &isCorrect)
+				if err != nil {
+					return err
+				}
+
+				if isCorrect {
+					c.project = newProject
+				}
+
+				return nil
+			},
+		},
 		{
 			Option: "Add",
 			Func: func() error {
@@ -105,7 +133,7 @@ func (c *Create) qAdd() error {
 		prompt := &survey.Confirm{
 			Message: "Is information correct:",
 			Default: true,
-			Help:    "If true, then adds to project, else discard target",
+			Help:    "If select 'yes', then adds to project, else discard target",
 		}
 
 		var answer bool

@@ -62,7 +62,7 @@ func (c *Create) before(ctx *cli.Context) error {
 }
 
 func (c *Create) action(ctx *cli.Context) error {
-	err := c.qCreateProject()
+	err := c.qConfigureProject()
 	if err != nil {
 		return err
 	}
