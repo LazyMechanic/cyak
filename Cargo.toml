@@ -10,6 +10,8 @@ path = "src/lib.rs"
 
 
 [dependencies]
-structopt = "0.3"
+anyhow = "1.0"
+clap = "2.33"
 serde = "1.0"
 handlebars = "3.2"
+thiserror = "1.0"

@@ -1,12 +1,17 @@
 mod cli;
 
+use anyhow::Result;
+
 use cli::Cli;
+use cli::Command;
 
-fn main() {
-    let cli = Cli::new();
+fn main() -> Result<()> {
+    let cli = Cli::new()?;
 
-    match cli {
-        Cli::New(c) => cyak_lib::run_new(c.path, c.git),
-        Cli::Modify(c) => cyak_lib::run_modify(c.path, c.git),
+    match cli.command {
+        Command::New(c) => cyak_lib::run_new(c.path),
+        Command::Modify(c) => cyak_lib::run_modify(c.path),
     }
+
+    Ok(())
 }
