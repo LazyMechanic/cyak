@@ -9,9 +9,7 @@
 </p>
 
 ## Usage
-![Project&Multiple](./docs/term_proj_mult.svg)
-
-See more [examples](./example.md)
+*TODO*
 
 ## Create your preset
 If you want to add your own preset, then you need to add a directory with your preset to the .../share/cyak/presets (or any other directory where they located) presets directory. The directory name will be the name of the preset. The preset directory should include a subdirectory `templates`, where required files are stored:

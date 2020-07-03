@@ -1,7 +1,1 @@
-build/
-cyak
-.idea/
-*.exe
-dist/
-
-!share/cyak
+/target

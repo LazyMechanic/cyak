@@ -1,0 +1,6 @@
+struct_field_align_threshold = 20
+enum_discrim_align_threshold = 20
+control_brace_style = "AlwaysSameLine"
+imports_layout = "HorizontalVertical"
+reorder_impl_items = true
+use_field_init_shorthand = true
