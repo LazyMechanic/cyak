@@ -1,0 +1,59 @@
+cmake_minimum_required(VERSION 3.13)
+
+set(_PROJECT_NAME                       {{.Name}})
+set(_PROJECT_LANG                       {{.Lang}})
+set(_PROJECT_NAMESPACE                  {{.NameSpace}})
+
+set(_PROJECT_MAJOR_VERSION              {{.MajorVersion}})
+set(_PROJECT_MINOR_VERSION              {{.MinorVersion}})
+set(_PROJECT_PATCH_VERSION              {{.PatchVersion}})
+
+set(_PROJECT_LANG_STANDARD              {{.LangStandard}})
+set(_PROJECT_LANG_EXTENSIONS            {{.LangExtensions}})
+set(_PROJECT_LANG_STANDARD_REQUIRED     {{.LangStandardRequired}})
+
+set(_SUBPROJECT_LIST
+    {{range .Targets}}"{{if or (eq .Type "executable") (eq .Type "library")}}src/{{else if eq .Type "interface"}}include/{{end}}{{.Name}}"
+    {{else}}""{{end}})
+set(_TEST_LIST
+    {{range .Targets}}{{if .CreateTest}}"test/{{.Name}}"{{end}}
+    {{else}}""{{end}})
+
+# Cmake module path
+set(_PROJECT_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${_PROJECT_ROOT_DIR}/cmake/modules")
+
+set(_PROJECT_VERSION
+  ${_PROJECT_MAJOR_VERSION}.${_PROJECT_MINOR_VERSION}.${_PROJECT_PATCH_VERSION})
+
+project(${_PROJECT_NAME} LANGUAGES ${_PROJECT_LANG} VERSION ${_PROJECT_VERSION})
+
+# ############################################################### #
+# Find global libraries ######################################### #
+# ############################################################### #
+
+# Insert here finding libraries if they use in several subdirectories:
+# For example:
+### find_package(SFML 2.5 COMPONENTS system graphics REQUIRED)
+### find_package(Boost CONFIG COMPONENTS random REQUIRED)
+# .............................................
+
+# ############################################################### #
+# Add subdirectories ############################################ #
+# ############################################################### #
+
+foreach(SUBPROJ ${_SUBPROJECT_LIST})
+    add_subdirectory(${SUBPROJ})
+endforeach()
+
+# ############################################################### #
+# Add test subdirectories ####################################### #
+# ############################################################### #
+
+enable_testing()
+foreach(TEST ${_TEST_LIST})
+    string(REGEX REPLACE "^test\/" "" TEST_NAME ${TEST})
+    if(${${TEST_NAME}_BUILD_TESTS})
+        add_subdirectory(${TEST})
+    endif()
+endforeach()

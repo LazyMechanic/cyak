@@ -10,3 +10,6 @@ path = "src/lib.rs"
 
 
 [dependencies]
+structopt = "0.3"
+serde = "1.0"
+handlebars = "3.2"
