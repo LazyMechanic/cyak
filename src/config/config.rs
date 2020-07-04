@@ -1,8 +1,6 @@
 use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
 
-use super::consts::*;
-
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Config {
     date:                DateTime<Utc>,
@@ -20,7 +18,7 @@ impl Config {
     pub fn new() -> Self {
         Self {
             date:                Utc::now(),
-            version:             PRG_VERSION.to_string(),
+            version:             "0.1.0".to_string(),
             template_name:       "".to_string(),
             project_template:    "".to_string(),
             executable_template: "".to_string(),
@@ -31,8 +29,13 @@ impl Config {
         }
     }
 
-    pub fn with_template_name<T: Into<String>>(mut self, name: T) -> Self {
-        self.template_name = name.into();
+    pub fn with_version<T: Into<String>>(mut self, v: T) -> Self {
+        self.version = v.into();
+        self
+    }
+
+    pub fn with_template_name<T: Into<String>>(mut self, v: T) -> Self {
+        self.template_name = v.into();
         self
     }
 
