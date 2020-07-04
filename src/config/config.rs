@@ -31,38 +31,38 @@ impl Config {
         }
     }
 
-    pub fn with_template_name<T: AsRef<str>>(mut self, name: T) -> Self {
-        self.template_name = name;
+    pub fn with_template_name<T: Into<String>>(mut self, name: T) -> Self {
+        self.template_name = name.into();
         self
     }
 
-    pub fn with_project<T: AsRef<str>>(mut self, v: T) -> Self {
-        self.project_template = v;
+    pub fn with_project<T: Into<String>>(mut self, v: T) -> Self {
+        self.project_template = v.into();
         self
     }
 
-    pub fn with_executable<T: AsRef<str>>(mut self, v: T) -> Self {
-        self.executable_template = v;
+    pub fn with_executable<T: Into<String>>(mut self, v: T) -> Self {
+        self.executable_template = v.into();
         self
     }
 
-    pub fn with_interface<T: AsRef<str>>(mut self, v: T) -> Self {
-        self.interface_template = v;
+    pub fn with_interface<T: Into<String>>(mut self, v: T) -> Self {
+        self.interface_template = v.into();
         self
     }
 
-    pub fn with_library<T: AsRef<str>>(mut self, v: T) -> Self {
-        self.library_template = v;
+    pub fn with_library<T: Into<String>>(mut self, v: T) -> Self {
+        self.library_template = v.into();
         self
     }
 
-    pub fn with_lib_config<T: AsRef<str>>(mut self, v: T) -> Self {
-        self.lib_config_template = v;
+    pub fn with_lib_config<T: Into<String>>(mut self, v: T) -> Self {
+        self.lib_config_template = v.into();
         self
     }
 
-    pub fn with_test<T: AsRef<str>>(mut self, v: T) -> Self {
-        self.test_template = v;
+    pub fn with_test<T: Into<String>>(mut self, v: T) -> Self {
+        self.test_template = v.into();
         self
     }
 }

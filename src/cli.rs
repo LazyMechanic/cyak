@@ -1,6 +1,7 @@
-use clap::{App, AppSettings, Arg};
+use clap::{App, AppSettings, Arg, ArgMatches};
 use std::path::PathBuf;
 
+use crate::cli::Error::ArgumentNotFound;
 use cyak_lib::config;
 
 #[derive(Debug)]
@@ -48,16 +49,21 @@ impl Cli {
 
         let matches = app.get_matches();
         match matches.subcommand() {
-            ("new", Some(c)) => {
-                let path = c.value_of("PATH").unwrap();
-                Ok(Self {
-                    command: Command::New(New {
-                        path: PathBuf::from(path),
-                    }),
-                })
-            }
+            ("new", Some(c)) => Self::new_cmd_from_args(c),
             _ => Error::InvalidSubCommand.fail(),
         }
+    }
+
+    fn new_cmd_from_args(am: &ArgMatches) -> Result<Self, Error> {
+        let path = am
+            .value_of("PATH")
+            .ok_or(Error::ArgumentNotFound("PATH".to_string()))?;
+
+        let path = PathBuf::from(path);
+
+        Ok(Self {
+            command: Command::New(New { path }),
+        })
     }
 }
 
@@ -65,6 +71,8 @@ impl Cli {
 pub enum Error {
     #[error("Invalid cli subcommand")]
     InvalidSubCommand,
+    #[error("Argument not found: {0}")]
+    ArgumentNotFound(String),
 }
 
 impl Error {
