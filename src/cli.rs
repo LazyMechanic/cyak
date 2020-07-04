@@ -1,6 +1,8 @@
 use clap::{App, AppSettings, Arg};
 use std::path::PathBuf;
 
+use cyak_lib::config;
+
 #[derive(Debug)]
 pub struct Cli {
     pub command: Command,
@@ -24,10 +26,10 @@ pub struct Modify {
 
 impl Cli {
     pub fn new() -> Result<Self, Error> {
-        let app = App::new("cyak")
-            .version("0.6")
-            .author("LazyMechanic <asharnrus@gmail.com>")
-            .about("Tool for create new or modify exists cmake project")
+        let app = App::new(config::PRG_NAME)
+            .version(config::PRG_VERSION)
+            .author(config::PRG_AUTHOR)
+            .about(config::PRG_HELP)
             .subcommand(
                 App::new("new").about("Create new cmake project").arg(
                     Arg::with_name("PATH")
