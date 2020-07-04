@@ -24,7 +24,7 @@ pub struct Modify {
 
 impl Cli {
     pub fn new() -> Result<Self, Error> {
-        let mut app = App::new("cyak")
+        let app = App::new("cyak")
             .version("0.6")
             .author("LazyMechanic <asharnrus@gmail.com>")
             .about("Tool for create new or modify exists cmake project")

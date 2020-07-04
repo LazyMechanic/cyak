@@ -5,5 +5,7 @@ impl Tui {
         todo!()
     }
 
-    pub fn run() {}
+    pub fn run() {
+        todo!()
+    }
 }

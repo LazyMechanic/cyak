@@ -1,3 +1,4 @@
+mod config;
 mod tui;
 
 use std::path::Path;
