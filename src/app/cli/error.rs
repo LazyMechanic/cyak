@@ -4,6 +4,8 @@ pub enum Error {
     InvalidSubCommand,
     #[error("Argument not found: {0}")]
     ArgumentNotFound(String),
+    #[error("Unsupported cli subcommand")]
+    UnsupportedSubCommand,
 }
 
 impl Error {
