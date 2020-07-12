@@ -1,0 +1,26 @@
+name: "Default"
+version: "1.0.0"
+author: "LazyMechanic"
+description: "Default preset for cross platform C++ (by default) project"
+default_values:
+  language: "C++"
+  version:
+    major: 0
+    minor: 1
+    patch: 0
+  git: true
+  target_properties:
+    custom:
+      - display: "Language standard"
+        description: "Set language standard"
+        key: "CXX_STANDARD"
+        value_pattern: "^[0-9]+$"
+        default: "17"
+      - display: "Language extensions"
+        description: "Enable or disable extensions. For example GCC extensions"
+        key: "CXX_EXTENSIONS"
+        value_pattern: "on|off"
+        default: "off"
+    common:
+      - key: "CXX_STANDARD_REQUIRED"
+        value: "ON"
