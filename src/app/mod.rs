@@ -4,7 +4,7 @@ pub mod tui;
 use std::path::PathBuf;
 
 use self::cli::Cli;
-use self::cli::Command;
+use self::cli::Mode;
 use self::tui::Tui;
 
 enum UserInterface {
@@ -26,15 +26,14 @@ impl UserInterface {
 pub fn run() -> anyhow::Result<()> {
     let cli = cli::Cli::new()?;
 
-    let mut ui = match cli.command {
-        Command::New(c) => {
-            let tui = Tui::new(c.path)?;
+    let mut ui = match cli.mode {
+        Mode::Tui => {
+            let tui = Tui::new(cli.presets_dir, cli.work_dir)?;
             let ui = UserInterface::Tui(tui);
 
             ui
         }
-        Command::Modify(_) => todo!(),
-        Command::Gui(_) => todo!(),
+        Mode::Gui => todo!(),
     };
 
     ui.run()?;

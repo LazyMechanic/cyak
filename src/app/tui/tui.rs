@@ -9,26 +9,56 @@ use super::Error;
 use crossterm::event::KeyCode;
 
 pub struct Tui {
-    term:      Terminal,
-    work_path: PathBuf,
+    term: Terminal,
+    ctx:  Context,
 }
 
 impl Tui {
-    pub fn new(work_path: PathBuf) -> Result<Self, Error> {
+    pub fn new(presets_dir: PathBuf, work_dir: PathBuf) -> Result<Self, Error> {
+        if !presets_dir.exists() {
+            return Error::PresetsDirNotFound.fail();
+        }
+
         let term = Terminal::new()?;
-        Ok(Self { term, work_path })
+        let ctx = Context::new(presets_dir, work_dir);
+        Ok(Self { term, ctx })
     }
 
     pub fn run(&mut self) -> Result<(), Error> {
-        let mut ctx = Context::default();
         loop {
-            ctx.handle_event(self.term.next_event()?);
+            match self.term.next_event()? {
+                Event::Key(k) => match k.code {
+                    KeyCode::Backspace => {}
+                    KeyCode::Enter => {}
+                    KeyCode::Left => {}
+                    KeyCode::Right => {}
+                    KeyCode::Up => {}
+                    KeyCode::Down => {}
+                    KeyCode::Home => {}
+                    KeyCode::End => {}
+                    KeyCode::PageUp => {}
+                    KeyCode::PageDown => {}
+                    KeyCode::Tab => {}
+                    KeyCode::BackTab => {}
+                    KeyCode::Delete => {}
+                    KeyCode::Insert => {}
+                    KeyCode::F(_) => {}
+                    KeyCode::Char('q') => self.ctx.is_running = false,
+                    KeyCode::Char(_) => {}
+                    KeyCode::Null => {}
+                    KeyCode::Esc => {}
+                },
+                Event::Mouse(_) => {}
+                Event::Resize(_, _) => {}
+                Event::Tick => {}
+            }
 
-            if !ctx.is_running {
+            if !self.ctx.is_running {
                 break;
             }
 
-            self.term.draw(|ref mut f| ui::draw(f, &ctx))?;
+            //let ctx = &self.ctx;
+            //self.term.draw(|ref mut f| ui::draw(f, ctx))?;
         }
 
         Ok(())

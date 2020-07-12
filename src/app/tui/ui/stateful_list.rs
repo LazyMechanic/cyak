@@ -1,10 +1,4 @@
-use crate::app::tui::ctx::Context;
-use tui::backend::Backend;
-use tui::layout::{Constraint, Direction, Layout};
-use tui::style::{Color, Modifier, Style};
-use tui::widgets::canvas::{Canvas, Map, MapResolution};
-use tui::widgets::{Block, BorderType, Borders, List, ListState, Text};
-use tui::Frame;
+use tui::widgets::ListState;
 
 pub struct StatefulList<T> {
     pub state: ListState,
@@ -60,22 +54,4 @@ impl<T> StatefulList<T> {
     pub fn unselect(&mut self) {
         self.state.select(None);
     }
-}
-
-pub fn draw<B: Backend>(f: &mut Frame<B>, ctx: &Context) {
-    // let mut list = StatefulList::with_items(MENU);
-    // let mut list_state = list.state;
-    //
-    // let app_size = f.size();
-    // let horizontal = Layout::default()
-    //     .direction(Direction::Horizontal)
-    //     .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
-    //     .split(app_size);
-    //
-    // let mock_menu = list.items.iter().map(|i| Text::raw(*i));
-    // let menu = List::new(mock_menu)
-    //     .block(Block::default().borders(Borders::ALL).title("Block"))
-    //     .highlight_style(Style::default().fg(Color::Yellow).modifier(Modifier::BOLD))
-    //     .highlight_symbol("> ");
-    // f.render_stateful_widget(menu, horizontal[0], &mut list_state);
 }
