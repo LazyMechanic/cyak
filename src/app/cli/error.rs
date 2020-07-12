@@ -8,8 +8,8 @@ pub enum Error {
     UnsupportedSubCommand,
     #[error(transparent)]
     EnvVarError(#[from] std::env::VarError),
-    #[error("Presets directory not found")]
-    PresetsDirNotFound,
+    #[error("Share data directory not found")]
+    ShareDataDirNotFound,
     #[error(transparent)]
     IoError(#[from] std::io::Error),
 }

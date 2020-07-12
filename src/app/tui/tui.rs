@@ -14,13 +14,13 @@ pub struct Tui {
 }
 
 impl Tui {
-    pub fn new(presets_dir: PathBuf, work_dir: PathBuf) -> Result<Self, Error> {
-        if !presets_dir.exists() {
-            return Error::PresetsDirNotFound.fail();
+    pub fn new(share_data_dir: PathBuf, work_dir: PathBuf) -> Result<Self, Error> {
+        if !share_data_dir.exists() {
+            return Error::ShareDataDirNotFound.fail();
         }
 
         let term = Terminal::new()?;
-        let ctx = Context::new(presets_dir, work_dir);
+        let ctx = Context::new(share_data_dir, work_dir);
         Ok(Self { term, ctx })
     }
 

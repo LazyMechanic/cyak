@@ -8,8 +8,8 @@ pub enum Error {
     TerminalNotInitialized,
     #[error(transparent)]
     MpscRecvError(#[from] std::sync::mpsc::RecvError),
-    #[error("Presets directory not found")]
-    PresetsDirNotFound,
+    #[error("Share data directory not found")]
+    ShareDataDirNotFound,
 }
 
 impl Error {

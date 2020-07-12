@@ -28,7 +28,7 @@ pub fn run() -> anyhow::Result<()> {
 
     let mut ui = match cli.mode {
         Mode::Tui => {
-            let tui = Tui::new(cli.presets_dir, cli.work_dir)?;
+            let tui = Tui::new(cli.share_data_dir, cli.work_dir)?;
             let ui = UserInterface::Tui(tui);
 
             ui
