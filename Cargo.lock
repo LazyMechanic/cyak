@@ -263,17 +263,32 @@ dependencies = [
 ]
 
 [[package]]
-name = "cyak"
+name = "cyak_cli"
 version = "0.1.0"
 dependencies = [
  "anyhow",
  "chrono",
  "clap",
  "cursive",
+ "cyak_core",
+ "serde",
+ "thiserror",
+]
+
+[[package]]
+name = "cyak_core"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "chrono",
  "handlebars",
  "serde",
  "thiserror",
 ]
+
+[[package]]
+name = "cyak_gui"
+version = "0.1.0"
 
 [[package]]
 name = "darling"
