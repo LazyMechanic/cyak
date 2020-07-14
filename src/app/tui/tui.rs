@@ -6,7 +6,7 @@ use super::terminal::Terminal;
 use super::ui;
 use super::Error;
 
-use crossterm::event::KeyCode;
+use crossterm::event::{KeyCode, KeyModifiers};
 
 pub struct Tui {
     term: Terminal,
@@ -27,30 +27,18 @@ impl Tui {
     pub fn run(&mut self) -> Result<(), Error> {
         loop {
             match self.term.next_event()? {
-                Event::Key(k) => match k.code {
-                    KeyCode::Backspace => {}
-                    KeyCode::Enter => {}
-                    KeyCode::Left => {}
-                    KeyCode::Right => {}
-                    KeyCode::Up => {}
-                    KeyCode::Down => {}
-                    KeyCode::Home => {}
-                    KeyCode::End => {}
-                    KeyCode::PageUp => {}
-                    KeyCode::PageDown => {}
-                    KeyCode::Tab => {}
-                    KeyCode::BackTab => {}
-                    KeyCode::Delete => {}
-                    KeyCode::Insert => {}
-                    KeyCode::F(_) => {}
-                    KeyCode::Char('q') => self.ctx.is_running = false,
-                    KeyCode::Char(_) => {}
-                    KeyCode::Null => {}
-                    KeyCode::Esc => {}
-                },
-                Event::Mouse(_) => {}
-                Event::Resize(_, _) => {}
-                Event::Tick => {}
+                Event::Key(k) => {
+                    let is_ctrl = k.modifiers.contains(KeyModifiers::CONTROL);
+                    match k.code {
+                        KeyCode::Char('c') => {
+                            if is_ctrl {
+                                self.ctx.is_running = false
+                            }
+                        }
+                        _ => {}
+                    }
+                }
+                _ => {}
             }
 
             if !self.ctx.is_running {

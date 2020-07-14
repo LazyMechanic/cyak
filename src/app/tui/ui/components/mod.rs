@@ -1,11 +1,12 @@
+pub mod input;
+pub mod menu;
+
 use tui::backend::Backend;
 use tui::layout::Rect;
 use tui::Frame;
 
 use crate::app::tui::event::Event;
 use crate::app::tui::ui::Error;
-
-pub mod menu;
 
 pub trait Drawable {
     fn draw<B: Backend>(&self, f: &mut Frame<B>, rect: Rect) -> Result<(), Error>;
@@ -42,7 +43,7 @@ pub trait Component {
     fn show(&mut self);
     /// Show/hide this component
     fn toggle_visible(&mut self) {
-        self.set_visible(self.visible());
+        self.set_visible(self.visible_status());
     }
     /// Show/hide this component depending on param
     fn set_visible(&mut self, vis: bool) {
