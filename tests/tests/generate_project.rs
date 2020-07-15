@@ -1,9 +1,3 @@
-use cyak_core::lang::Language;
-use cyak_core::project_config::ProjectConfig;
-use cyak_core::version::Version;
-use std::fs;
-use std::path::PathBuf;
-
 mod common;
 
 const ALREADY_GENERATED_PROJECT: &str = "already_generated";

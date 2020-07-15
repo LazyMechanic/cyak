@@ -8,3 +8,5 @@ edition = "2018"
 path = "../cyak_core"
 
 [dependencies]
+anyhow = "1.0"
+uuid = { version = "0.8", features = ["v4"] }
