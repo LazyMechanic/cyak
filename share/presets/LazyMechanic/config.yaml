@@ -3,7 +3,7 @@ version: "1.0.0"
 author: "LazyMechanic"
 description: "Preset with CI config templates, clang format settings and readme"
 default_values:
-  language: "C++"
+  language: "CXX"
   version:
     major: 0
     minor: 1
