@@ -22,21 +22,21 @@ pub struct PresetDefaultValues {
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct TargetProperties {
-    custom: Vec<CustomProperty>,
-    common: Vec<CommonProperty>,
+    pub custom: Vec<CustomProperty>,
+    pub common: Vec<CommonProperty>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct CustomProperty {
-    display: String,
-    description: String,
-    key: String,
-    value_pattern: String,
-    default: String,
+    pub display: String,
+    pub description: String,
+    pub key: String,
+    pub value_pattern: String,
+    pub default: String,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct CommonProperty {
-    key: String,
-    value: String,
+    pub key: String,
+    pub value: String,
 }

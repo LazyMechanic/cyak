@@ -1,3 +1,8 @@
 [workspace]
 
-members = ["cyak_core", "cyak_cli", "cyak_gui"]
+members = [
+    "cyak_core",
+    "cyak_cli",
+    "cyak_gui",
+    "tests"
+    ]

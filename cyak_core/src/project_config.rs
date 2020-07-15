@@ -5,20 +5,20 @@ use super::version::Version;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct ProjectConfig {
-    name: String,
-    namespace: String,
-    version: Version,
-    language: Language,
-    targets: Vec<Target>,
+    pub name: String,
+    pub namespace: String,
+    pub version: Version,
+    pub language: Language,
+    pub targets: Vec<Target>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Target {
     #[serde(rename = "type")]
-    kind: TargetKind,
-    name: String,
-    version: Version,
-    properties: Vec<TargetProperty>,
+    pub kind: TargetKind,
+    pub name: String,
+    pub version: Version,
+    pub properties: Vec<TargetProperty>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -31,6 +31,6 @@ pub enum TargetKind {
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct TargetProperty {
-    key: String,
-    value: String,
+    pub key: String,
+    pub value: String,
 }

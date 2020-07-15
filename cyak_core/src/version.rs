@@ -16,27 +16,18 @@ impl PartialOrd for Version {
 
 impl Ord for Version {
     fn cmp(&self, other: &Self) -> Ordering {
-        // Compare major
-        return if self.major > other.major {
-            Ordering::Greater
-        } else if self.major == other.major {
-            // Compare minor
-            if self.minor > other.minor {
-                Ordering::Greater
-            } else if self.minor == other.minor {
-                // Compare patch
-                if self.patch > other.patch {
-                    Ordering::Greater
-                } else if self.patch == other.patch {
-                    Ordering::Equal
-                } else {
-                    Ordering::Less
-                }
-            } else {
-                Ordering::Less
-            }
-        } else {
-            Ordering::Less
-        };
+        match self.major.cmp(&other.major) {
+            Ordering::Less => Ordering::Less,
+            Ordering::Equal => match self.minor.cmp(&other.minor) {
+                Ordering::Less => Ordering::Less,
+                Ordering::Equal => match self.patch.cmp(&other.patch) {
+                    Ordering::Less => Ordering::Less,
+                    Ordering::Equal => Ordering::Equal,
+                    Ordering::Greater => Ordering::Greater,
+                },
+                Ordering::Greater => Ordering::Greater,
+            },
+            Ordering::Greater => Ordering::Greater,
+        }
     }
 }

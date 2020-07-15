@@ -2,7 +2,7 @@ pub mod ui;
 
 use crate::cli::Cli;
 
-pub fn run(cli: Cli) -> anyhow::Result<()> {
+pub fn run(_cli: Cli) -> anyhow::Result<()> {
     let mut siv = cursive::default();
 
     siv.add_global_callback('q', |s| s.quit());
