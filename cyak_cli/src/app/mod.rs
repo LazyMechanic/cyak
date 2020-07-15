@@ -1,3 +1,5 @@
+pub mod ui;
+
 use crate::cli::Cli;
 
 pub fn run(cli: Cli) -> anyhow::Result<()> {

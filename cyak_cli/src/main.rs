@@ -12,7 +12,7 @@ fn main() {
     std::process::exit(match app() {
         Ok(_) => 0,
         Err(err) => {
-            eprintln!("error: {:?}", err);
+            eprintln!("error: {}", err);
             1
         }
     });
