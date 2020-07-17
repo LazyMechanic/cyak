@@ -1,3 +1,5 @@
+use std::fs;
+use std::fs::File;
 use std::path::{Path, PathBuf};
 
 use uuid::Uuid;
@@ -9,34 +11,13 @@ pub fn finalize_path<P: AsRef<Path>>(path: P) -> PathBuf {
     dir.join(path)
 }
 
-#[derive(Debug, Eq, PartialEq, Clone)]
-pub struct DirGuard(PathBuf);
+pub fn create_mock_project() -> anyhow::Result<PathBuf> {
+    let project_dir_path = finalize_path(&Uuid::new_v4().to_string());
+    let config_dir_path = project_dir_path.join(cyak_core::PROJECT_CONFIG_DIR);
+    let file_path = config_dir_path.join(cyak_core::PROJECT_CONFIG_FILE);
 
-impl DirGuard {
-    pub fn new<P: AsRef<Path>>(path: P) -> Self {
-        Self(path.as_ref().to_path_buf())
-    }
-}
+    fs::create_dir_all(&config_dir_path)?;
+    File::create(file_path)?;
 
-impl Drop for DirGuard {
-    fn drop(&mut self) {
-        match self.0.exists() {
-            true => std::fs::remove_dir_all(&self.0).unwrap(),
-            false => { /*do nothing*/ }
-        }
-    }
-}
-
-#[test]
-fn check_dir_guard() -> anyhow::Result<()> {
-    let dir = Uuid::new_v4().to_string();
-    let dir_to_create = finalize_path(&dir);
-    {
-        std::fs::create_dir(&dir_to_create)?;
-        let _guard = DirGuard::new(&dir_to_create);
-    }
-
-    assert!(!dir_to_create.exists());
-
-    Ok(())
+    Ok(project_dir_path)
 }

@@ -9,6 +9,9 @@ pub use error::Error;
 use project_config::ProjectConfig;
 use std::path::{Path, PathBuf};
 
+pub const PROJECT_CONFIG_DIR: &str = ".cyak";
+pub const PROJECT_CONFIG_FILE: &str = ".cyak.yaml";
+
 #[derive(Debug)]
 pub struct Context {
     pub project_dir: PathBuf,
@@ -28,9 +31,6 @@ pub fn generate_project(ctx: Context) -> Result<(), Error> {
 
 pub fn is_project_already_generated<P: AsRef<Path>>(dir: P) -> bool {
     let dir = dir.as_ref();
-
-    const PROJECT_CONFIG_DIR: &str = ".cyak";
-    const PROJECT_CONFIG_FILE: &str = ".cyak.yaml";
 
     let config_file = dir.join(PROJECT_CONFIG_DIR).join(PROJECT_CONFIG_FILE);
     config_file.exists()
