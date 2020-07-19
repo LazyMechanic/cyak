@@ -4,10 +4,13 @@ pub mod preset_config;
 pub mod project_config;
 pub mod version;
 
-pub use error::Error;
-
-use project_config::ProjectConfig;
+use std::fs::File;
 use std::path::{Path, PathBuf};
+
+pub use error::Error;
+use preset_config::PresetConfig;
+pub use project_config::ProjectConfig;
+use std::io::Read;
 
 pub const CYAK_CONFIG_DIR: &str = ".cyak";
 pub const CYAK_CONFIG_FILE: &str = ".cyak.yaml";
@@ -47,58 +50,66 @@ pub fn is_project_already_generated<P: AsRef<Path>>(dir: P) -> bool {
 
 pub fn validate_preset<P: AsRef<Path>>(dir: P) -> Result<(), Error> {
     let preset_dir = dir.as_ref();
-    let mut missing_files = Vec::new();
+    let mut error_files = Vec::new();
 
     // Check config.yaml
     let preset_config = preset_dir.join(Path::new(PRESET_CONFIG_FILE));
     if !preset_config.exists() {
-        missing_files.push(preset_config);
+        error_files.push(("missing file".to_string(), preset_config));
+    } else {
+        let mut f = File::open(&preset_config)?;
+        let mut s = String::new();
+        f.read_to_string(&mut s)?;
+        match serde_yaml::from_str::<PresetConfig>(&s) {
+            Ok(_) => { /*do nothing*/ }
+            Err(e) => error_files.push((e.to_string(), preset_config)),
+        }
     }
 
     // Check templates dir
     let templates_dir = preset_dir.join(TEMPLATES_DIR);
     if !templates_dir.exists() {
-        missing_files.push(templates_dir.clone());
+        error_files.push(("missing file".to_string(), templates_dir.clone()));
     }
 
     // Check project template
     let project_template = templates_dir.join(PROJECT_TEMPLATE_FILE);
     if !project_template.exists() {
-        missing_files.push(project_template);
+        error_files.push(("missing file".to_string(), project_template));
     }
 
     // Check library config template
     let config_template = templates_dir.join(CONFIG_TEMPLATE_FILE);
     if !config_template.exists() {
-        missing_files.push(config_template);
+        error_files.push(("missing file".to_string(), config_template));
     }
 
     // Check library template
     let lib_template = templates_dir.join(LIBRARY_TEMPLATE_FILE);
     if !lib_template.exists() {
-        missing_files.push(lib_template);
+        error_files.push(("missing file".to_string(), lib_template));
     }
 
     // Check executable template
     let exec_template = templates_dir.join(EXECUTABLE_TEMPLATE_FILE);
     if !exec_template.exists() {
-        missing_files.push(exec_template);
+        error_files.push(("missing file".to_string(), exec_template));
     }
 
     // Check interface template
     let interface_template = templates_dir.join(INTERFACE_TEMPLATE_FILE);
     if !interface_template.exists() {
-        missing_files.push(interface_template);
+        error_files.push(("missing file".to_string(), interface_template));
     }
 
     // Check test template
     let test_template = templates_dir.join(TEST_TEMPLATE_FILE);
     if !test_template.exists() {
-        missing_files.push(test_template);
+        error_files.push(("missing file".to_string(), test_template));
     }
 
-    if missing_files.len() > 0 {
-        return Error::InvalidPresetStructure(missing_files).fail();
+    if error_files.len() > 0 {
+        return Error::InvalidPresetStructure(error_files).fail();
     }
 
     Ok(())
