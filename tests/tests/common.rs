@@ -7,11 +7,13 @@ use uuid::Uuid;
 
 pub const STUFF_DIR: &str = "tests/stuff";
 
+#[allow(dead_code)]
 pub fn finalize_path<P: AsRef<Path>>(path: P) -> PathBuf {
     let dir = PathBuf::from(STUFF_DIR);
     dir.join(path)
 }
 
+#[allow(dead_code)]
 pub fn create_mock_project() -> anyhow::Result<PathBuf> {
     let project_dir = finalize_path(&Uuid::new_v4().to_string());
     let config_dir = project_dir.join(cyak_core::CYAK_CONFIG_DIR);
@@ -23,6 +25,7 @@ pub fn create_mock_project() -> anyhow::Result<PathBuf> {
     Ok(project_dir)
 }
 
+#[allow(dead_code)]
 pub fn create_mock_preset() -> anyhow::Result<PathBuf> {
     let preset_dir = finalize_path(&Uuid::new_v4().to_string());
     let templates_dir = preset_dir.join(cyak_core::TEMPLATES_DIR);
@@ -82,6 +85,7 @@ default_values:
     Ok(preset_dir)
 }
 
+#[allow(dead_code)]
 pub fn create_mock_invalid_preset() -> anyhow::Result<PathBuf> {
     let preset_dir = finalize_path(&Uuid::new_v4().to_string());
     let templates_dir = preset_dir.join(cyak_core::TEMPLATES_DIR);

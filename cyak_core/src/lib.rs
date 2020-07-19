@@ -5,9 +5,8 @@ pub mod project_config;
 pub mod version;
 
 use std::fs::{self, File};
-use std::io::{self, Read};
+use std::io::Read;
 use std::path::{Path, PathBuf};
-use std::process;
 
 pub use error::Error;
 use preset_config::PresetConfig;
@@ -43,6 +42,11 @@ pub fn generate_project(ctx: Context) -> Result<(), Error> {
 
     // Make project directory
     fs::create_dir_all(&ctx.project_dir)?;
+
+    // Git init
+    if ctx.git {
+        git_init(&ctx.project_dir)?;
+    }
 
     let cyak_config_dir = ctx.project_dir.join(CYAK_CONFIG_DIR);
     let cyak_config_file_path = cyak_config_dir.join(CYAK_CONFIG_FILE);
@@ -83,6 +87,11 @@ pub fn copy_preset_to_project<P: AsRef<Path>>(preset_dir: P, project_dir: P) -> 
         &fs_extra::dir::CopyOptions::new(),
     )?;
 
+    Ok(())
+}
+
+pub fn git_init<P: AsRef<Path>>(dir: P) -> Result<(), Error> {
+    git2::Repository::init(dir.as_ref())?;
     Ok(())
 }
 

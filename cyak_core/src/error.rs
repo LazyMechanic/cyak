@@ -23,6 +23,8 @@ pub enum Error {
     SerdeYamlError(#[from] serde_yaml::Error),
     #[error(transparent)]
     FsExtraError(#[from] fs_extra::error::Error),
+    #[error(transparent)]
+    GitError(#[from] git2::Error),
 }
 
 impl Error {
