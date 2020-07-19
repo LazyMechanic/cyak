@@ -4,13 +4,14 @@ pub mod preset_config;
 pub mod project_config;
 pub mod version;
 
-use std::fs::File;
+use std::fs::{self, File};
+use std::io::{self, Read};
 use std::path::{Path, PathBuf};
+use std::process;
 
 pub use error::Error;
 use preset_config::PresetConfig;
 pub use project_config::ProjectConfig;
-use std::io::Read;
 
 pub const CYAK_CONFIG_DIR: &str = ".cyak";
 pub const CYAK_CONFIG_FILE: &str = ".cyak.yaml";
@@ -37,6 +38,50 @@ pub fn generate_project(ctx: Context) -> Result<(), Error> {
     if is_project_already_generated(&ctx.project_dir) {
         return Error::ProjectAlreadyGenerated(ctx.project_dir).fail();
     }
+
+    validate_preset(&ctx.preset_dir)?;
+
+    // Make project directory
+    fs::create_dir_all(&ctx.project_dir)?;
+
+    let cyak_config_dir = ctx.project_dir.join(CYAK_CONFIG_DIR);
+    let cyak_config_file_path = cyak_config_dir.join(CYAK_CONFIG_FILE);
+
+    // Make cyak directory with config and actual preset
+    fs::create_dir_all(&cyak_config_dir)?;
+    let cyak_config_file = File::create(&cyak_config_file_path)?;
+    serde_yaml::to_writer(cyak_config_file, &ctx.project_config)?;
+
+    // Copy preset to cyak directory
+    copy_preset_to_project(&ctx.preset_dir, &ctx.project_dir)?;
+
+    Ok(())
+}
+
+pub fn copy_preset_to_project<P: AsRef<Path>>(preset_dir: P, project_dir: P) -> Result<(), Error> {
+    let preset_dir = preset_dir.as_ref();
+    let project_dir = project_dir.as_ref();
+    let cyak_config_dir = project_dir.join(CYAK_CONFIG_DIR);
+
+    if !preset_dir.is_dir() {
+        return Error::NotDir(preset_dir.to_path_buf()).fail();
+    }
+
+    if !project_dir.is_dir() {
+        return Error::NotDir(project_dir.to_path_buf()).fail();
+    }
+
+    // Make cyak directory if not exist
+    if !cyak_config_dir.exists() {
+        fs::create_dir(&cyak_config_dir)?;
+    }
+
+    // Copy preset directory recursively
+    fs_extra::dir::copy(
+        preset_dir,
+        &cyak_config_dir,
+        &fs_extra::dir::CopyOptions::new(),
+    )?;
 
     Ok(())
 }
