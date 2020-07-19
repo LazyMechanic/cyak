@@ -5,12 +5,14 @@ pub mod project_config;
 pub mod version;
 
 use std::fs::{self, File};
-use std::io::Read;
+use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
 
 pub use error::Error;
 use preset_config::PresetConfig;
 pub use project_config::ProjectConfig;
+
+pub const LICENSE_FILE: &str = "LICENSE";
 
 pub const CYAK_CONFIG_DIR: &str = ".cyak";
 pub const CYAK_CONFIG_FILE: &str = ".cyak.yaml";
@@ -40,7 +42,7 @@ pub fn generate_project(ctx: Context) -> Result<(), Error> {
 
     validate_preset(&ctx.preset_dir)?;
 
-    // Make project directory
+    // Create project directory
     fs::create_dir_all(&ctx.project_dir)?;
 
     // Git init
@@ -51,7 +53,7 @@ pub fn generate_project(ctx: Context) -> Result<(), Error> {
     let cyak_config_dir = ctx.project_dir.join(CYAK_CONFIG_DIR);
     let cyak_config_file_path = cyak_config_dir.join(CYAK_CONFIG_FILE);
 
-    // Make cyak directory with config and actual preset
+    // Create cyak directory with config and actual preset
     fs::create_dir_all(&cyak_config_dir)?;
     let cyak_config_file = File::create(&cyak_config_file_path)?;
     serde_yaml::to_writer(cyak_config_file, &ctx.project_config)?;
@@ -59,39 +61,9 @@ pub fn generate_project(ctx: Context) -> Result<(), Error> {
     // Copy preset to cyak directory
     copy_preset_to_project(&ctx.preset_dir, &ctx.project_dir)?;
 
-    Ok(())
-}
+    // Create license file if need it
+    create_license(&ctx.project_dir, ctx.license)?;
 
-pub fn copy_preset_to_project<P: AsRef<Path>>(preset_dir: P, project_dir: P) -> Result<(), Error> {
-    let preset_dir = preset_dir.as_ref();
-    let project_dir = project_dir.as_ref();
-    let cyak_config_dir = project_dir.join(CYAK_CONFIG_DIR);
-
-    if !preset_dir.is_dir() {
-        return Error::NotDir(preset_dir.to_path_buf()).fail();
-    }
-
-    if !project_dir.is_dir() {
-        return Error::NotDir(project_dir.to_path_buf()).fail();
-    }
-
-    // Make cyak directory if not exist
-    if !cyak_config_dir.exists() {
-        fs::create_dir(&cyak_config_dir)?;
-    }
-
-    // Copy preset directory recursively
-    fs_extra::dir::copy(
-        preset_dir,
-        &cyak_config_dir,
-        &fs_extra::dir::CopyOptions::new(),
-    )?;
-
-    Ok(())
-}
-
-pub fn git_init<P: AsRef<Path>>(dir: P) -> Result<(), Error> {
-    git2::Repository::init(dir.as_ref())?;
     Ok(())
 }
 
@@ -164,6 +136,57 @@ pub fn validate_preset<P: AsRef<Path>>(dir: P) -> Result<(), Error> {
 
     if error_files.len() > 0 {
         return Error::InvalidPresetStructure(error_files).fail();
+    }
+
+    Ok(())
+}
+
+pub fn git_init<P: AsRef<Path>>(dir: P) -> Result<(), Error> {
+    git2::Repository::init(dir.as_ref())?;
+    Ok(())
+}
+
+pub fn copy_preset_to_project<P: AsRef<Path>>(preset_dir: P, project_dir: P) -> Result<(), Error> {
+    let preset_dir = preset_dir.as_ref();
+    let project_dir = project_dir.as_ref();
+    let cyak_config_dir = project_dir.join(CYAK_CONFIG_DIR);
+
+    if !preset_dir.is_dir() {
+        return Error::NotDir(preset_dir.to_path_buf()).fail();
+    }
+
+    if !project_dir.is_dir() {
+        return Error::NotDir(project_dir.to_path_buf()).fail();
+    }
+
+    // Make cyak directory if not exist
+    if !cyak_config_dir.exists() {
+        fs::create_dir(&cyak_config_dir)?;
+    }
+
+    // Copy preset directory recursively
+    fs_extra::dir::copy(
+        preset_dir,
+        &cyak_config_dir,
+        &fs_extra::dir::CopyOptions::new(),
+    )?;
+
+    Ok(())
+}
+
+pub fn create_license<P: AsRef<Path>>(
+    project_dir: P,
+    license: Option<String>,
+) -> Result<(), Error> {
+    let project_dir = project_dir.as_ref();
+
+    match license {
+        None => { /*do nothing*/ }
+        Some(s) => {
+            let license_path = project_dir.join(LICENSE_FILE);
+            let mut file = File::create(license_path)?;
+            file.write_all(s.as_bytes())?;
+        }
     }
 
     Ok(())
