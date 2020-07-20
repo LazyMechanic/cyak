@@ -29,6 +29,8 @@ pub fn create_mock_project() -> anyhow::Result<PathBuf> {
 pub fn create_mock_preset() -> anyhow::Result<PathBuf> {
     let preset_dir = finalize_path(&Uuid::new_v4().to_string());
     let templates_dir = preset_dir.join(cyak_core::TEMPLATES_DIR);
+    let asis_dir = preset_dir.join(cyak_core::ASIS_DIR);
+
     let config_file = preset_dir.join(cyak_core::PRESET_CONFIG_FILE);
 
     let config_template = templates_dir.join(cyak_core::CONFIG_TEMPLATE_FILE);
@@ -38,13 +40,41 @@ pub fn create_mock_preset() -> anyhow::Result<PathBuf> {
     let interface_template = templates_dir.join(cyak_core::INTERFACE_TEMPLATE_FILE);
     let test_template = templates_dir.join(cyak_core::TEST_TEMPLATE_FILE);
 
-    // Create structure
+    // Create preset directory
     fs::create_dir_all(&preset_dir)?;
-    fs::create_dir_all(&templates_dir)?;
 
-    let mut c = File::create(&config_file)?;
+    // Create `asis`
     {
-        let config_text = r#"---
+        fs::create_dir(&asis_dir)?;
+
+        File::create(&asis_dir.join(&Uuid::new_v4().to_string()))?;
+        File::create(&asis_dir.join(&Uuid::new_v4().to_string()))?;
+        fs::create_dir(&asis_dir.join(&Uuid::new_v4().to_string()))?;
+        fs::create_dir(&asis_dir.join(&Uuid::new_v4().to_string()))?;
+        {
+            let dir = asis_dir.join(&Uuid::new_v4().to_string());
+            let nested_dir1 = dir.join(&Uuid::new_v4().to_string());
+            let nested_dir2 = dir.join(&Uuid::new_v4().to_string());
+
+            fs::create_dir(&dir)?;
+            fs::create_dir(&nested_dir1)?;
+            fs::create_dir(&nested_dir2)?;
+
+            File::create(&dir.join(&Uuid::new_v4().to_string()))?;
+            File::create(&nested_dir1.join(&Uuid::new_v4().to_string()))?;
+            File::create(&nested_dir1.join(&Uuid::new_v4().to_string()))?;
+            File::create(&nested_dir2.join(&Uuid::new_v4().to_string()))?;
+            File::create(&nested_dir2.join(&Uuid::new_v4().to_string()))?;
+        }
+    }
+
+    // Create templates
+    {
+        fs::create_dir_all(&templates_dir)?;
+
+        let mut c = File::create(&config_file)?;
+        {
+            let config_text = r#"---
 name: "Default"
 version: "1.0.0"
 author: "LazyMechanic"
@@ -72,15 +102,16 @@ default_values:
       - key: "CXX_STANDARD_REQUIRED"
         value: "ON"
 "#;
-        c.write_all(config_text.as_bytes())?;
-    }
+            c.write_all(config_text.as_bytes())?;
+        }
 
-    File::create(&config_template)?;
-    File::create(&project_template)?;
-    File::create(&exec_template)?;
-    File::create(&lib_template)?;
-    File::create(&interface_template)?;
-    File::create(&test_template)?;
+        File::create(&config_template)?;
+        File::create(&project_template)?;
+        File::create(&exec_template)?;
+        File::create(&lib_template)?;
+        File::create(&interface_template)?;
+        File::create(&test_template)?;
+    }
 
     Ok(preset_dir)
 }

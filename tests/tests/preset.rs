@@ -45,3 +45,20 @@ fn copy_preset_to_project() -> anyhow::Result<()> {
 
     Ok(())
 }
+
+#[test]
+fn copy_asis_to_project() -> anyhow::Result<()> {
+    let preset_dir = common::create_mock_preset()?;
+    let asis_dir = preset_dir.join(cyak_core::ASIS_DIR);
+    let project_dir = common::finalize_path(&Uuid::new_v4().to_string());
+    std::fs::create_dir_all(&project_dir)?;
+
+    assert!(
+        !cyak_core::copy_asis_to_project(&preset_dir, &project_dir).is_err(),
+        "copy should be successful"
+    );
+
+    assert!(!dir_diff::is_different(asis_dir, project_dir).unwrap());
+
+    Ok(())
+}

@@ -9,6 +9,7 @@ use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
 
 pub use error::Error;
+use fs_extra::dir::{CopyOptions, DirOptions};
 use preset_config::PresetConfig;
 pub use project_config::ProjectConfig;
 
@@ -16,6 +17,8 @@ pub const LICENSE_FILE: &str = "LICENSE";
 
 pub const CYAK_CONFIG_DIR: &str = ".cyak";
 pub const CYAK_CONFIG_FILE: &str = ".cyak.yaml";
+
+pub const ASIS_DIR: &str = "asis";
 
 pub const PRESET_CONFIG_FILE: &str = "config.yaml";
 pub const TEMPLATES_DIR: &str = "templates";
@@ -191,3 +194,49 @@ pub fn create_license<P: AsRef<Path>>(
 
     Ok(())
 }
+
+pub fn copy_asis_to_project<P: AsRef<Path>>(preset_dir: P, project_dir: P) -> Result<(), Error> {
+    let preset_dir = preset_dir.as_ref();
+    let project_dir = project_dir.as_ref();
+    let asis_dir = preset_dir.join(ASIS_DIR);
+
+    // If there is no `asis` dir then return
+    if !asis_dir.exists() {
+        return Ok(());
+    }
+
+    let asis_targets = {
+        let opts = {
+            let mut opts = DirOptions::new();
+            opts.depth = 1;
+            opts
+        };
+        let mut asis_content = fs_extra::dir::get_dir_content2(&asis_dir, &opts)?;
+        asis_content.directories = asis_content
+            .directories
+            .into_iter()
+            .filter(|s| !s.ends_with(ASIS_DIR))
+            .collect();
+
+        let mut targets: Vec<String> = Vec::new();
+        targets.append(&mut asis_content.files);
+        targets.append(&mut asis_content.directories);
+        targets
+    };
+
+    // Copy all `asis` content
+    {
+        let mut opts = CopyOptions::new();
+        opts.overwrite = true;
+        fs_extra::copy_items(&asis_targets, &project_dir, &opts)?;
+    }
+
+    Ok(())
+}
+
+// pub fn create_project_from_config<P: AsRef<Path>>(
+//     project_dir: P,
+//     project_config: ProjectConfig,
+// ) -> Result<(), Error> {
+//     Ok(())
+// }
