@@ -64,6 +64,9 @@ pub fn generate_project(ctx: Context) -> Result<(), Error> {
     // Copy preset to cyak directory
     copy_preset_to_project(&ctx.preset_dir, &ctx.project_dir)?;
 
+    // Copy `asis` directory to project directory
+    copy_asis_to_project(&ctx.preset_dir, &ctx.project_dir)?;
+
     // Create license file if need it
     create_license(&ctx.project_dir, ctx.license)?;
 
@@ -154,12 +157,17 @@ pub fn copy_preset_to_project<P: AsRef<Path>>(preset_dir: P, project_dir: P) -> 
     let project_dir = project_dir.as_ref();
     let cyak_config_dir = project_dir.join(CYAK_CONFIG_DIR);
 
-    if !preset_dir.is_dir() {
-        return Error::NotDir(preset_dir.to_path_buf()).fail();
+    // Create project dir if not exist
+    if !project_dir.exists() {
+        fs::create_dir_all(&project_dir)?;
     }
 
     if !project_dir.is_dir() {
         return Error::NotDir(project_dir.to_path_buf()).fail();
+    }
+
+    if !preset_dir.is_dir() {
+        return Error::NotDir(preset_dir.to_path_buf()).fail();
     }
 
     // Make cyak directory if not exist
@@ -199,6 +207,19 @@ pub fn copy_asis_to_project<P: AsRef<Path>>(preset_dir: P, project_dir: P) -> Re
     let preset_dir = preset_dir.as_ref();
     let project_dir = project_dir.as_ref();
     let asis_dir = preset_dir.join(ASIS_DIR);
+
+    // Create project dir if not exist
+    if !project_dir.exists() {
+        fs::create_dir_all(&project_dir)?;
+    }
+
+    if !project_dir.is_dir() {
+        return Error::NotDir(project_dir.to_path_buf()).fail();
+    }
+
+    if !preset_dir.is_dir() {
+        return Error::NotDir(preset_dir.to_path_buf()).fail();
+    }
 
     // If there is no `asis` dir then return
     if !asis_dir.exists() {
