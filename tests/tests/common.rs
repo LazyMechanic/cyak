@@ -153,3 +153,127 @@ description: "Default preset for cross platform C++ (by default) project"
 
     Ok(preset_dir)
 }
+
+const PROJECT_TEMPLATE: &str = r#"
+Name          = {{name}}
+Namespace     = {{namespace}}
+Version.major = {{version.major}}
+Version.minor = {{version.minor}}
+Version.patch = {{version.patch}}
+Language      = {{language}}
+Targets       = [
+    {{#each targets}}{
+        Kind          = {{kind}}
+        Name          = {{name}}
+        Version.major = {{version.major}}
+        Version.minor = {{version.minor}}
+        Version.patch = {{version.patch}}
+        Properties    = [
+            {{#each properties}}{
+                Key   = {{key}}
+                Value = {{value}}
+            },
+            {{/each}}
+        ]
+    },
+    {{/each}}
+"#;
+
+const TARGET_TEMPLATE: &str = r#"
+Kind          = {{kind}}
+Name          = {{name}}
+Version.major = {{version.major}}
+Version.minor = {{version.minor}}
+Version.patch = {{version.patch}}
+Properties    = [
+    {{#each properties}}{
+        Key   = {{key}}
+        Value = {{value}}
+    },
+    {{/each}}
+]
+"#;
+
+#[allow(dead_code)]
+pub fn create_mock_test_preset() -> anyhow::Result<PathBuf> {
+    let preset_dir = finalize_path(&Uuid::new_v4().to_string());
+    let templates_dir = preset_dir.join(cyak_core::TEMPLATES_DIR);
+    let asis_dir = preset_dir.join(cyak_core::ASIS_DIR);
+
+    let config_file = preset_dir.join(cyak_core::PRESET_CONFIG_FILE);
+
+    let config_template = templates_dir.join(cyak_core::CONFIG_TEMPLATE_FILE);
+    let project_template = templates_dir.join(cyak_core::PROJECT_TEMPLATE_FILE);
+    let exec_template = templates_dir.join(cyak_core::EXECUTABLE_TEMPLATE_FILE);
+    let lib_template = templates_dir.join(cyak_core::LIBRARY_TEMPLATE_FILE);
+    let interface_template = templates_dir.join(cyak_core::INTERFACE_TEMPLATE_FILE);
+    let test_template = templates_dir.join(cyak_core::TEST_TEMPLATE_FILE);
+
+    // Create preset directory
+    fs::create_dir_all(&preset_dir)?;
+
+    // Create templates
+    {
+        fs::create_dir_all(&templates_dir)?;
+
+        {
+            let mut c = File::create(&config_file)?;
+            let config_text = r#"---
+name: "NAME"
+version: "1.0.0"
+author: "AUTHOR"
+description: "DESCRIPTION"
+default_values:
+  language: "CXX"
+  version:
+    major: 0
+    minor: 1
+    patch: 0
+  git: true
+  target_properties:
+    custom:
+      - display: "Language standard"
+        description: "Set language standard"
+        key: "CXX_STANDARD"
+        value_pattern: "^[0-9]+$"
+        default: "17"
+      - display: "Language extensions"
+        description: "Enable or disable extensions. For example GCC extensions"
+        key: "CXX_EXTENSIONS"
+        value_pattern: "on|off"
+        default: "off"
+    common:
+      - key: "CXX_STANDARD_REQUIRED"
+        value: "ON"
+"#;
+            c.write_all(config_text.as_bytes())?;
+        }
+
+        {
+            let mut f = File::create(&project_template)?;
+            f.write_all(PROJECT_TEMPLATE.as_bytes())?;
+        }
+        {
+            let mut f = File::create(&config_template)?;
+            f.write_all(TARGET_TEMPLATE.as_bytes())?;
+        }
+        {
+            let mut f = File::create(&exec_template)?;
+            f.write_all(TARGET_TEMPLATE.as_bytes())?;
+        }
+        {
+            let mut f = File::create(&lib_template)?;
+            f.write_all(TARGET_TEMPLATE.as_bytes())?;
+        }
+        {
+            let mut f = File::create(&interface_template)?;
+            f.write_all(TARGET_TEMPLATE.as_bytes())?;
+        }
+        {
+            let mut f = File::create(&test_template)?;
+            f.write_all(TARGET_TEMPLATE.as_bytes())?;
+        }
+    }
+
+    Ok(preset_dir)
+}

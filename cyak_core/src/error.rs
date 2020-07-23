@@ -11,6 +11,8 @@ pub enum Error {
     InvalidPresetStructure(Vec<(String, PathBuf)>),
     #[error("Directory not found: {0:?}")]
     DirNotFound(PathBuf),
+    #[error("File not found: {0:?}")]
+    FileNotFound(PathBuf),
     #[error("Invalid file name: {0:?}")]
     InvalidFilename(PathBuf),
     #[error("Path is not a directory: {0:?}")]
@@ -25,6 +27,8 @@ pub enum Error {
     FsExtraError(#[from] fs_extra::error::Error),
     #[error(transparent)]
     GitError(#[from] git2::Error),
+    #[error(transparent)]
+    HandlebarsTemplateRenderError(#[from] handlebars::TemplateRenderError),
 }
 
 impl Error {

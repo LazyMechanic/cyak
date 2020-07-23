@@ -14,15 +14,14 @@ pub struct ProjectConfig {
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Target {
-    #[serde(rename = "type")]
     pub kind: TargetKind,
     pub name: String,
     pub version: Version,
     pub properties: Vec<TargetProperty>,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
-#[serde(rename_all = "lowercase", untagged)]
+#[derive(Debug, Deserialize, Serialize, Copy, Clone, Eq, PartialEq)]
+#[serde(rename_all = "lowercase")]
 pub enum TargetKind {
     Executable,
     Library,

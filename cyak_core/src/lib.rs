@@ -8,6 +8,9 @@ use std::fs::{self, File};
 use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
 
+use handlebars::Handlebars;
+
+use crate::project_config::TargetKind;
 pub use error::Error;
 use fs_extra::dir::{CopyOptions, DirOptions};
 use preset_config::PresetConfig;
@@ -28,6 +31,10 @@ pub const INTERFACE_TEMPLATE_FILE: &str = "interface.hbs";
 pub const LIBRARY_TEMPLATE_FILE: &str = "library.hbs";
 pub const PROJECT_TEMPLATE_FILE: &str = "project.hbs";
 pub const TEST_TEMPLATE_FILE: &str = "test.hbs";
+
+pub const SOURCE_DIR: &str = "src";
+pub const INTERFACE_DIR: &str = "include";
+pub const CMAKE_FILE: &str = "CMakeLists.txt";
 
 #[derive(Debug)]
 pub struct Context {
@@ -69,6 +76,9 @@ pub fn generate_project(ctx: Context) -> Result<(), Error> {
 
     // Create license file if need it
     create_license(&ctx.project_dir, ctx.license)?;
+
+    // Create all project
+    create_project_from_config(&ctx.project_dir, &ctx.preset_dir, ctx.project_config)?;
 
     Ok(())
 }
@@ -255,9 +265,108 @@ pub fn copy_asis_to_project<P: AsRef<Path>>(preset_dir: P, project_dir: P) -> Re
     Ok(())
 }
 
-// pub fn create_project_from_config<P: AsRef<Path>>(
-//     project_dir: P,
-//     project_config: ProjectConfig,
-// ) -> Result<(), Error> {
-//     Ok(())
-// }
+pub fn create_project_from_config<P: AsRef<Path>>(
+    project_dir: P,
+    preset_dir: P,
+    project_config: ProjectConfig,
+) -> Result<(), Error> {
+    let project_dir = project_dir.as_ref();
+    let preset_dir = preset_dir.as_ref();
+
+    let templates_dir = preset_dir.join(TEMPLATES_DIR);
+    let project_template = templates_dir.join(PROJECT_TEMPLATE_FILE);
+    let config_template = templates_dir.join(CONFIG_TEMPLATE_FILE);
+    let lib_template = templates_dir.join(LIBRARY_TEMPLATE_FILE);
+    let exec_template = templates_dir.join(EXECUTABLE_TEMPLATE_FILE);
+    let interface_template = templates_dir.join(INTERFACE_TEMPLATE_FILE);
+    let test_template = templates_dir.join(TEST_TEMPLATE_FILE);
+
+    let src_dir = project_dir.join(SOURCE_DIR);
+    let interface_dir = project_dir.join(INTERFACE_DIR);
+
+    // Validate again preset
+    if !templates_dir.exists() {
+        return Error::DirNotFound(templates_dir.clone()).fail();
+    }
+
+    if !project_template.exists() {
+        return Error::FileNotFound(project_template.clone()).fail();
+    }
+
+    if !config_template.exists() {
+        return Error::FileNotFound(config_template.clone()).fail();
+    }
+
+    if !lib_template.exists() {
+        return Error::FileNotFound(lib_template.clone()).fail();
+    }
+
+    if !exec_template.exists() {
+        return Error::FileNotFound(exec_template.clone()).fail();
+    }
+
+    if !interface_template.exists() {
+        return Error::FileNotFound(interface_template.clone()).fail();
+    }
+
+    if !test_template.exists() {
+        return Error::FileNotFound(test_template.clone()).fail();
+    }
+
+    if !project_dir.exists() {
+        fs::create_dir_all(&project_dir)?;
+    }
+
+    let mut reg = Handlebars::new();
+
+    // Create main CMakeLists.txt
+    {
+        let mut project_file = File::open(&project_template)?;
+        let mut project_file_dest = File::create(&project_dir.join(CMAKE_FILE))?;
+        reg.render_template_source_to_write(&mut project_file, &project_config, project_file_dest)?;
+    }
+
+    // Create targets CMakeLists.txt
+    {
+        for target in &project_config.targets {
+            // Create source dir or interface if not exists
+            let base_dir = match target.kind {
+                TargetKind::Executable => {
+                    let dir = src_dir.join(&target.name);
+                    if !dir.exists() {
+                        fs::create_dir_all(&dir)?;
+                    }
+                    dir
+                }
+                TargetKind::Library => {
+                    let dir = src_dir.join(&target.name);
+                    if !dir.exists() {
+                        fs::create_dir_all(&dir)?;
+                    }
+                    dir
+                }
+                TargetKind::Interface => {
+                    let dir = interface_dir.join(&target.name);
+                    if !dir.exists() {
+                        fs::create_dir_all(&dir)?;
+                    }
+                    dir
+                }
+            };
+
+            let mut file = match target.kind {
+                TargetKind::Executable => File::open(&exec_template)?,
+                TargetKind::Library => File::open(&lib_template)?,
+                TargetKind::Interface => File::open(&interface_template)?,
+            };
+            let mut file_dest = match target.kind {
+                TargetKind::Executable => File::create(&base_dir.join(CMAKE_FILE))?,
+                TargetKind::Library => File::create(&base_dir.join(CMAKE_FILE))?,
+                TargetKind::Interface => File::create(&base_dir.join(CMAKE_FILE))?,
+            };
+            reg.render_template_source_to_write(&mut file, target, file_dest)?;
+        }
+    }
+
+    Ok(())
+}
