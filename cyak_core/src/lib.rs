@@ -1,3 +1,4 @@
+pub mod consts;
 pub mod error;
 pub mod lang;
 pub mod preset_config;
@@ -8,33 +9,15 @@ use std::fs::{self, File};
 use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
 
+use fs_extra::dir::{CopyOptions, DirOptions};
 use handlebars::Handlebars;
 
-use crate::project_config::TargetKind;
+pub use consts::*;
 pub use error::Error;
-use fs_extra::dir::{CopyOptions, DirOptions};
-use preset_config::PresetConfig;
+pub use preset_config::PresetConfig;
 pub use project_config::ProjectConfig;
-
-pub const LICENSE_FILE: &str = "LICENSE";
-
-pub const CYAK_CONFIG_DIR: &str = ".cyak";
-pub const CYAK_CONFIG_FILE: &str = ".cyak.yaml";
-
-pub const ASIS_DIR: &str = "asis";
-
-pub const PRESET_CONFIG_FILE: &str = "config.yaml";
-pub const TEMPLATES_DIR: &str = "templates";
-pub const CONFIG_TEMPLATE_FILE: &str = "config.hbs";
-pub const EXECUTABLE_TEMPLATE_FILE: &str = "executable.hbs";
-pub const INTERFACE_TEMPLATE_FILE: &str = "interface.hbs";
-pub const LIBRARY_TEMPLATE_FILE: &str = "library.hbs";
-pub const PROJECT_TEMPLATE_FILE: &str = "project.hbs";
-pub const TEST_TEMPLATE_FILE: &str = "test.hbs";
-
-pub const SOURCE_DIR: &str = "src";
-pub const INTERFACE_DIR: &str = "include";
-pub const CMAKE_FILE: &str = "CMakeLists.txt";
+pub use project_config::TargetKind;
+pub use version::Version;
 
 #[derive(Debug)]
 pub struct Context {
@@ -336,6 +319,10 @@ pub fn create_project_from_config<P: AsRef<Path>>(
                     if !dir.exists() {
                         fs::create_dir_all(&dir)?;
                     }
+
+                    // Add empty file with hello world
+                    let mut file = File::create(dir.join(EXEC_SRC_FILE))?;
+                    file.write_all(EXEC_SRC.as_bytes())?;
                     dir
                 }
                 TargetKind::Library => {
@@ -343,6 +330,10 @@ pub fn create_project_from_config<P: AsRef<Path>>(
                     if !dir.exists() {
                         fs::create_dir_all(&dir)?;
                     }
+
+                    // Add empty file with hello world
+                    let mut file = File::create(dir.join(&target.name))?;
+                    file.write_all(LIB_SRC.as_bytes())?;
                     dir
                 }
                 TargetKind::Interface => {
@@ -350,6 +341,10 @@ pub fn create_project_from_config<P: AsRef<Path>>(
                     if !dir.exists() {
                         fs::create_dir_all(&dir)?;
                     }
+
+                    // Add empty file with hello world
+                    let mut file = File::create(dir.join(&target.name))?;
+                    file.write_all(LIB_SRC.as_bytes())?;
                     dir
                 }
             };

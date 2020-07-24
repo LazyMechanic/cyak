@@ -54,6 +54,25 @@ fn create_project_from_config() -> anyhow::Result<()> {
                     },
                 ],
             },
+            Target {
+                kind: TargetKind::Interface,
+                name: "interface_name".to_string(),
+                version: Version {
+                    major: 66,
+                    minor: 7,
+                    patch: 123,
+                },
+                properties: vec![
+                    TargetProperty {
+                        key: "some_property1".to_string(),
+                        value: "value1".to_string(),
+                    },
+                    TargetProperty {
+                        key: "some_property2".to_string(),
+                        value: "2".to_string(),
+                    },
+                ],
+            },
         ],
     };
 
