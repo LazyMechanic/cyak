@@ -1,0 +1,23 @@
+[package]
+name = "cyak_cli"
+version = "0.1.0"
+authors = ["LazyMechanic <AsharnRus@gmail.com>"]
+edition = "2018"
+
+[dependencies.cyak_core]
+path = "../cyak_core"
+
+[dependencies]
+anyhow = "1.0"
+cursive = { version = "0.15.0", default-features = false }
+clap = "2.33"
+chrono = { version = "0.4", features = ["serde"] }
+serde = { version = "1.0", features = ["derive"] }
+thiserror = "1.0"
+
+[features]
+default = ["pancurses-backend"]
+crossterm-backend = ["cursive/crossterm-backend"]
+ncurses-backend = ["cursive/ncurses-backend"]
+pancurses-backend = ["cursive/pancurses-backend"]
+termion-backend = ["cursive/termion"]
