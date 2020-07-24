@@ -11,3 +11,4 @@ path = "../cyak_core"
 anyhow = "1.0"
 uuid = { version = "0.8", features = ["v4"] }
 dir-diff = "0.3"
+handlebars = "3.3"

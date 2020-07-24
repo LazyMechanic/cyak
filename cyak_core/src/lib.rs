@@ -1,8 +1,8 @@
 pub mod consts;
 pub mod error;
 pub mod lang;
-pub mod preset_config;
-pub mod project_config;
+pub mod preset;
+pub mod project;
 pub mod version;
 
 use std::fs::{self, File};
@@ -14,9 +14,8 @@ use handlebars::Handlebars;
 
 pub use consts::*;
 pub use error::Error;
-pub use preset_config::PresetConfig;
-pub use project_config::ProjectConfig;
-pub use project_config::TargetKind;
+use preset::PresetConfig;
+pub use project::{ProjectConfig, Target, TargetKind, TargetProperty};
 pub use version::Version;
 
 #[derive(Debug)]
@@ -60,8 +59,11 @@ pub fn generate_project(ctx: Context) -> Result<(), Error> {
     // Create license file if need it
     create_license(&ctx.project_dir, ctx.license)?;
 
-    // Create all project
-    create_project_from_config(&ctx.project_dir, &ctx.preset_dir, ctx.project_config)?;
+    // Create project from config
+    create_project_from_config(&ctx.project_dir, &ctx.preset_dir, &ctx.project_config)?;
+
+    // Save config to project
+    save_project_config(&ctx.project_dir, &ctx.project_config)?;
 
     Ok(())
 }
@@ -251,7 +253,7 @@ pub fn copy_asis_to_project<P: AsRef<Path>>(preset_dir: P, project_dir: P) -> Re
 pub fn create_project_from_config<P: AsRef<Path>>(
     project_dir: P,
     preset_dir: P,
-    project_config: ProjectConfig,
+    project_config: &ProjectConfig,
 ) -> Result<(), Error> {
     let project_dir = project_dir.as_ref();
     let preset_dir = preset_dir.as_ref();
@@ -362,6 +364,23 @@ pub fn create_project_from_config<P: AsRef<Path>>(
             reg.render_template_source_to_write(&mut file, target, file_dest)?;
         }
     }
+
+    Ok(())
+}
+
+pub fn save_project_config<P: AsRef<Path>>(
+    project_dir: P,
+    project_config: &ProjectConfig,
+) -> Result<(), Error> {
+    let project_dir = project_dir.as_ref();
+    let cyak_file = project_dir.join(CYAK_CONFIG_DIR).join(CYAK_CONFIG_FILE);
+
+    if !project_dir.exists() {
+        return Error::DirNotFound(project_dir.to_path_buf()).fail();
+    }
+
+    let mut f = File::create(cyak_file)?;
+    serde_yaml::to_writer(f, project_config)?;
 
     Ok(())
 }

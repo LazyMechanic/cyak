@@ -2,6 +2,9 @@ use std::fs;
 use std::fs::File;
 use std::path::{Path, PathBuf};
 
+use cyak_core::lang::Language;
+use cyak_core::{ProjectConfig, Target, TargetKind, TargetProperty, Version};
+use handlebars::Handlebars;
 use std::io::Write;
 use uuid::Uuid;
 
@@ -276,4 +279,154 @@ default_values:
     }
 
     Ok(preset_dir)
+}
+
+pub fn new_mock_project_config() -> ProjectConfig {
+    ProjectConfig {
+        name: "project_name".to_string(),
+        namespace: "project_namespace".to_string(),
+        version: Version {
+            major: 7,
+            minor: 8,
+            patch: 9,
+        },
+        language: Language::Cpp,
+        targets: vec![
+            Target {
+                kind: TargetKind::Executable,
+                name: "exec_name".to_string(),
+                version: Version {
+                    major: 6,
+                    minor: 7,
+                    patch: 6,
+                },
+                properties: vec![],
+            },
+            Target {
+                kind: TargetKind::Library,
+                name: "lib_name".to_string(),
+                version: Version {
+                    major: 1,
+                    minor: 6,
+                    patch: 5,
+                },
+                properties: vec![
+                    TargetProperty {
+                        key: "some_property1".to_string(),
+                        value: "value1".to_string(),
+                    },
+                    TargetProperty {
+                        key: "some_property2".to_string(),
+                        value: "2".to_string(),
+                    },
+                ],
+            },
+            Target {
+                kind: TargetKind::Interface,
+                name: "interface_name".to_string(),
+                version: Version {
+                    major: 66,
+                    minor: 7,
+                    patch: 123,
+                },
+                properties: vec![
+                    TargetProperty {
+                        key: "some_property1".to_string(),
+                        value: "value1".to_string(),
+                    },
+                    TargetProperty {
+                        key: "some_property2".to_string(),
+                        value: "2".to_string(),
+                    },
+                ],
+            },
+        ],
+    }
+}
+
+#[allow(dead_code)]
+pub fn create_mock_project_from_config<P: AsRef<Path>>(
+    preset_dir: P,
+    project_config: &ProjectConfig,
+) -> anyhow::Result<PathBuf> {
+    let project_dir = finalize_path(&Uuid::new_v4().to_string());
+    let preset_dir = preset_dir.as_ref();
+
+    let templates_dir = preset_dir.join(cyak_core::TEMPLATES_DIR);
+    let project_template = templates_dir.join(cyak_core::PROJECT_TEMPLATE_FILE);
+    let config_template = templates_dir.join(cyak_core::CONFIG_TEMPLATE_FILE);
+    let lib_template = templates_dir.join(cyak_core::LIBRARY_TEMPLATE_FILE);
+    let exec_template = templates_dir.join(cyak_core::EXECUTABLE_TEMPLATE_FILE);
+    let interface_template = templates_dir.join(cyak_core::INTERFACE_TEMPLATE_FILE);
+    let test_template = templates_dir.join(cyak_core::TEST_TEMPLATE_FILE);
+
+    let src_dir = project_dir.join(cyak_core::SOURCE_DIR);
+    let interface_dir = project_dir.join(cyak_core::INTERFACE_DIR);
+
+    fs::create_dir_all(&project_dir)?;
+
+    let mut reg = Handlebars::new();
+
+    // Create main CMakeLists.txt
+    {
+        let mut project_file = File::open(&project_template)?;
+        let mut project_file_dest = File::create(&project_dir.join(cyak_core::CMAKE_FILE))?;
+        reg.render_template_source_to_write(&mut project_file, &project_config, project_file_dest)?;
+    }
+
+    // Create targets CMakeLists.txt
+    {
+        for target in &project_config.targets {
+            // Create source dir or interface if not exists
+            let base_dir = match target.kind {
+                TargetKind::Executable => {
+                    let dir = src_dir.join(&target.name);
+                    if !dir.exists() {
+                        fs::create_dir_all(&dir)?;
+                    }
+
+                    // Add empty file with hello world
+                    let mut file = File::create(dir.join(cyak_core::EXEC_SRC_FILE))?;
+                    file.write_all(cyak_core::EXEC_SRC.as_bytes())?;
+                    dir
+                }
+                TargetKind::Library => {
+                    let dir = src_dir.join(&target.name);
+                    if !dir.exists() {
+                        fs::create_dir_all(&dir)?;
+                    }
+
+                    // Add empty file with hello world
+                    let mut file = File::create(dir.join(&target.name))?;
+                    file.write_all(cyak_core::LIB_SRC.as_bytes())?;
+                    dir
+                }
+                TargetKind::Interface => {
+                    let dir = interface_dir.join(&target.name);
+                    if !dir.exists() {
+                        fs::create_dir_all(&dir)?;
+                    }
+
+                    // Add empty file with hello world
+                    let mut file = File::create(dir.join(&target.name))?;
+                    file.write_all(cyak_core::LIB_SRC.as_bytes())?;
+                    dir
+                }
+            };
+
+            let mut file = match target.kind {
+                TargetKind::Executable => File::open(&exec_template)?,
+                TargetKind::Library => File::open(&lib_template)?,
+                TargetKind::Interface => File::open(&interface_template)?,
+            };
+            let mut file_dest = match target.kind {
+                TargetKind::Executable => File::create(&base_dir.join(cyak_core::CMAKE_FILE))?,
+                TargetKind::Library => File::create(&base_dir.join(cyak_core::CMAKE_FILE))?,
+                TargetKind::Interface => File::create(&base_dir.join(cyak_core::CMAKE_FILE))?,
+            };
+            reg.render_template_source_to_write(&mut file, target, file_dest)?;
+        }
+    }
+
+    Ok(project_dir)
 }
