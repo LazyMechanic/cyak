@@ -14,6 +14,8 @@ pub const LIBRARY_TEMPLATE_FILE: &str = "library.hbs";
 pub const PROJECT_TEMPLATE_FILE: &str = "project.hbs";
 pub const TEST_TEMPLATE_FILE: &str = "test.hbs";
 
+pub const CMAKE_MODULES_DIR: &str = "cmake";
+pub const TESTS_DIR: &str = "tests";
 pub const SOURCE_DIR: &str = "src";
 pub const INTERFACE_DIR: &str = "include";
 pub const CMAKE_FILE: &str = "CMakeLists.txt";

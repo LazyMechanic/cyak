@@ -26,6 +26,7 @@ pub enum TargetKind {
     Executable,
     Library,
     Interface,
+    Test,
 }
 
 #[derive(Debug, Deserialize, Serialize)]

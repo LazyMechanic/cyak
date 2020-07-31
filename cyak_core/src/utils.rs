@@ -60,6 +60,16 @@ pub fn format_preset_config<P: AsRef<Path>>(preset_dir: P) -> PathBuf {
     preset_dir.as_ref().join(PRESET_CONFIG_FILE)
 }
 
+pub fn format_cmake_modules_dir<P: AsRef<Path>>(project_dir: P) -> PathBuf {
+    project_dir.as_ref().join(CMAKE_MODULES_DIR)
+}
+
+pub fn format_lib_config_file<P: AsRef<Path>>(cmake_modules_dir: P, target_name: P) -> PathBuf {
+    cmake_modules_dir
+        .as_ref()
+        .join(format!("{:?}-config.cmake.in", target_name.as_ref()))
+}
+
 /// Return `Ok(())` if file exists.
 /// Return `Err(Error)` if file not exists or path is not a file.
 pub fn check_file_existence<P: AsRef<Path>>(p: P) -> Result<(), Error> {
