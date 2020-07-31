@@ -201,7 +201,7 @@ Properties    = [
 pub fn create_mock_test_preset() -> anyhow::Result<PathBuf> {
     let preset_dir = finalize_path(&Uuid::new_v4().to_string());
     let templates_dir = preset_dir.join(cyak_core::TEMPLATES_DIR);
-    let asis_dir = preset_dir.join(cyak_core::ASIS_DIR);
+    // TODO: let asis_dir = preset_dir.join(cyak_core::ASIS_DIR);
 
     let config_file = preset_dir.join(cyak_core::PRESET_CONFIG_FILE);
 
@@ -281,6 +281,7 @@ default_values:
     Ok(preset_dir)
 }
 
+#[allow(dead_code)]
 pub fn new_mock_project_config() -> ProjectConfig {
     ProjectConfig {
         name: "project_name".to_string(),
@@ -354,23 +355,23 @@ pub fn create_mock_project_from_config<P: AsRef<Path>>(
 
     let templates_dir = preset_dir.join(cyak_core::TEMPLATES_DIR);
     let project_template = templates_dir.join(cyak_core::PROJECT_TEMPLATE_FILE);
-    let config_template = templates_dir.join(cyak_core::CONFIG_TEMPLATE_FILE);
+    // TODO: let config_template = templates_dir.join(cyak_core::CONFIG_TEMPLATE_FILE);
     let lib_template = templates_dir.join(cyak_core::LIBRARY_TEMPLATE_FILE);
     let exec_template = templates_dir.join(cyak_core::EXECUTABLE_TEMPLATE_FILE);
     let interface_template = templates_dir.join(cyak_core::INTERFACE_TEMPLATE_FILE);
-    let test_template = templates_dir.join(cyak_core::TEST_TEMPLATE_FILE);
+    // TODO: let test_template = templates_dir.join(cyak_core::TEST_TEMPLATE_FILE);
 
     let src_dir = project_dir.join(cyak_core::SOURCE_DIR);
     let interface_dir = project_dir.join(cyak_core::INTERFACE_DIR);
 
     fs::create_dir_all(&project_dir)?;
 
-    let mut reg = Handlebars::new();
+    let reg = Handlebars::new();
 
     // Create main CMakeLists.txt
     {
         let mut project_file = File::open(&project_template)?;
-        let mut project_file_dest = File::create(&project_dir.join(cyak_core::CMAKE_FILE))?;
+        let project_file_dest = File::create(&project_dir.join(cyak_core::CMAKE_FILE))?;
         reg.render_template_source_to_write(&mut project_file, &project_config, project_file_dest)?;
     }
 
@@ -419,7 +420,7 @@ pub fn create_mock_project_from_config<P: AsRef<Path>>(
                 TargetKind::Library => File::open(&lib_template)?,
                 TargetKind::Interface => File::open(&interface_template)?,
             };
-            let mut file_dest = match target.kind {
+            let file_dest = match target.kind {
                 TargetKind::Executable => File::create(&base_dir.join(cyak_core::CMAKE_FILE))?,
                 TargetKind::Library => File::create(&base_dir.join(cyak_core::CMAKE_FILE))?,
                 TargetKind::Interface => File::create(&base_dir.join(cyak_core::CMAKE_FILE))?,

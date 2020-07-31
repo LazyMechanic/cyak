@@ -1,31 +1,26 @@
 pub mod consts;
+pub mod context;
 pub mod error;
 pub mod lang;
 pub mod preset;
 pub mod project;
+pub mod utils;
 pub mod version;
 
 use std::fs::{self, File};
 use std::io::{Read, Write};
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 use fs_extra::dir::{CopyOptions, DirOptions};
 use handlebars::Handlebars;
 
+use context::Context;
+use preset::PresetConfig;
+
 pub use consts::*;
 pub use error::Error;
-use preset::PresetConfig;
 pub use project::{ProjectConfig, Target, TargetKind, TargetProperty};
 pub use version::Version;
-
-#[derive(Debug)]
-pub struct Context {
-    pub project_dir: PathBuf,
-    pub preset_dir: PathBuf,
-    pub git: bool,
-    pub license: Option<String>,
-    pub project_config: ProjectConfig,
-}
 
 pub fn generate_project(ctx: Context) -> Result<(), Error> {
     if is_project_already_generated(&ctx.project_dir) {
@@ -68,19 +63,19 @@ pub fn generate_project(ctx: Context) -> Result<(), Error> {
     Ok(())
 }
 
-pub fn is_project_already_generated<P: AsRef<Path>>(dir: P) -> bool {
-    let dir = dir.as_ref();
+pub fn is_project_already_generated<P: AsRef<Path>>(project_dir: P) -> bool {
+    let project_dir = project_dir.as_ref();
 
-    let config_file = dir.join(CYAK_CONFIG_DIR).join(CYAK_CONFIG_FILE);
+    let config_file = utils::format_project_config(&project_dir);
     config_file.exists()
 }
 
-pub fn validate_preset<P: AsRef<Path>>(dir: P) -> Result<(), Error> {
-    let preset_dir = dir.as_ref();
+pub fn validate_preset<P: AsRef<Path>>(preset_dir: P) -> Result<(), Error> {
+    let preset_dir = preset_dir.as_ref();
     let mut error_files = Vec::new();
 
     // Check config.yaml
-    let preset_config = preset_dir.join(Path::new(PRESET_CONFIG_FILE));
+    let preset_config = utils::format_preset_config(&preset_dir);
     if !preset_config.exists() {
         error_files.push(("missing file".to_string(), preset_config));
     } else {
@@ -152,23 +147,10 @@ pub fn copy_preset_to_project<P: AsRef<Path>>(preset_dir: P, project_dir: P) -> 
     let project_dir = project_dir.as_ref();
     let cyak_config_dir = project_dir.join(CYAK_CONFIG_DIR);
 
-    // Create project dir if not exist
-    if !project_dir.exists() {
-        fs::create_dir_all(&project_dir)?;
-    }
+    utils::check_dir_existence(&preset_dir)?;
 
-    if !project_dir.is_dir() {
-        return Error::NotDir(project_dir.to_path_buf()).fail();
-    }
-
-    if !preset_dir.is_dir() {
-        return Error::NotDir(preset_dir.to_path_buf()).fail();
-    }
-
-    // Make cyak directory if not exist
-    if !cyak_config_dir.exists() {
-        fs::create_dir(&cyak_config_dir)?;
-    }
+    // Create all path if not exists
+    utils::create_nonexistent_dir_all(&cyak_config_dir)?;
 
     // Copy preset directory recursively
     fs_extra::dir::copy(
@@ -201,20 +183,12 @@ pub fn create_license<P: AsRef<Path>>(
 pub fn copy_asis_to_project<P: AsRef<Path>>(preset_dir: P, project_dir: P) -> Result<(), Error> {
     let preset_dir = preset_dir.as_ref();
     let project_dir = project_dir.as_ref();
-    let asis_dir = preset_dir.join(ASIS_DIR);
+    let asis_dir = utils::format_asis_dir(&preset_dir);
 
-    // Create project dir if not exist
-    if !project_dir.exists() {
-        fs::create_dir_all(&project_dir)?;
-    }
+    utils::check_dir_existence(&preset_dir)?;
 
-    if !project_dir.is_dir() {
-        return Error::NotDir(project_dir.to_path_buf()).fail();
-    }
-
-    if !preset_dir.is_dir() {
-        return Error::NotDir(preset_dir.to_path_buf()).fail();
-    }
+    // Create all path if not exists
+    utils::create_nonexistent_dir_all(&project_dir)?;
 
     // If there is no `asis` dir then return
     if !asis_dir.exists() {
@@ -258,56 +232,33 @@ pub fn create_project_from_config<P: AsRef<Path>>(
     let project_dir = project_dir.as_ref();
     let preset_dir = preset_dir.as_ref();
 
-    let templates_dir = preset_dir.join(TEMPLATES_DIR);
-    let project_template = templates_dir.join(PROJECT_TEMPLATE_FILE);
-    let config_template = templates_dir.join(CONFIG_TEMPLATE_FILE);
-    let lib_template = templates_dir.join(LIBRARY_TEMPLATE_FILE);
-    let exec_template = templates_dir.join(EXECUTABLE_TEMPLATE_FILE);
-    let interface_template = templates_dir.join(INTERFACE_TEMPLATE_FILE);
-    let test_template = templates_dir.join(TEST_TEMPLATE_FILE);
+    let project_template = utils::format_project_template(&preset_dir);
+    let config_template = utils::format_config_template(&preset_dir);
+    let lib_template = utils::format_library_template(&preset_dir);
+    let exec_template = utils::format_executable_template(&preset_dir);
+    let interface_template = utils::format_interface_template(&preset_dir);
+    let test_template = utils::format_test_template(&preset_dir);
+
+    utils::check_dir_existence(&preset_dir)?;
+    utils::check_file_existence(&project_template)?;
+    utils::check_file_existence(&config_template)?;
+    utils::check_file_existence(&lib_template)?;
+    utils::check_file_existence(&exec_template)?;
+    utils::check_file_existence(&interface_template)?;
+    utils::check_file_existence(&test_template)?;
 
     let src_dir = project_dir.join(SOURCE_DIR);
     let interface_dir = project_dir.join(INTERFACE_DIR);
 
-    // Validate again preset
-    if !templates_dir.exists() {
-        return Error::DirNotFound(templates_dir.clone()).fail();
-    }
+    // Create all path if not exists
+    utils::create_nonexistent_dir_all(&project_dir)?;
 
-    if !project_template.exists() {
-        return Error::FileNotFound(project_template.clone()).fail();
-    }
-
-    if !config_template.exists() {
-        return Error::FileNotFound(config_template.clone()).fail();
-    }
-
-    if !lib_template.exists() {
-        return Error::FileNotFound(lib_template.clone()).fail();
-    }
-
-    if !exec_template.exists() {
-        return Error::FileNotFound(exec_template.clone()).fail();
-    }
-
-    if !interface_template.exists() {
-        return Error::FileNotFound(interface_template.clone()).fail();
-    }
-
-    if !test_template.exists() {
-        return Error::FileNotFound(test_template.clone()).fail();
-    }
-
-    if !project_dir.exists() {
-        fs::create_dir_all(&project_dir)?;
-    }
-
-    let mut reg = Handlebars::new();
+    let reg = Handlebars::new();
 
     // Create main CMakeLists.txt
     {
         let mut project_file = File::open(&project_template)?;
-        let mut project_file_dest = File::create(&project_dir.join(CMAKE_FILE))?;
+        let project_file_dest = File::create(&project_dir.join(CMAKE_FILE))?;
         reg.render_template_source_to_write(&mut project_file, &project_config, project_file_dest)?;
     }
 
@@ -318,9 +269,7 @@ pub fn create_project_from_config<P: AsRef<Path>>(
             let base_dir = match target.kind {
                 TargetKind::Executable => {
                     let dir = src_dir.join(&target.name);
-                    if !dir.exists() {
-                        fs::create_dir_all(&dir)?;
-                    }
+                    utils::create_nonexistent_dir_all(&dir)?;
 
                     // Add empty file with hello world
                     let mut file = File::create(dir.join(EXEC_SRC_FILE))?;
@@ -329,9 +278,7 @@ pub fn create_project_from_config<P: AsRef<Path>>(
                 }
                 TargetKind::Library => {
                     let dir = src_dir.join(&target.name);
-                    if !dir.exists() {
-                        fs::create_dir_all(&dir)?;
-                    }
+                    utils::create_nonexistent_dir_all(&dir)?;
 
                     // Add empty file with hello world
                     let mut file = File::create(dir.join(&target.name))?;
@@ -340,9 +287,7 @@ pub fn create_project_from_config<P: AsRef<Path>>(
                 }
                 TargetKind::Interface => {
                     let dir = interface_dir.join(&target.name);
-                    if !dir.exists() {
-                        fs::create_dir_all(&dir)?;
-                    }
+                    utils::create_nonexistent_dir_all(&dir)?;
 
                     // Add empty file with hello world
                     let mut file = File::create(dir.join(&target.name))?;
@@ -356,7 +301,7 @@ pub fn create_project_from_config<P: AsRef<Path>>(
                 TargetKind::Library => File::open(&lib_template)?,
                 TargetKind::Interface => File::open(&interface_template)?,
             };
-            let mut file_dest = match target.kind {
+            let file_dest = match target.kind {
                 TargetKind::Executable => File::create(&base_dir.join(CMAKE_FILE))?,
                 TargetKind::Library => File::create(&base_dir.join(CMAKE_FILE))?,
                 TargetKind::Interface => File::create(&base_dir.join(CMAKE_FILE))?,
@@ -373,13 +318,11 @@ pub fn save_project_config<P: AsRef<Path>>(
     project_config: &ProjectConfig,
 ) -> Result<(), Error> {
     let project_dir = project_dir.as_ref();
-    let cyak_file = project_dir.join(CYAK_CONFIG_DIR).join(CYAK_CONFIG_FILE);
+    let cyak_file = utils::format_project_config(&project_dir);
 
-    if !project_dir.exists() {
-        return Error::DirNotFound(project_dir.to_path_buf()).fail();
-    }
+    utils::check_dir_existence(&project_dir)?;
 
-    let mut f = File::create(cyak_file)?;
+    let f = File::create(cyak_file)?;
     serde_yaml::to_writer(f, project_config)?;
 
     Ok(())
