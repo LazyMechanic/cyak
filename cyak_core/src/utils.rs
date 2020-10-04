@@ -65,9 +65,10 @@ pub fn format_cmake_modules_dir<P: AsRef<Path>>(project_dir: P) -> PathBuf {
 }
 
 pub fn format_lib_config_file<P: AsRef<Path>>(cmake_modules_dir: P, target_name: P) -> PathBuf {
-    cmake_modules_dir
-        .as_ref()
-        .join(format!("{:?}-config.cmake.in", target_name.as_ref()))
+    cmake_modules_dir.as_ref().join(format!(
+        "{}-config.cmake.in",
+        target_name.as_ref().display()
+    ))
 }
 
 /// Return `Ok(())` if file exists.

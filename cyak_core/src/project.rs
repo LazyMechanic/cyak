@@ -2,8 +2,9 @@ use serde::{Deserialize, Serialize};
 
 use super::lang::Language;
 use super::version::Version;
+use super::PresetConfig;
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 pub struct ProjectConfig {
     pub name: String,
     pub namespace: String,
@@ -12,7 +13,7 @@ pub struct ProjectConfig {
     pub targets: Vec<Target>,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 pub struct Target {
     pub kind: TargetKind,
     pub name: String,
@@ -29,7 +30,13 @@ pub enum TargetKind {
     Test,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+impl Default for TargetKind {
+    fn default() -> Self {
+        TargetKind::Executable
+    }
+}
+
+#[derive(Debug, Default, Deserialize, Serialize)]
 pub struct TargetProperty {
     pub key: String,
     pub value: String,

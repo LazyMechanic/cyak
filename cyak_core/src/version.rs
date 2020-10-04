@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 
-#[derive(Debug, Deserialize, Serialize, Eq, PartialEq, Clone)]
+#[derive(Debug, Deserialize, Serialize, Eq, PartialEq, Clone, Copy)]
 pub struct Version {
     pub major: u32,
     pub minor: u32,
@@ -28,6 +28,16 @@ impl Ord for Version {
                 Ordering::Greater => Ordering::Greater,
             },
             Ordering::Greater => Ordering::Greater,
+        }
+    }
+}
+
+impl Default for Version {
+    fn default() -> Self {
+        Self {
+            major: 0,
+            minor: 1,
+            patch: 0,
         }
     }
 }

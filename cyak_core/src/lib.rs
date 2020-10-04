@@ -9,16 +9,16 @@ pub mod version;
 
 use std::fs::{self, File};
 use std::io::{Read, Write};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use fs_extra::dir::{CopyOptions, DirOptions};
 use handlebars::Handlebars;
 
 use context::Context;
-use preset::PresetConfig;
 
 pub use consts::*;
 pub use error::Error;
+pub use preset::PresetConfig;
 pub use project::{ProjectConfig, Target, TargetKind, TargetProperty};
 pub use version::Version;
 
@@ -317,8 +317,10 @@ pub fn create_project_from_config<P: AsRef<Path>>(
             match target.kind {
                 TargetKind::Library | TargetKind::Interface => {
                     let cmake_modules_dir = utils::format_cmake_modules_dir(&project_dir);
-                    let lib_config_file =
-                        utils::format_lib_config_file(&cmake_modules_dir, target.name.as_ref());
+                    let lib_config_file = utils::format_lib_config_file(
+                        &cmake_modules_dir,
+                        &PathBuf::from(&target.name),
+                    );
 
                     utils::create_nonexistent_dir_all(&cmake_modules_dir)?;
 
@@ -348,4 +350,30 @@ pub fn save_project_config<P: AsRef<Path>>(
     serde_yaml::to_writer(f, project_config)?;
 
     Ok(())
+}
+
+pub fn load_preset_config<P: AsRef<Path>>(preset_dir: P) -> Result<PresetConfig, Error> {
+    let preset_dir = preset_dir.as_ref();
+    let preset_file = utils::format_preset_config(preset_dir);
+
+    utils::check_dir_existence(&preset_dir)?;
+    utils::check_file_existence(&preset_file)?;
+
+    let file = File::open(&preset_file)?;
+    let preset_config: PresetConfig = serde_yaml::from_reader(file)?;
+
+    Ok(preset_config)
+}
+
+pub fn load_project_config<P: AsRef<Path>>(project_dir: P) -> Result<ProjectConfig, Error> {
+    let project_dir = project_dir.as_ref();
+    let project_file = utils::format_project_config(project_dir);
+
+    utils::check_dir_existence(&project_dir)?;
+    utils::check_file_existence(&project_file)?;
+
+    let file = File::open(&project_file)?;
+    let project_config: ProjectConfig = serde_yaml::from_reader(file)?;
+
+    Ok(project_config)
 }

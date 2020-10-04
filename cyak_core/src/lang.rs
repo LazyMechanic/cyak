@@ -6,3 +6,9 @@ pub enum Language {
     Cpp,
     C,
 }
+
+impl Default for Language {
+    fn default() -> Self {
+        Language::Cpp
+    }
+}

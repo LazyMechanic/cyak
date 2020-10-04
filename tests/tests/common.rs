@@ -2,8 +2,9 @@ use std::fs;
 use std::fs::File;
 use std::path::{Path, PathBuf};
 
+use cyak_core::consts::*;
 use cyak_core::lang::Language;
-use cyak_core::{ProjectConfig, Target, TargetKind, TargetProperty, Version};
+use cyak_core::{utils, ProjectConfig, Target, TargetKind, TargetProperty, Version};
 use handlebars::Handlebars;
 use std::io::Write;
 use uuid::Uuid;
@@ -353,25 +354,26 @@ pub fn create_mock_project_from_config<P: AsRef<Path>>(
     let project_dir = finalize_path(&Uuid::new_v4().to_string());
     let preset_dir = preset_dir.as_ref();
 
-    let templates_dir = preset_dir.join(cyak_core::TEMPLATES_DIR);
-    let project_template = templates_dir.join(cyak_core::PROJECT_TEMPLATE_FILE);
-    // TODO: let config_template = templates_dir.join(cyak_core::CONFIG_TEMPLATE_FILE);
-    let lib_template = templates_dir.join(cyak_core::LIBRARY_TEMPLATE_FILE);
-    let exec_template = templates_dir.join(cyak_core::EXECUTABLE_TEMPLATE_FILE);
-    let interface_template = templates_dir.join(cyak_core::INTERFACE_TEMPLATE_FILE);
-    // TODO: let test_template = templates_dir.join(cyak_core::TEST_TEMPLATE_FILE);
+    let project_template = utils::format_project_template(&preset_dir);
+    let config_template = utils::format_config_template(&preset_dir);
+    let lib_template = utils::format_library_template(&preset_dir);
+    let exec_template = utils::format_executable_template(&preset_dir);
+    let interface_template = utils::format_interface_template(&preset_dir);
+    let test_template = utils::format_test_template(&preset_dir);
 
-    let src_dir = project_dir.join(cyak_core::SOURCE_DIR);
-    let interface_dir = project_dir.join(cyak_core::INTERFACE_DIR);
+    let src_dir = project_dir.join(SOURCE_DIR);
+    let tests_dir = project_dir.join(TESTS_DIR);
+    let interface_dir = project_dir.join(INTERFACE_DIR);
 
-    fs::create_dir_all(&project_dir)?;
+    // Create all path if not exists
+    utils::create_nonexistent_dir_all(&project_dir)?;
 
     let reg = Handlebars::new();
 
     // Create main CMakeLists.txt
     {
         let mut project_file = File::open(&project_template)?;
-        let project_file_dest = File::create(&project_dir.join(cyak_core::CMAKE_FILE))?;
+        let project_file_dest = File::create(&project_dir.join(CMAKE_FILE))?;
         reg.render_template_source_to_write(&mut project_file, &project_config, project_file_dest)?;
     }
 
@@ -382,50 +384,75 @@ pub fn create_mock_project_from_config<P: AsRef<Path>>(
             let base_dir = match target.kind {
                 TargetKind::Executable => {
                     let dir = src_dir.join(&target.name);
-                    if !dir.exists() {
-                        fs::create_dir_all(&dir)?;
-                    }
+                    utils::create_nonexistent_dir_all(&dir)?;
 
                     // Add empty file with hello world
-                    let mut file = File::create(dir.join(cyak_core::EXEC_SRC_FILE))?;
-                    file.write_all(cyak_core::EXEC_SRC.as_bytes())?;
+                    let mut file = File::create(dir.join(EXEC_SRC_FILE))?;
+                    file.write_all(EXEC_SRC.as_bytes())?;
                     dir
                 }
                 TargetKind::Library => {
                     let dir = src_dir.join(&target.name);
-                    if !dir.exists() {
-                        fs::create_dir_all(&dir)?;
-                    }
+                    utils::create_nonexistent_dir_all(&dir)?;
 
                     // Add empty file with hello world
                     let mut file = File::create(dir.join(&target.name))?;
-                    file.write_all(cyak_core::LIB_SRC.as_bytes())?;
+                    file.write_all(LIB_SRC.as_bytes())?;
                     dir
                 }
                 TargetKind::Interface => {
                     let dir = interface_dir.join(&target.name);
-                    if !dir.exists() {
-                        fs::create_dir_all(&dir)?;
-                    }
+                    utils::create_nonexistent_dir_all(&dir)?;
 
                     // Add empty file with hello world
                     let mut file = File::create(dir.join(&target.name))?;
-                    file.write_all(cyak_core::LIB_SRC.as_bytes())?;
+                    file.write_all(LIB_SRC.as_bytes())?;
+                    dir
+                }
+                TargetKind::Test => {
+                    let dir = tests_dir.join(&target.name);
+                    utils::create_nonexistent_dir_all(&dir)?;
+
+                    // Add empty file with hello world
+                    let mut file = File::create(dir.join(EXEC_SRC_FILE))?;
+                    file.write_all(EXEC_SRC.as_bytes())?;
                     dir
                 }
             };
 
+            // Create target source dir and CMakeLists.txt file
             let mut file = match target.kind {
                 TargetKind::Executable => File::open(&exec_template)?,
                 TargetKind::Library => File::open(&lib_template)?,
                 TargetKind::Interface => File::open(&interface_template)?,
+                TargetKind::Test => File::open(&test_template)?,
             };
             let file_dest = match target.kind {
-                TargetKind::Executable => File::create(&base_dir.join(cyak_core::CMAKE_FILE))?,
-                TargetKind::Library => File::create(&base_dir.join(cyak_core::CMAKE_FILE))?,
-                TargetKind::Interface => File::create(&base_dir.join(cyak_core::CMAKE_FILE))?,
+                TargetKind::Executable => File::create(&base_dir.join(CMAKE_FILE))?,
+                TargetKind::Library => File::create(&base_dir.join(CMAKE_FILE))?,
+                TargetKind::Interface => File::create(&base_dir.join(CMAKE_FILE))?,
+                TargetKind::Test => File::create(&base_dir.join(CMAKE_FILE))?,
             };
             reg.render_template_source_to_write(&mut file, target, file_dest)?;
+
+            // Create lib config file to cmake modules
+            match target.kind {
+                TargetKind::Library | TargetKind::Interface => {
+                    let cmake_modules_dir = utils::format_cmake_modules_dir(&project_dir);
+                    let lib_config_file = utils::format_lib_config_file(
+                        &cmake_modules_dir,
+                        &PathBuf::from(&target.name),
+                    );
+
+                    utils::create_nonexistent_dir_all(&cmake_modules_dir)?;
+
+                    let mut file = File::open(&config_template)?;
+                    let file_dest = File::create(&lib_config_file)?;
+
+                    reg.render_template_source_to_write(&mut file, target, file_dest)?;
+                }
+                _ => { /*do nothing*/ }
+            }
         }
     }
 
