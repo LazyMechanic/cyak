@@ -23,7 +23,7 @@ const PATH_HELP: &str = "Path to project";
 #[derive(Debug)]
 pub struct Cli {
     pub share_dir: PathBuf,
-    pub work_dir: PathBuf,
+    pub project_dir: PathBuf,
 }
 
 impl Cli {
@@ -69,13 +69,13 @@ impl Cli {
             .ok_or_else(|| Error::ArgumentNotFound(SHARE_DIR_LONG.to_string()))?;
         let share_dir = PathBuf::from(share_dir);
 
-        let work_dir = matches
+        let project_dir = matches
             .value_of(PATH_NAME)
             .ok_or_else(|| Error::ArgumentNotFound(PATH_NAME.to_string()))?;
-        let work_dir = PathBuf::from(work_dir);
+        let project_dir = PathBuf::from(project_dir);
 
         Ok(Self {
-            work_dir,
+            project_dir,
             share_dir,
         })
     }

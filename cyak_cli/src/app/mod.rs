@@ -1,4 +1,9 @@
-pub mod ui;
+pub mod app;
+pub mod error;
+
+pub use app::App;
+pub use app::Config;
+pub use error::Error;
 
 use crate::cli::Cli;
 
