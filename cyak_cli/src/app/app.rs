@@ -5,8 +5,6 @@ use cyak_core::ProjectConfig;
 
 use crate::app::Error;
 use crate::cli::Cli;
-use cursive::theme::Style;
-use cursive::utils::markup::StyledString;
 
 #[derive(Debug)]
 pub struct Config {
