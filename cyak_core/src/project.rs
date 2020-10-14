@@ -2,7 +2,6 @@ use serde::{Deserialize, Serialize};
 
 use super::lang::Language;
 use super::version::Version;
-use super::PresetConfig;
 
 #[derive(Debug, Default, Deserialize, Serialize)]
 pub struct ProjectConfig {
