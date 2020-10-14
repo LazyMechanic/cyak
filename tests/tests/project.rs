@@ -5,7 +5,7 @@ mod common;
 #[test]
 fn check_already_created_project() -> anyhow::Result<()> {
     let project_dir = common::create_mock_project()?;
-    assert!(cyak_core::is_project_already_created(project_dir));
+    assert!(cyak_core::project_exists(project_dir));
     Ok(())
 }
 

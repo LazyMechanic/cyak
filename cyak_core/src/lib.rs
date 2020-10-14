@@ -25,8 +25,8 @@ pub use project::{ProjectConfig, Target, TargetKind, TargetProperty};
 pub use version::Version;
 
 pub fn create_project(ctx: Context) -> Result<(), Error> {
-    if is_project_already_created(&ctx.project_dir) {
-        return Error::ProjectAlreadyGenerated(ctx.project_dir).fail();
+    if project_exists(&ctx.project_dir) {
+        return Error::ProjectExists(ctx.project_dir).fail();
     }
 
     validate_preset(&ctx.preset_dir)?;
@@ -57,7 +57,7 @@ pub fn create_project(ctx: Context) -> Result<(), Error> {
     Ok(())
 }
 
-pub fn is_project_already_created<P: AsRef<Path>>(project_dir: P) -> bool {
+pub fn project_exists<P: AsRef<Path>>(project_dir: P) -> bool {
     let project_dir = project_dir.as_ref();
 
     let config_file = utils::format_project_config(&project_dir);
