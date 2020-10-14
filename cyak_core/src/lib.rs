@@ -12,7 +12,9 @@ use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
 
 use fs_extra::dir::{CopyOptions, DirOptions};
-use handlebars::Handlebars;
+use handlebars::{
+    Handlebars, Helper, HelperResult, JsonRender, Output, RenderContext, RenderError,
+};
 
 use context::Context;
 
@@ -246,7 +248,60 @@ pub fn create_project_from_config<P: AsRef<Path>>(
     // Create all path if not exists
     utils::create_nonexistent_dir_all(&project_dir)?;
 
-    let reg = Handlebars::new();
+    let mut reg = Handlebars::new();
+
+    // Function for get property value.
+    // 3rd arg is default value. If property not found then get default value.
+    //
+    // Usage:
+    // {{get-property "TARGET_NAME" "PROPERTY_NAME"}}
+    //
+    // Usage with default value:
+    // {{get-property "TARGET_NAME" "PROPERTY_NAME" "DEFAULT_VALUE"}}
+    reg.register_helper(
+        "get-property",
+        Box::new(
+            |h: &Helper,
+             _: &Handlebars,
+             _: &handlebars::Context,
+             _: &mut RenderContext,
+             out: &mut dyn Output|
+             -> HelperResult {
+                let target_name = h
+                    .param(0)
+                    .ok_or(RenderError::new("target_name not found"))?
+                    .value()
+                    .render();
+                let property_name = h
+                    .param(1)
+                    .ok_or(RenderError::new("property_name not found"))?
+                    .value()
+                    .render();
+                let default_value = h.param(2).and_then(|item| Some(item.value().render()));
+
+                let targets = &project_config.targets;
+
+                let target = targets
+                    .iter()
+                    .find(|&item| item.name == target_name)
+                    .ok_or(RenderError::new(format!(
+                        "target with name {} not found",
+                        target_name
+                    )))?;
+
+                let property_value = target
+                    .properties
+                    .iter()
+                    .find(|&item| item.key == property_name)
+                    .and_then(|property| Some(property.value.clone()))
+                    .or_else(|| default_value)
+                    .ok_or(RenderError::new("property_value not found"))?;
+
+                out.write(property_value.as_str())?;
+                Ok(())
+            },
+        ),
+    );
 
     // Create main CMakeLists.txt
     {
