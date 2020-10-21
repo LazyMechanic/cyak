@@ -1,47 +1,49 @@
-set(SUBPROJ_NAME                                                {{.Name}})
-set(TESTABLE_TARGET                                             {{.TestableName}})
-set(${SUBPROJ_NAME}_LANG                                        {{if eq .IsInherited true}}${_PROJECT_LANG}{{else}}{{.Lang}}{{end}})
+set(SUBPROJ_NAME                             {{name}})
+set(TESTABLE_TARGET                          {{origin-target-name name}})
 
-set(${SUBPROJ_NAME}_${${SUBPROJ_NAME}_LANG}_STANDARD            {{if eq .IsInherited true}}${_PROJECT_LANG_STANDARD}{{else}}{{.LangStandard}}{{end}})
-set(${SUBPROJ_NAME}_${${SUBPROJ_NAME}_LANG}_EXTENSIONS          {{if eq .IsInherited true}}${_PROJECT_LANG_EXTENSIONS}{{else}}{{.LangExtensions}}{{end}})
-set(${SUBPROJ_NAME}_${${SUBPROJ_NAME}_LANG}_STANDARD_REQUIRED   {{if eq .IsInherited true}}${_PROJECT_LANG_STANDARD_REQUIRED}{{else}}{{.LangStandardRequired}}{{end}})
+set(${SUBPROJ_NAME}_LANG                     {{get-var name "lang"}})
+set(${SUBPROJ_NAME}_LANG_STANDARD            {{get-var name "lang_standard"}})
+set(${SUBPROJ_NAME}_LANG_EXTENSIONS          {{get-var name "lang_extensions"}})
+set(${SUBPROJ_NAME}_LANG_STANDARD_REQUIRED   {{get-var name "lang_standard_required"}})
+
+# ############################################################### #
+# Set sources ################################################### #
+# ############################################################### #
 
 # Insert here your source files
 set(${SUBPROJ_NAME}_HEADERS
-    "")
+    )
 
 set(${SUBPROJ_NAME}_SOURCES
-    "")
+    )
 
-# ############################################################### #
-# Options ####################################################### #
-# ############################################################### #
-
-# Insert here your specififc options for build:
-# .............................................
-
-# ############################################################### #
-# Pre-build commands ############################################ #
-# ############################################################### #
-
-# Insert here pre-build commands:
-# .............................................
-
-# ############################################################### #
-# After-build commands ########################################## #
-# ############################################################### #
-
-# Insert here after-build commands:
-# .............................................
-
-# ############################################################### #
-# Set all target sources ######################################## #
-# ############################################################### #
+# Check variable
+if(NOT ${${SUBPROJ_NAME}_HEADERS} OR
+   NOT ${${SUBPROJ_NAME}_SOURCES})
+    message(
+        FATAL_ERROR
+        "[target:${SUBPROJ_NAME}]:"
+        "\${\${SUBPROJ_NAME}_HEADERS} or \${\${SUBPROJ_NAME}_SOURCES} are empty."
+        "\nInit them and insert source files. For example:"
+        "\nset(\${SUBPROJ_NAME}_HEADERS \"class.hpp\" \"funcs.hpp\" ....)"
+        "\nset(\${SUBPROJ_NAME}_SOURCES \"main.cpp\"  \"class.cpp\" ....)")
+endif()
 
 set(
     ${SUBPROJ_NAME}_ALL_SRCS
     ${${SUBPROJ_NAME}_HEADERS}
     ${${SUBPROJ_NAME}_SOURCES})
+
+# ############################################################### #
+# Options ####################################################### #
+# ############################################################### #
+
+# Insert here your custom options for build:
+# For example:
+### set(${SUBPROJ_NAME}_INSTALL_CMAKE_PREFIX
+###     "lib/cmake/${SUBPROJ_NAME}"
+###     CACHE PATH "Installation directory for CMake files")
+# .............................................
 
 # ############################################################### #
 # Create target for build ####################################### #
@@ -54,9 +56,9 @@ add_executable(
 # Enable C++17 on this project
 set_target_properties(
     ${SUBPROJ_NAME} PROPERTIES
-    ${${SUBPROJ_NAME}_LANG}_STANDARD          ${${SUBPROJ_NAME}_${${SUBPROJ_NAME}_LANG}_STANDARD}
-    ${${SUBPROJ_NAME}_LANG}_EXTENSIONS        ${${SUBPROJ_NAME}_${${SUBPROJ_NAME}_LANG}_EXTENSIONS}
-    ${${SUBPROJ_NAME}_LANG}_STANDARD_REQUIRED ${${SUBPROJ_NAME}_${${SUBPROJ_NAME}_LANG}_STANDARD_REQUIRED})
+    ${${SUBPROJ_NAME}_LANG}_STANDARD          ${${SUBPROJ_NAME}_LANG_STANDARD}
+    ${${SUBPROJ_NAME}_LANG}_EXTENSIONS        ${${SUBPROJ_NAME}_LANG_EXTENSIONS}
+    ${${SUBPROJ_NAME}_LANG}_STANDARD_REQUIRED ${${SUBPROJ_NAME}_LANG_STANDARD_REQUIRED})
 
 # Set specific properties
 set_target_properties(
@@ -72,9 +74,33 @@ target_include_directories(
     PRIVATE   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 
+# ############################################################### #
+# Custom target properties ###################################### #
+# ############################################################### #
+
+# Insert here your custom target properties:
+# .............................................
+
+# ############################################################### #
+# Link libraries ################################################ #
+# ############################################################### #
+
+# Insert here custom dependencies:
+# For example:
+### find_package(GTest CONFIG REQUIRED)
+### target_link_libraries(
+###     ${SUBPROJ_NAME}
+###     GTest::gtest
+###     GTest::gtest_main)
+# .............................................
+
 target_link_libraries(
     ${SUBPROJ_NAME}
     ${TESTABLE_TARGET})
+
+# ############################################################### #
+# Create test target ############################################ #
+# ############################################################### #
 
 add_test(
     NAME All${TESTABLE_TARGET}Tests

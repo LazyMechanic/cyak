@@ -1,7 +1,6 @@
 pub mod consts;
 pub mod context;
 pub mod error;
-pub mod lang;
 pub mod preset;
 pub mod project;
 pub mod utils;
@@ -18,15 +17,16 @@ use handlebars::{
 
 use context::Context;
 
+use crate::utils::Case;
 pub use consts::*;
 pub use error::Error;
 pub use preset::PresetConfig;
-pub use project::{ProjectConfig, Target, TargetKind, TargetProperty};
+pub use project::{ProjectConfig, Target, TargetKind, Variable};
 pub use version::Version;
 
 pub fn create_project(ctx: Context) -> Result<(), Error> {
-    if project_exists(&ctx.project_dir) {
-        return Error::ProjectExists(ctx.project_dir).fail();
+    if ctx.project_dir.exists() {
+        return Error::ProjectDirExists(ctx.project_dir).fail();
     }
 
     validate_preset(&ctx.preset_dir)?;
@@ -39,9 +39,6 @@ pub fn create_project(ctx: Context) -> Result<(), Error> {
         git_init(&ctx.project_dir)?;
     }
 
-    // Copy preset to cyak directory
-    copy_preset_to_project(&ctx.preset_dir, &ctx.project_dir)?;
-
     // Copy `asis` directory to project directory
     copy_asis_to_project(&ctx.preset_dir, &ctx.project_dir)?;
 
@@ -51,17 +48,7 @@ pub fn create_project(ctx: Context) -> Result<(), Error> {
     // Create project from config
     create_project_from_config(&ctx.project_dir, &ctx.preset_dir, &ctx.project_config)?;
 
-    // Save config to project
-    save_project_config(&ctx.project_dir, &ctx.project_config)?;
-
     Ok(())
-}
-
-pub fn project_exists<P: AsRef<Path>>(project_dir: P) -> bool {
-    let project_dir = project_dir.as_ref();
-
-    let config_file = utils::format_project_config(&project_dir);
-    config_file.exists()
 }
 
 pub fn validate_preset<P: AsRef<Path>>(preset_dir: P) -> Result<(), Error> {
@@ -133,26 +120,6 @@ pub fn validate_preset<P: AsRef<Path>>(preset_dir: P) -> Result<(), Error> {
 
 pub fn git_init<P: AsRef<Path>>(dir: P) -> Result<(), Error> {
     git2::Repository::init(dir.as_ref())?;
-    Ok(())
-}
-
-pub fn copy_preset_to_project<P: AsRef<Path>>(preset_dir: P, project_dir: P) -> Result<(), Error> {
-    let preset_dir = preset_dir.as_ref();
-    let project_dir = project_dir.as_ref();
-    let cyak_config_dir = project_dir.join(CYAK_CONFIG_DIR);
-
-    utils::check_dir_existence(&preset_dir)?;
-
-    // Create all path if not exists
-    utils::create_nonexistent_dir_all(&cyak_config_dir)?;
-
-    // Copy preset directory recursively
-    fs_extra::dir::copy(
-        preset_dir,
-        &cyak_config_dir,
-        &fs_extra::dir::CopyOptions::new(),
-    )?;
-
     Ok(())
 }
 
@@ -250,16 +217,19 @@ pub fn create_project_from_config<P: AsRef<Path>>(
 
     let mut reg = Handlebars::new();
 
-    // Function for get property value.
-    // 3rd arg is default value. If property not found then get default value.
+    // Function for format target path depending on the target kind
     //
     // Usage:
-    // {{get-property "TARGET_NAME" "PROPERTY_NAME"}}
+    // {{target-path "TARGET_NAME"}}
     //
-    // Usage with default value:
-    // {{get-property "TARGET_NAME" "PROPERTY_NAME" "DEFAULT_VALUE"}}
+    // Use cases:
+    //
+    // Executable:.src/
+    // Interface:..include/
+    // Library:....src/
+    // Test:.......test/
     reg.register_helper(
-        "get-property",
+        "target-path",
         Box::new(
             |h: &Helper,
              _: &Handlebars,
@@ -272,9 +242,131 @@ pub fn create_project_from_config<P: AsRef<Path>>(
                     .ok_or(RenderError::new("target_name not found"))?
                     .value()
                     .render();
-                let property_name = h
+
+                let targets = &project_config.targets;
+
+                let target = targets
+                    .iter()
+                    .find(|&item| item.name == target_name)
+                    .ok_or(RenderError::new(format!(
+                        "target with name {} not found",
+                        target_name
+                    )))?;
+
+                let path = match target.kind {
+                    TargetKind::Executable => format!("src/{}", target.name),
+                    TargetKind::Library => format!("src/{}", target.name),
+                    TargetKind::Interface => format!("include/{}", target.name),
+                    TargetKind::Test => format!("test/{}", target.name),
+                };
+
+                out.write(path.as_str())?;
+                Ok(())
+            },
+        ),
+    );
+
+    // Function for restore origin target name from test target
+    //
+    // Usage:
+    // {{origin-target-name "TEST_TARGET_NAME"}}
+    //
+    // Use cases:
+    // Test target name | Origin target name
+    // -------------------------------------
+    // some-target-test | some-target
+    // Some-Target-Test | Some-Target
+    // someTargetTest   | someTarget
+    // SomeTargetTest   | SomeTarget
+    // some_target_test | some_target
+    // SOME_TARGET_TEST | SOME_TARGET
+    reg.register_helper(
+        "origin-target-name",
+        Box::new(
+            |h: &Helper,
+             _: &Handlebars,
+             _: &handlebars::Context,
+             _: &mut RenderContext,
+             out: &mut dyn Output|
+             -> HelperResult {
+                let test_target_name = h
+                    .param(0)
+                    .ok_or(RenderError::new("test_target_name not found"))?
+                    .value()
+                    .render();
+
+                let target_name = match utils::Case::new(test_target_name.as_str()) {
+                    Case::Undefined => test_target_name.trim_end_matches("-test").to_string(),
+                    Case::CamelCase => test_target_name.trim_end_matches("Test").to_string(),
+                    Case::PascalCase => test_target_name.trim_end_matches("Test").to_string(),
+                    Case::SnakeCase => test_target_name.trim_end_matches("_test").to_string(),
+                    Case::ScreamingSnakeCase => {
+                        test_target_name.trim_end_matches("_TEST").to_string()
+                    }
+                    Case::KebabCase => test_target_name.trim_end_matches("-test").to_string(),
+                    Case::TrainCase => test_target_name.trim_end_matches("-Test").to_string(),
+                };
+
+                out.write(target_name.as_str())?;
+                Ok(())
+            },
+        ),
+    );
+
+    // Function for concat N strings
+    //
+    // Usage:
+    // {{concat "str1" "str2" "str3"}}
+    //
+    // Result:
+    // "str1str2str3"
+    reg.register_helper(
+        "concat",
+        Box::new(
+            |h: &Helper,
+             _: &Handlebars,
+             _: &handlebars::Context,
+             _: &mut RenderContext,
+             out: &mut dyn Output|
+             -> HelperResult {
+                let res = h
+                    .params()
+                    .iter()
+                    .map(|item| item.value().render())
+                    .collect::<Vec<_>>()
+                    .join("");
+
+                out.write(res.as_str())?;
+                Ok(())
+            },
+        ),
+    );
+
+    // Function for get variable value.
+    // 3rd arg is default value. If variable not found then get default value.
+    //
+    // Usage:
+    // {{get-var "TARGET_NAME" "VARIABLE_NAME"}}
+    //
+    // Usage with default value:
+    // {{get-var "TARGET_NAME" "VARIABLE_NAME" "DEFAULT_VALUE"}}
+    reg.register_helper(
+        "get-var",
+        Box::new(
+            |h: &Helper,
+             _: &Handlebars,
+             _: &handlebars::Context,
+             _: &mut RenderContext,
+             out: &mut dyn Output|
+             -> HelperResult {
+                let target_name = h
+                    .param(0)
+                    .ok_or(RenderError::new("target_name not found"))?
+                    .value()
+                    .render();
+                let variable_name = h
                     .param(1)
-                    .ok_or(RenderError::new("property_name not found"))?
+                    .ok_or(RenderError::new("variable_name not found"))?
                     .value()
                     .render();
                 let default_value = h.param(2).and_then(|item| Some(item.value().render()));
@@ -289,15 +381,54 @@ pub fn create_project_from_config<P: AsRef<Path>>(
                         target_name
                     )))?;
 
-                let property_value = target
-                    .properties
+                let variable_value = target
+                    .variables
                     .iter()
-                    .find(|&item| item.key == property_name)
-                    .and_then(|property| Some(property.value.clone()))
+                    .find(|&item| item.key == variable_name)
+                    .and_then(|var| Some(var.value.clone()))
                     .or_else(|| default_value)
-                    .ok_or(RenderError::new("property_value not found"))?;
+                    .ok_or(RenderError::new("variable_value not found"))?;
 
-                out.write(property_value.as_str())?;
+                out.write(variable_value.as_str())?;
+                Ok(())
+            },
+        ),
+    );
+
+    // Function for get variable value of project.
+    // 3rd arg is default value. If variable not found
+    // or value is empty (empty string) then get default value.
+    //
+    // Usage:
+    // {{get-project-var "VARIABLE_NAME"}}
+    //
+    // Usage with default value:
+    // {{get-project-var "VARIABLE_NAME" "DEFAULT_VALUE"}}
+    reg.register_helper(
+        "get-project-var",
+        Box::new(
+            |h: &Helper,
+             _: &Handlebars,
+             _: &handlebars::Context,
+             _: &mut RenderContext,
+             out: &mut dyn Output|
+             -> HelperResult {
+                let variable_name = h
+                    .param(0)
+                    .ok_or(RenderError::new("variable_name not found"))?
+                    .value()
+                    .render();
+                let default_value = h.param(1).and_then(|item| Some(item.value().render()));
+
+                let variable_value = project_config
+                    .variables
+                    .iter()
+                    .find(|&item| item.key == variable_name)
+                    .and_then(|var| Some(var.value.clone()))
+                    .or_else(|| default_value)
+                    .ok_or(RenderError::new("variable_value not found"))?;
+
+                out.write(variable_value.as_str())?;
                 Ok(())
             },
         ),
@@ -392,21 +523,6 @@ pub fn create_project_from_config<P: AsRef<Path>>(
     Ok(())
 }
 
-pub fn save_project_config<P: AsRef<Path>>(
-    project_dir: P,
-    project_config: &ProjectConfig,
-) -> Result<(), Error> {
-    let project_dir = project_dir.as_ref();
-    let cyak_file = utils::format_project_config(&project_dir);
-
-    utils::check_dir_existence(&project_dir)?;
-
-    let f = File::create(cyak_file)?;
-    serde_yaml::to_writer(f, project_config)?;
-
-    Ok(())
-}
-
 pub fn load_preset_config<P: AsRef<Path>>(preset_dir: P) -> Result<PresetConfig, Error> {
     let preset_dir = preset_dir.as_ref();
     let preset_file = utils::format_preset_config(preset_dir);
@@ -418,17 +534,4 @@ pub fn load_preset_config<P: AsRef<Path>>(preset_dir: P) -> Result<PresetConfig,
     let preset_config: PresetConfig = serde_yaml::from_reader(file)?;
 
     Ok(preset_config)
-}
-
-pub fn load_project_config<P: AsRef<Path>>(project_dir: P) -> Result<ProjectConfig, Error> {
-    let project_dir = project_dir.as_ref();
-    let project_file = utils::format_project_config(project_dir);
-
-    utils::check_dir_existence(&project_dir)?;
-    utils::check_file_existence(&project_file)?;
-
-    let file = File::open(&project_file)?;
-    let project_config: ProjectConfig = serde_yaml::from_reader(file)?;
-
-    Ok(project_config)
 }

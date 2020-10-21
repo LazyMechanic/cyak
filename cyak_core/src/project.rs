@@ -1,26 +1,23 @@
 use serde::{Deserialize, Serialize};
 
-use super::lang::Language;
 use super::version::Version;
 
 #[derive(Debug, Default, Deserialize, Serialize)]
 pub struct ProjectConfig {
     pub name: String,
-    pub namespace: String,
     pub version: Version,
-    pub language: Language,
     pub targets: Vec<Target>,
+    pub variables: Vec<Variable>,
 }
 
 #[derive(Debug, Default, Deserialize, Serialize)]
 pub struct Target {
     pub kind: TargetKind,
     pub name: String,
-    pub version: Version,
-    pub properties: Vec<TargetProperty>,
+    pub variables: Vec<Variable>,
 }
 
-#[derive(Debug, Deserialize, Serialize, Copy, Clone, Eq, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Copy, Clone, Eq, PartialEq, Hash)]
 #[serde(rename_all = "lowercase")]
 pub enum TargetKind {
     Executable,
@@ -36,7 +33,7 @@ impl Default for TargetKind {
 }
 
 #[derive(Debug, Default, Deserialize, Serialize)]
-pub struct TargetProperty {
+pub struct Variable {
     pub key: String,
     pub value: String,
 }

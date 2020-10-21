@@ -3,6 +3,62 @@ use std::path::{Path, PathBuf};
 use crate::consts::*;
 use crate::Error;
 
+use inflector::cases::camelcase::is_camel_case;
+use inflector::cases::kebabcase::is_kebab_case;
+use inflector::cases::pascalcase::is_pascal_case;
+use inflector::cases::screamingsnakecase::is_screaming_snake_case;
+use inflector::cases::snakecase::is_snake_case;
+use inflector::cases::traincase::is_train_case;
+
+pub enum Case {
+    /// Other cases
+    Undefined,
+    /// camelCase
+    CamelCase,
+    /// PascalCase
+    PascalCase,
+    /// snake_case
+    SnakeCase,
+    /// SCREAMING_SNAKE_CASE
+    ScreamingSnakeCase,
+    /// kebab-case
+    KebabCase,
+    /// Train-Case
+    TrainCase,
+}
+
+impl Case {
+    pub fn new(s: &str) -> Case {
+        if is_kebab_case(s) {
+            Case::KebabCase
+        } else if is_snake_case(s) {
+            Case::SnakeCase
+        } else if is_camel_case(s) {
+            Case::CamelCase
+        } else if is_pascal_case(s) {
+            Case::PascalCase
+        } else if is_train_case(s) {
+            Case::TrainCase
+        } else if is_screaming_snake_case(s) {
+            Case::ScreamingSnakeCase
+        } else {
+            Case::Undefined
+        }
+    }
+}
+
+pub fn format_test_target_name(name: &str) -> String {
+    match Case::new(name) {
+        Case::Undefined => format!("{}{}", name, "-test"),
+        Case::CamelCase => format!("{}{}", name, "Test"),
+        Case::PascalCase => format!("{}{}", name, "Test"),
+        Case::SnakeCase => format!("{}{}", name, "_test"),
+        Case::ScreamingSnakeCase => format!("{}{}", name, "_TEST"),
+        Case::KebabCase => format!("{}{}", name, "-test"),
+        Case::TrainCase => format!("{}{}", name, "-Test"),
+    }
+}
+
 pub fn format_config_template<P: AsRef<Path>>(preset_dir: P) -> PathBuf {
     preset_dir
         .as_ref()
@@ -47,13 +103,6 @@ pub fn format_test_template<P: AsRef<Path>>(preset_dir: P) -> PathBuf {
 
 pub fn format_asis_dir<P: AsRef<Path>>(preset_dir: P) -> PathBuf {
     preset_dir.as_ref().join(ASIS_DIR)
-}
-
-pub fn format_project_config<P: AsRef<Path>>(project_dir: P) -> PathBuf {
-    project_dir
-        .as_ref()
-        .join(CYAK_CONFIG_DIR)
-        .join(CYAK_CONFIG_FILE)
 }
 
 pub fn format_preset_config<P: AsRef<Path>>(preset_dir: P) -> PathBuf {

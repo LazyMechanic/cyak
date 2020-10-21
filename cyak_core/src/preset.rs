@@ -1,7 +1,5 @@
 use serde::{Deserialize, Serialize};
-
-use super::lang::Language;
-use super::version::Version;
+use std::collections::HashSet;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct PresetConfig {
@@ -9,34 +7,25 @@ pub struct PresetConfig {
     pub version: String,
     pub author: String,
     pub description: String,
-    pub default_values: PresetDefaultValues,
+    pub variables: Vec<PresetVariable>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
-pub struct PresetDefaultValues {
-    pub language: Language,
-    pub version: Version,
-    pub git: bool,
-    pub target_properties: TargetProperties,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-pub struct TargetProperties {
-    pub custom: Vec<CustomProperty>,
-    pub common: Vec<CommonProperty>,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-pub struct CustomProperty {
+pub struct PresetVariable {
     pub display: String,
     pub description: String,
     pub key: String,
     pub value_pattern: String,
     pub default: String,
+    pub storages: HashSet<VariableStorage>,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
-pub struct CommonProperty {
-    pub key: String,
-    pub value: String,
+#[derive(Debug, Deserialize, Serialize, Copy, Clone, Eq, PartialEq, Hash)]
+#[serde(rename_all = "lowercase")]
+pub enum VariableStorage {
+    Executable,
+    Library,
+    Interface,
+    Test,
+    Project,
 }

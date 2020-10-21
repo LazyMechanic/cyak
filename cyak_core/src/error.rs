@@ -2,8 +2,8 @@ use std::path::PathBuf;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error("Project exists, can't create new: {0}")]
-    ProjectExists(PathBuf),
+    #[error("Project directory exists, can't create new: {0}")]
+    ProjectDirExists(PathBuf),
     #[error("Invalid preset structure: {}",
     .0
     .iter()

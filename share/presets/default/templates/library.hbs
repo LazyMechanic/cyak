@@ -1,21 +1,45 @@
-set(SUBPROJ_NAME                                                {{.Name}})
-set(${SUBPROJ_NAME}_LANG                                        {{if eq .IsInherited true}}${_PROJECT_LANG}{{else}}{{.Lang}}{{end}})
-set(${SUBPROJ_NAME}_NAMESPACE                                   {{if eq .IsInherited true}}${_PROJECT_NAMESPACE}{{else}}{{.Namespace}}{{end}})
+set(SUBPROJ_NAME                             {{name}})
+set(${SUBPROJ_NAME}_NAMESPACE                {{get-var name "namespace" (get-project-var "namespace")}})
 
-set(${SUBPROJ_NAME}_${${SUBPROJ_NAME}_LANG}_STANDARD            {{if eq .IsInherited true}}${_PROJECT_LANG_STANDARD}{{else}}{{.LangStandard}}{{end}})
-set(${SUBPROJ_NAME}_${${SUBPROJ_NAME}_LANG}_EXTENSIONS          {{if eq .IsInherited true}}${_PROJECT_LANG_EXTENSIONS}{{else}}{{.LangExtensions}}{{end}})
-set(${SUBPROJ_NAME}_${${SUBPROJ_NAME}_LANG}_STANDARD_REQUIRED   {{if eq .IsInherited true}}${_PROJECT_LANG_STANDARD_REQUIRED}{{else}}{{.LangStandardRequired}}{{end}})
+set(${SUBPROJ_NAME}_LANG                     {{get-var name "lang"}})
+set(${SUBPROJ_NAME}_LANG_STANDARD            {{get-var name "lang_standard"}})
+set(${SUBPROJ_NAME}_LANG_EXTENSIONS          {{get-var name "lang_extensions"}})
+set(${SUBPROJ_NAME}_LANG_STANDARD_REQUIRED   {{get-var name "lang_standard_required"}})
 
-set(${SUBPROJ_NAME}_MAJOR_VERSION                               {{if eq .IsInherited true}}${_PROJECT_MAJOR_VERSION}{{else}}{{.MajorVersion}}{{end}})
-set(${SUBPROJ_NAME}_MINOR_VERSION                               {{if eq .IsInherited true}}${_PROJECT_MINOR_VERSION}{{else}}{{.MinorVersion}}{{end}})
-set(${SUBPROJ_NAME}_PATCH_VERSION                               {{if eq .IsInherited true}}${_PROJECT_PATCH_VERSION}{{else}}{{.PatchVersion}}{{end}})
+set(${SUBPROJ_NAME}_MAJOR_VERSION            ${_PROJECT_MAJOR_VERSION})
+set(${SUBPROJ_NAME}_MINOR_VERSION            ${_PROJECT_MINOR_VERSION})
+set(${SUBPROJ_NAME}_PATCH_VERSION            ${_PROJECT_PATCH_VERSION})
+
+set(${SUBPROJ_NAME}_VERSION
+    ${${SUBPROJ_NAME}_MAJOR_VERSION}.${${SUBPROJ_NAME}_MINOR_VERSION}.${${SUBPROJ_NAME}_PATCH_VERSION})
+
+# ############################################################### #
+# Set sources ################################################### #
+# ############################################################### #
 
 # Insert here your source files
 set(${SUBPROJ_NAME}_HEADERS
-    "")
+    )
 
 set(${SUBPROJ_NAME}_SOURCES
-    "")
+    )
+
+# Check variable
+if(NOT ${${SUBPROJ_NAME}_HEADERS} OR
+   NOT ${${SUBPROJ_NAME}_SOURCES})
+    message(
+        FATAL_ERROR
+        "[target:${SUBPROJ_NAME}]:"
+        "\${\${SUBPROJ_NAME}_HEADERS} or \${\${SUBPROJ_NAME}_SOURCES} are empty."
+        "\nInit them and insert source files. For example:"
+        "\nset(\${SUBPROJ_NAME}_HEADERS \"class.hpp\" \"funcs.hpp\" ....)"
+        "\nset(\${SUBPROJ_NAME}_SOURCES \"main.cpp\"  \"class.cpp\" ....)")
+endif()
+
+set(
+    ${SUBPROJ_NAME}_ALL_SRCS
+    ${${SUBPROJ_NAME}_HEADERS}
+    ${${SUBPROJ_NAME}_SOURCES})
 
 # ############################################################### #
 # Options ####################################################### #
@@ -24,29 +48,16 @@ set(${SUBPROJ_NAME}_SOURCES
 include(OptionHelpers)
 generate_basic_options_library(${SUBPROJ_NAME})
 
-# Insert here your specififc options for build:
+# Insert here your custom options for build:
+# For example:
+### set(${SUBPROJ_NAME}_INSTALL_CMAKE_PREFIX
+###     "lib/cmake/${SUBPROJ_NAME}"
+###     CACHE PATH "Installation directory for CMake files")
 # .............................................
 
 # ############################################################### #
-# Pre-build commands ############################################ #
+# Library type ################################################## #
 # ############################################################### #
-
-# Insert here pre-build commands:
-# .............................................
-
-# ############################################################### #
-# After-build commands ########################################## #
-# ############################################################### #
-
-# Insert here after-build commands:
-# .............................................
-
-# ############################################################### #
-# Library version ############################################### #
-# ############################################################### #
-
-set(${SUBPROJ_NAME}_VERSION
-    ${${SUBPROJ_NAME}_MAJOR_VERSION}.${${SUBPROJ_NAME}_MINOR_VERSION}.${${SUBPROJ_NAME}_PATCH_VERSION})
 
 # Set build type to library target
 if(${SUBPROJ_NAME}_BUILD_SHARED)
@@ -56,16 +67,6 @@ else()
 endif()
 
 string(TOLOWER ${${SUBPROJ_NAME}_TARGET_TYPE} ${SUBPROJ_NAME}_TARGET_TYPE_LOWER)
-
-
-# ############################################################### #
-# Set all target sources ######################################## #
-# ############################################################### #
-
-set(
-    ${SUBPROJ_NAME}_ALL_SRCS
-    ${${SUBPROJ_NAME}_HEADERS}
-    ${${SUBPROJ_NAME}_SOURCES})
 
 # ############################################################### #
 # Create target for build ####################################### #
@@ -80,9 +81,9 @@ add_library(
 # Enable C++ standard
 set_target_properties(
     ${SUBPROJ_NAME} PROPERTIES
-    ${${SUBPROJ_NAME}_LANG}_STANDARD          ${${SUBPROJ_NAME}_${${SUBPROJ_NAME}_LANG}_STANDARD}
-    ${${SUBPROJ_NAME}_LANG}_EXTENSIONS        ${${SUBPROJ_NAME}_${${SUBPROJ_NAME}_LANG}_EXTENSIONS}
-    ${${SUBPROJ_NAME}_LANG}_STANDARD_REQUIRED ${${SUBPROJ_NAME}_${${SUBPROJ_NAME}_LANG}_STANDARD_REQUIRED})
+    ${${SUBPROJ_NAME}_LANG}_STANDARD          ${${SUBPROJ_NAME}_LANG_STANDARD}
+    ${${SUBPROJ_NAME}_LANG}_EXTENSIONS        ${${SUBPROJ_NAME}_LANG_EXTENSIONS}
+    ${${SUBPROJ_NAME}_LANG}_STANDARD_REQUIRED ${${SUBPROJ_NAME}_LANG_STANDARD_REQUIRED})
 
 set_target_properties(
     ${SUBPROJ_NAME} PROPERTIES
@@ -98,16 +99,22 @@ target_include_directories(
               $<INSTALL_INTERFACE:include>)
 
 # ############################################################### #
+# Custom target properties ###################################### #
+# ############################################################### #
+
+# Insert here your custom target properties:
+# .............................................
+
+# ############################################################### #
 # Link libraries ################################################ #
 # ############################################################### #
 
-# Insert here linking libraries:
+# Insert here dependencies:
 # For example:
-### find_package(SFML 2.5 COMPONENTS system graphics REQUIRED)
+### find_package(spdlog REQUIRED)
 ### target_link_libraries(
 ###     ${SUBPROJ_NAME}
-###     sfml-system
-###     sfml-graphics)
+###     spdlog)
 # .............................................
 
 # ############################################################### #
@@ -144,7 +151,7 @@ install(
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
     "${PROJECT_BINARY_DIR}/${SUBPROJ_NAME}-config-version.cmake"
-    VERSION ${cmake-test-library_VERSION}
+    VERSION       ${${SUBPROJ_NAME}_VERSION}
     COMPATIBILITY AnyNewerVersion)
 
 configure_package_config_file(

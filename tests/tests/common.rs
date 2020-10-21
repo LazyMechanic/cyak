@@ -3,8 +3,7 @@ use std::fs::File;
 use std::path::{Path, PathBuf};
 
 use cyak_core::consts::*;
-use cyak_core::lang::Language;
-use cyak_core::{utils, ProjectConfig, Target, TargetKind, TargetProperty, Version};
+use cyak_core::{utils, ProjectConfig, Target, TargetKind, Variable, Version};
 use handlebars::Handlebars;
 use std::io::Write;
 use uuid::Uuid;
@@ -15,18 +14,6 @@ pub const STUFF_DIR: &str = "tests/stuff";
 pub fn finalize_path<P: AsRef<Path>>(path: P) -> PathBuf {
     let dir = PathBuf::from(STUFF_DIR);
     dir.join(path)
-}
-
-#[allow(dead_code)]
-pub fn create_mock_project() -> anyhow::Result<PathBuf> {
-    let project_dir = finalize_path(&Uuid::new_v4().to_string());
-    let config_dir = project_dir.join(cyak_core::CYAK_CONFIG_DIR);
-    let file = config_dir.join(cyak_core::CYAK_CONFIG_FILE);
-
-    fs::create_dir_all(&config_dir)?;
-    File::create(file)?;
-
-    Ok(project_dir)
 }
 
 #[allow(dead_code)]
@@ -83,28 +70,55 @@ name: "Default"
 version: "1.0.0"
 author: "LazyMechanic"
 description: "Default preset for cross platform C++ (by default) project"
-default_values:
-  language: "CXX"
-  version:
-    major: 0
-    minor: 1
-    patch: 0
-  git: true
-  target_properties:
-    custom:
-      - display: "Language standard"
-        description: "Set language standard"
-        key: "CXX_STANDARD"
-        value_pattern: "^[0-9]+$"
-        default: "17"
-      - display: "Language extensions"
-        description: "Enable or disable extensions. For example GCC extensions"
-        key: "CXX_EXTENSIONS"
-        value_pattern: "on|off"
-        default: "off"
-    common:
-      - key: "CXX_STANDARD_REQUIRED"
-        value: "ON"
+variables:
+  - display: "Enable version in bin name"
+    description: "Enable or disable extensions"
+    key: "enable_version_name"
+    value_pattern: "ON|OFF"
+    default: "OFF"
+    storages:
+      - executable
+  - display: "Language"
+    description: "Set language"
+    key: "lang"
+    value_pattern: "CXX|C"
+    default: "CXX"
+    storages:
+      - executable
+      - library
+      - interface
+      - test
+      - project
+  - display: "Language standard"
+    description: "Set language standard"
+    key: "lang_standard"
+    value_pattern: "^[0-9]+$"
+    default: "17"
+    storages:
+      - executable
+      - library
+      - interface
+      - test
+  - display: "Language extensions"
+    description: "Enable or disable extensions. For example GCC extensions"
+    key: "lang_extensions"
+    value_pattern: "ON|OFF"
+    default: "OFF"
+    storages:
+      - executable
+      - library
+      - interface
+      - test
+  - display: "Language standard required"
+    description: "Enable or disable standard requiring"
+    key: "lang_standard_required"
+    value_pattern: "ON|OFF"
+    default: "ON"
+    storages:
+      - executable
+      - library
+      - interface
+      - test
 "#;
             c.write_all(config_text.as_bytes())?;
         }
@@ -286,38 +300,26 @@ default_values:
 pub fn new_mock_project_config() -> ProjectConfig {
     ProjectConfig {
         name: "project_name".to_string(),
-        namespace: "project_namespace".to_string(),
         version: Version {
             major: 7,
             minor: 8,
             patch: 9,
         },
-        language: Language::Cpp,
         targets: vec![
             Target {
                 kind: TargetKind::Executable,
                 name: "exec_name".to_string(),
-                version: Version {
-                    major: 6,
-                    minor: 7,
-                    patch: 6,
-                },
-                properties: vec![],
+                variables: vec![],
             },
             Target {
                 kind: TargetKind::Library,
                 name: "lib_name".to_string(),
-                version: Version {
-                    major: 1,
-                    minor: 6,
-                    patch: 5,
-                },
-                properties: vec![
-                    TargetProperty {
+                variables: vec![
+                    Variable {
                         key: "some_property1".to_string(),
                         value: "value1".to_string(),
                     },
-                    TargetProperty {
+                    Variable {
                         key: "some_property2".to_string(),
                         value: "2".to_string(),
                     },
@@ -326,23 +328,19 @@ pub fn new_mock_project_config() -> ProjectConfig {
             Target {
                 kind: TargetKind::Interface,
                 name: "interface_name".to_string(),
-                version: Version {
-                    major: 66,
-                    minor: 7,
-                    patch: 123,
-                },
-                properties: vec![
-                    TargetProperty {
+                variables: vec![
+                    Variable {
                         key: "some_property1".to_string(),
                         value: "value1".to_string(),
                     },
-                    TargetProperty {
+                    Variable {
                         key: "some_property2".to_string(),
                         value: "2".to_string(),
                     },
                 ],
             },
         ],
+        variables: vec![],
     }
 }
 

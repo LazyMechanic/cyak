@@ -1,8 +1,5 @@
 pub const LICENSE_FILE: &str = "LICENSE";
 
-pub const CYAK_CONFIG_DIR: &str = ".cyak";
-pub const CYAK_CONFIG_FILE: &str = "cyak.yaml";
-
 pub const ASIS_DIR: &str = "asis";
 
 pub const PRESET_CONFIG_FILE: &str = "config.yaml";

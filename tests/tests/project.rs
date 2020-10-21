@@ -3,13 +3,6 @@ use uuid::Uuid;
 mod common;
 
 #[test]
-fn check_already_created_project() -> anyhow::Result<()> {
-    let project_dir = common::create_mock_project()?;
-    assert!(cyak_core::project_exists(project_dir));
-    Ok(())
-}
-
-#[test]
 fn create_project_from_config() -> anyhow::Result<()> {
     let config = common::new_mock_project_config();
     let preset_dir = common::create_mock_test_preset()?;

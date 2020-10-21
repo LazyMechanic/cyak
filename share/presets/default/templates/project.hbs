@@ -1,32 +1,19 @@
 cmake_minimum_required(VERSION 3.13)
 
-set(_PROJECT_NAME                       {{.Name}})
-set(_PROJECT_LANG                       {{.Lang}})
-set(_PROJECT_NAMESPACE                  {{.NameSpace}})
+set(_PROJECT_NAME                       {{name}})
 
-set(_PROJECT_MAJOR_VERSION              {{.MajorVersion}})
-set(_PROJECT_MINOR_VERSION              {{.MinorVersion}})
-set(_PROJECT_PATCH_VERSION              {{.PatchVersion}})
+set(_PROJECT_MAJOR_VERSION              {{version.major}})
+set(_PROJECT_MINOR_VERSION              {{version.minor}})
+set(_PROJECT_PATCH_VERSION              {{version.patch}})
 
-set(_PROJECT_LANG_STANDARD              {{.LangStandard}})
-set(_PROJECT_LANG_EXTENSIONS            {{.LangExtensions}})
-set(_PROJECT_LANG_STANDARD_REQUIRED     {{.LangStandardRequired}})
-
-set(_SUBPROJECT_LIST
-    {{range .Targets}}"{{if or (eq .Type "executable") (eq .Type "library")}}src/{{else if eq .Type "interface"}}include/{{end}}{{.Name}}"
-    {{else}}""{{end}})
-set(_TEST_LIST
-    {{range .Targets}}{{if .CreateTest}}"test/{{.Name}}"{{end}}
-    {{else}}""{{end}})
-
-# Cmake module path
-set(_PROJECT_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${_PROJECT_ROOT_DIR}/cmake/modules")
+set(_PROJECT_LANG                       {{get-project-var "lang"}})
+set(_PROJECT_ROOT_DIR                   ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(_PROJECT_VERSION
   ${_PROJECT_MAJOR_VERSION}.${_PROJECT_MINOR_VERSION}.${_PROJECT_PATCH_VERSION})
 
-project(${_PROJECT_NAME} LANGUAGES ${_PROJECT_LANG} VERSION ${_PROJECT_VERSION})
+# Cmake module path
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${_PROJECT_ROOT_DIR}/cmake/modules")
 
 # ############################################################### #
 # Find global libraries ######################################### #
@@ -34,9 +21,39 @@ project(${_PROJECT_NAME} LANGUAGES ${_PROJECT_LANG} VERSION ${_PROJECT_VERSION})
 
 # Insert here finding libraries if they use in several subdirectories:
 # For example:
-### find_package(SFML 2.5 COMPONENTS system graphics REQUIRED)
-### find_package(Boost CONFIG COMPONENTS random REQUIRED)
+### find_package(Boost COMPONENTS system program_options REQUIRED)
+### find_package(spdlog REQUIRED)
 # .............................................
+
+# ############################################################### #
+# Set targets ################################################### #
+# ############################################################### #
+
+set(_ALL_TARGET_LIST
+    {{#each targets}}{{target-path name}}
+    {{/each}})
+
+# List of test targets
+set(_TEST_LIST)
+foreach(T IN LISTS _ALL_TARGET_LIST)
+    if(T MATCHES "^test")
+        list(APPEND _TEST_LIST ${T})
+    endif()
+endforeach()
+
+# List of subprojects
+set(_SUBPROJECT_LIST)
+foreach(T IN LISTS _ALL_TARGET_LIST)
+    if(NOT T MATCHES "^test")
+        list(APPEND _SUBPROJ_LIST ${T})
+    endif()
+endforeach()
+
+# ############################################################### #
+# Init project ################################################## #
+# ############################################################### #
+
+project(${_PROJECT_NAME} LANGUAGES ${_PROJECT_LANG} VERSION ${_PROJECT_VERSION})
 
 # ############################################################### #
 # Add subdirectories ############################################ #
