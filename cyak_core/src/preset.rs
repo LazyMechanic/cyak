@@ -12,9 +12,8 @@ pub struct PresetConfig {
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct PresetVariable {
-    pub display: String,
-    pub description: String,
     pub key: String,
+    pub description: String,
     pub value_pattern: String,
     pub default: String,
     pub storages: HashSet<VariableStorage>,

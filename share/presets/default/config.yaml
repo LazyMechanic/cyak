@@ -3,16 +3,14 @@ version: "1.0.0"
 author: "LazyMechanic"
 description: "Default preset for cross platform C++ (by default) project"
 variables:
-  - display: "Enable version in bin name"
+  - key: "enable_version_name"
     description: "Enable or disable extensions"
-    key: "enable_version_name"
     value_pattern: "ON|OFF"
     default: "OFF"
     storages:
       - executable
-  - display: "Language"
+  - key: "lang"
     description: "Set language"
-    key: "lang"
     value_pattern: "CXX|C"
     default: "CXX"
     storages:
@@ -21,9 +19,8 @@ variables:
       - interface
       - test
       - project
-  - display: "Language standard"
+  - key: "lang_standard"
     description: "Set language standard"
-    key: "lang_standard"
     value_pattern: "^[0-9]+$"
     default: "17"
     storages:
@@ -31,9 +28,8 @@ variables:
       - library
       - interface
       - test
-  - display: "Language extensions"
+  - key: "lang_extensions"
     description: "Enable or disable extensions. For example GCC extensions"
-    key: "lang_extensions"
     value_pattern: "ON|OFF"
     default: "OFF"
     storages:
@@ -41,9 +37,8 @@ variables:
       - library
       - interface
       - test
-  - display: "Language standard required"
+  - key: "lang_standard_required"
     description: "Enable or disable standard requiring"
-    key: "lang_standard_required"
     value_pattern: "ON|OFF"
     default: "ON"
     storages:
