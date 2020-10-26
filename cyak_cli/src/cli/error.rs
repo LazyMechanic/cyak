@@ -1,17 +1,15 @@
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error("Invalid cli subcommand")]
-    InvalidSubCommand,
     #[error("Argument not found: {0}")]
     ArgumentNotFound(String),
-    #[error("Unsupported cli subcommand")]
-    UnsupportedSubCommand,
+    #[error("No parent directory: {0}")]
+    NoParentDir(std::path::PathBuf),
     #[error(transparent)]
     EnvVarError(#[from] std::env::VarError),
-    #[error("Share data directory not found")]
-    ShareDataDirNotFound,
     #[error(transparent)]
     IoError(#[from] std::io::Error),
+    #[error(transparent)]
+    ConfigError(#[from] config::ConfigError),
 }
 
 impl Error {

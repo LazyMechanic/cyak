@@ -1,2 +1,4 @@
 /target
 .idea
+
+cyak_cli/src/cli/settings.yaml

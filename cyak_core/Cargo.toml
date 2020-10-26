@@ -1,16 +1,16 @@
 [package]
 name = "cyak_core"
-version = "0.1.0"
+version = "0.7.0"
 authors = ["LazyMechanic <AsharnRus@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-anyhow = "1.0"
+anyhow = { version = "1.0" }
 chrono = { version = "0.4", features = ["serde"] }
-git2 = "0.13"
+git2 = { version = "0.13" }
 serde = { version = "1.0", features = ["derive"] }
 serde_yaml = { version = "0.8" }
-handlebars = "3.2"
-thiserror = "1.0"
-fs_extra = "1.1"
-Inflector = "0.11.4"
+handlebars = { version = "3.2" }
+thiserror = { version = "1.0" }
+fs_extra = { version = "1.1" }
+Inflector = { version = "0.11.4" }
