@@ -9,25 +9,24 @@ use cyak_core::PresetConfig;
 use cyak_core::ProjectConfig;
 
 pub fn run(cli: Cli) -> anyhow::Result<()> {
-    match cli.0 {
-        SubCommand::Create(c) => create_project(c),
-        SubCommand::Install(c) => install_preset(c),
+    match cli.subcommand {
+        SubCommand::New(_) => new_project(cli),
+        SubCommand::Install(_) => install_preset(cli),
     }
 }
 
-fn install_preset(c: cli::Install) -> anyhow::Result<()> {
-    Ok(())
-}
+fn new_project(cli: Cli) -> anyhow::Result<()> {
+    cyak_core::utils::check_dir_existence(&cli.share_dir)?;
 
-fn create_project(c: cli::Create) -> anyhow::Result<()> {
-    cyak_core::utils::check_dir_existence(&c.share_dir)?;
-
-    let preset_dir = c.share_dir.join("presets").join("default");
+    let preset_dir = cli.share_dir.join("presets").join("default");
     cyak_core::utils::check_dir_existence(&preset_dir)?;
 
     let preset_config = cyak_core::load_preset_config(&preset_dir)?;
 
-    let project_dir = c.project_dir;
+    let project_dir = match cli.subcommand {
+        SubCommand::New(c) => c.project_dir,
+        _ => return Error::InvalidCliSubCommand("new".to_string()).anyhow_fail(),
+    };
     // If project dir already exist
     if project_dir.exists() {
         return Error::ProjectDirExists(project_dir.clone()).anyhow_fail();
@@ -45,5 +44,9 @@ fn create_project(c: cli::Create) -> anyhow::Result<()> {
 
     siv.run();
 
+    Ok(())
+}
+
+fn install_preset(cli: Cli) -> anyhow::Result<()> {
     Ok(())
 }

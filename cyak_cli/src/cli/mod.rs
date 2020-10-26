@@ -8,20 +8,23 @@ use std::env;
 use std::path::PathBuf;
 use url::Url;
 
-const PATH_NAME: &str = "PROJECT_PATH";
-const PATH_HELP: &str = "Path to project";
+const SHARE_DIR_OPTION_NAME: &str = "share directory";
+const SHARE_DIR_OPTION_LONG: &str = "share-dir";
+const SHARE_DIR_OPTION_SHORT: &str = "s";
+const SHARE_DIR_OPTION_HELP: &str = "Directory with share data";
+const SHARE_DIR_OPTION_VALUE_NAME: &str = "PATH";
 
-const SHARE_DIR_NAME: &str = "share directory";
-const SHARE_DIR_LONG: &str = "share-dir";
-const SHARE_DIR_SHORT: &str = "s";
-const SHARE_DIR_HELP: &str = "Directory with share data";
-const SHARE_DIR_VALUE_NAME: &str = "PATH";
+const NEW_CMD_NAME: &str = "new";
+const NEW_CMD_ABOUT: &str = "Create new project";
 
-const INSTALL_NAME: &str = "install";
-const INSTALL_ABOUT: &str = "Install preset from local directory or from URL by git. For example: '/home/user/custom_preset' or 'https://github.com/user/preset'";
+const PROJECT_PATH_ARG_NAME: &str = "PROJECT_PATH";
+const PROJECT_PATH_ARG_HELP: &str = "Path to project";
 
-const INSTALL_PRESET_PATH_NAME: &str = "PRESET_PATH";
-const INSTALL_PRESET_PATH_HELP: &str = "Preset local path or URL";
+const INSTALL_CMD_NAME: &str = "install";
+const INSTALL_CMD_ABOUT: &str = "Install preset from local directory or from URL by git. For example: '/home/user/custom_preset' or 'https://github.com/user/preset'";
+
+const INSTALL_PRESET_PATH_ARG_NAME: &str = "PRESET_PATH";
+const INSTALL_PRESET_PATH_ARG_HELP: &str = "Preset local path or URL";
 
 #[derive(Debug)]
 pub enum PresetPath {
@@ -30,8 +33,7 @@ pub enum PresetPath {
 }
 
 #[derive(Debug)]
-pub struct Create {
-    pub share_dir: PathBuf,
+pub struct New {
     pub project_dir: PathBuf,
 }
 
@@ -41,11 +43,14 @@ pub struct Install {
 }
 
 pub enum SubCommand {
-    Create(Create),
+    New(New),
     Install(Install),
 }
 
-pub struct Cli(pub SubCommand);
+pub struct Cli {
+    pub share_dir: PathBuf,
+    pub subcommand: SubCommand,
+}
 
 impl Cli {
     pub fn new() -> Result<Self, Error> {
@@ -72,36 +77,43 @@ impl Cli {
             .author(settings.author.as_str())
             .about(settings.about.as_str())
             .arg(
-                clap::Arg::with_name(SHARE_DIR_NAME)
-                    .long(SHARE_DIR_LONG)
-                    .short(SHARE_DIR_SHORT)
-                    .help(SHARE_DIR_HELP)
-                    .value_name(SHARE_DIR_VALUE_NAME)
+                clap::Arg::with_name(SHARE_DIR_OPTION_NAME)
+                    .long(SHARE_DIR_OPTION_LONG)
+                    .short(SHARE_DIR_OPTION_SHORT)
+                    .help(SHARE_DIR_OPTION_HELP)
+                    .value_name(SHARE_DIR_OPTION_VALUE_NAME)
                     .default_value_os(default_share_dir.as_os_str()),
             )
-            .arg(
-                clap::Arg::with_name(PATH_NAME)
-                    .help(PATH_HELP)
-                    .required(false),
+            .subcommand(
+                clap::App::new(NEW_CMD_NAME).about(NEW_CMD_ABOUT).arg(
+                    clap::Arg::with_name(PROJECT_PATH_ARG_NAME)
+                        .help(PROJECT_PATH_ARG_HELP)
+                        .required(true),
+                ),
             )
             .subcommand(
-                clap::App::new("install")
+                clap::App::new(INSTALL_CMD_NAME)
+                    .about(INSTALL_CMD_ABOUT)
                     .arg(
-                        clap::Arg::with_name(INSTALL_PRESET_PATH_NAME)
-                            .help(INSTALL_PRESET_PATH_HELP)
+                        clap::Arg::with_name(INSTALL_PRESET_PATH_ARG_NAME)
+                            .help(INSTALL_PRESET_PATH_ARG_HELP)
                             .required(true),
-                    )
-                    .about(INSTALL_ABOUT),
+                    ),
             )
             .setting(AppSettings::ArgRequiredElseHelp);
 
+        // Global options
         let matches = app.get_matches();
+        let share_dir = matches
+            .value_of(SHARE_DIR_OPTION_NAME)
+            .ok_or_else(|| Error::ArgumentNotFound(SHARE_DIR_OPTION_LONG.to_string()))?;
+        let share_dir = PathBuf::from(share_dir);
 
         let cli = match matches.subcommand() {
-            (INSTALL_NAME, Some(s)) => {
-                let preset_dir = s
-                    .value_of(INSTALL_PRESET_PATH_NAME)
-                    .ok_or_else(|| Error::ArgumentNotFound(INSTALL_PRESET_PATH_NAME.to_string()))?;
+            (INSTALL_CMD_NAME, Some(s)) => {
+                let preset_dir = s.value_of(INSTALL_PRESET_PATH_ARG_NAME).ok_or_else(|| {
+                    Error::ArgumentNotFound(INSTALL_PRESET_PATH_ARG_NAME.to_string())
+                })?;
 
                 let preset_dir = if let Ok(u) = Url::parse(preset_dir) {
                     PresetPath::Url(u)
@@ -109,24 +121,23 @@ impl Cli {
                     PresetPath::Local(preset_dir.to_string())
                 };
 
-                Cli(SubCommand::Install(Install { preset_dir }))
+                Cli {
+                    share_dir,
+                    subcommand: SubCommand::Install(Install { preset_dir }),
+                }
             }
-            _ => {
-                let share_dir = matches
-                    .value_of(SHARE_DIR_NAME)
-                    .ok_or_else(|| Error::ArgumentNotFound(SHARE_DIR_LONG.to_string()))?;
-                let share_dir = PathBuf::from(share_dir);
-
-                let project_dir = matches
-                    .value_of(PATH_NAME)
-                    .ok_or_else(|| Error::ArgumentNotFound(PATH_NAME.to_string()))?;
+            (NEW_CMD_NAME, Some(s)) => {
+                let project_dir = s
+                    .value_of(PROJECT_PATH_ARG_NAME)
+                    .ok_or_else(|| Error::ArgumentNotFound(PROJECT_PATH_ARG_NAME.to_string()))?;
                 let project_dir = PathBuf::from(project_dir);
 
-                Cli(SubCommand::Create(Create {
+                Cli {
                     share_dir,
-                    project_dir,
-                }))
+                    subcommand: SubCommand::New(New { project_dir }),
+                }
             }
+            _ => unreachable!(),
         };
 
         Ok(cli)

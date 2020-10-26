@@ -4,6 +4,8 @@ use std::path::PathBuf;
 pub enum Error {
     #[error("Project directory exists, but cyak config file not found: {0:?}")]
     ProjectDirExists(PathBuf),
+    #[error("Invalid cli sub command, expected: {0}")]
+    InvalidCliSubCommand(String),
 }
 
 impl Error {
