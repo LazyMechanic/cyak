@@ -12,7 +12,7 @@ const SHARE_DIR_OPTION_NAME: &str = "share directory";
 const SHARE_DIR_OPTION_LONG: &str = "share-dir";
 const SHARE_DIR_OPTION_SHORT: &str = "s";
 const SHARE_DIR_OPTION_HELP: &str = "Directory with share data";
-const SHARE_DIR_OPTION_VALUE_NAME: &str = "PATH";
+const SHARE_DIR_OPTION_VALUE_NAME: &str = "SHARE_PATH";
 
 const NEW_CMD_NAME: &str = "new";
 const NEW_CMD_ABOUT: &str = "Create new project";
@@ -21,7 +21,7 @@ const PROJECT_PATH_ARG_NAME: &str = "PROJECT_PATH";
 const PROJECT_PATH_ARG_HELP: &str = "Path to project";
 
 const INSTALL_CMD_NAME: &str = "install";
-const INSTALL_CMD_ABOUT: &str = "Install preset from local directory or from URL by git. For example: '/home/user/custom_preset' or 'https://github.com/user/preset'";
+const INSTALL_CMD_ABOUT: &str = "Install preset from local directory or from URL by git. Download preset from URL equal 'git clone <URL> <SHARE_PATH>/presets'. For example: '/home/user/custom_preset' or 'https://github.com/user/preset'";
 
 const INSTALL_PRESET_PATH_ARG_NAME: &str = "PRESET_PATH";
 const INSTALL_PRESET_PATH_ARG_HELP: &str = "Preset local path or URL";
@@ -39,7 +39,7 @@ pub struct New {
 
 #[derive(Debug)]
 pub struct Install {
-    pub preset_dir: PresetPath,
+    pub preset_path: PresetPath,
 }
 
 pub enum SubCommand {
@@ -100,7 +100,8 @@ impl Cli {
                             .required(true),
                     ),
             )
-            .setting(AppSettings::ArgRequiredElseHelp);
+            .setting(AppSettings::ArgRequiredElseHelp)
+            .setting(AppSettings::SubcommandRequired);
 
         // Global options
         let matches = app.get_matches();
@@ -123,7 +124,9 @@ impl Cli {
 
                 Cli {
                     share_dir,
-                    subcommand: SubCommand::Install(Install { preset_dir }),
+                    subcommand: SubCommand::Install(Install {
+                        preset_path: preset_dir,
+                    }),
                 }
             }
             (NEW_CMD_NAME, Some(s)) => {

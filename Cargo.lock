@@ -319,6 +319,7 @@ dependencies = [
  "cursive",
  "cyak_core",
  "fs_extra",
+ "git2",
  "serde 1.0.116",
  "thiserror",
  "url",

@@ -21,8 +21,10 @@ config = { version = "0.10" }
 cursive = { version = "0.15.0", default-features = false }
 clap = { version = "2.33" }
 chrono = { version = "0.4", features = ["serde"] }
+git2 = { version = "0.13" }
 serde = { version = "1.0", features = ["derive"] }
 thiserror = { version = "1.0" }
+fs_extra = { version = "1.1" }
 url = { version = "2.1" }
 
 [features]
