@@ -40,10 +40,8 @@
 
 #[macro_export]
 macro_rules! menu {
-    ($menu_name:ident, title: $title:literal, $(($display:literal, $id:ident) => |$siv:pat, $arg:pat, $ctx:pat, $preset_config:pat| $body:expr),+) => {
-        pub enum $menu_name {
-            $($id),+,
-        }
+    ($menu_name:ident, title: $title:literal, $($display:literal => |$siv:pat, $ctx:pat, $preset_config:pat| $body:expr),+) => {
+        pub struct $menu_name;
 
         impl $menu_name {
             #[allow(dead_code)]
@@ -70,21 +68,21 @@ macro_rules! menu {
                 use cyak_core::PresetConfig;
 
                 Dialog::around(
-                    SelectView::<$menu_name>::new()
-                        .with_all(vec![$(($display, $menu_name::$id)),*])
+                    SelectView::new()
+                        .with_all_str(vec![$($display),*])
                         .h_align(HAlign::Center)
                         .on_submit({
                             let ctx = Rc::clone(ctx);
                             let preset_config = Rc::clone(preset_config);
-                            move |siv: &mut Cursive, item: &$menu_name| match item {
+                            move |siv: &mut Cursive, item: &str| match item {
                             $(
-                                $menu_name::$id => {
+                                $display => {
                                     (|$siv: &mut Cursive,
-                                      $arg: &$menu_name,
                                       $ctx: &Rc<RefCell<Context>>,
-                                      $preset_config: &Rc<RefCell<PresetConfig>>| $body)(siv, item, &ctx, &preset_config)
+                                      $preset_config: &Rc<RefCell<PresetConfig>>| $body)(siv, &ctx, &preset_config)
                                 }
                             ),+,
+                                _ => unreachable!(),
                             }
                         })
                         .scrollable()
