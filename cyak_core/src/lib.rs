@@ -110,7 +110,7 @@ pub fn validate_preset<P: AsRef<Path>>(preset_dir: P) -> Result<(), Error> {
         error_files.push(("missing file".to_string(), test_template));
     }
 
-    if error_files.len() > 0 {
+    if !error_files.is_empty() {
         return Error::InvalidPresetStructure(error_files).fail();
     }
 
@@ -238,7 +238,7 @@ pub fn create_project_from_config<P: AsRef<Path>>(
              -> HelperResult {
                 let target_name = h
                     .param(0)
-                    .ok_or(RenderError::new("target_name not found"))?
+                    .ok_or_else(|| RenderError::new("target_name not found"))?
                     .value()
                     .render();
 
@@ -247,10 +247,9 @@ pub fn create_project_from_config<P: AsRef<Path>>(
                 let target = targets
                     .iter()
                     .find(|&item| item.name == target_name)
-                    .ok_or(RenderError::new(format!(
-                        "target with name {} not found",
-                        target_name
-                    )))?;
+                    .ok_or_else(|| {
+                        RenderError::new(format!("target with name {} not found", target_name))
+                    })?;
 
                 let path = match target.kind {
                     TargetKind::Executable => format!("src/{}", target.name),
@@ -290,7 +289,7 @@ pub fn create_project_from_config<P: AsRef<Path>>(
              -> HelperResult {
                 let test_target_name = h
                     .param(0)
-                    .ok_or(RenderError::new("test_target_name not found"))?
+                    .ok_or_else(|| RenderError::new("test_target_name not found"))?
                     .value()
                     .render();
 
@@ -360,33 +359,32 @@ pub fn create_project_from_config<P: AsRef<Path>>(
              -> HelperResult {
                 let target_name = h
                     .param(0)
-                    .ok_or(RenderError::new("target_name not found"))?
+                    .ok_or_else(|| RenderError::new("target_name not found"))?
                     .value()
                     .render();
                 let variable_name = h
                     .param(1)
-                    .ok_or(RenderError::new("variable_name not found"))?
+                    .ok_or_else(|| RenderError::new("variable_name not found"))?
                     .value()
                     .render();
-                let default_value = h.param(2).and_then(|item| Some(item.value().render()));
+                let default_value = h.param(2).map(|item| item.value().render());
 
                 let targets = &project_config.targets;
 
                 let target = targets
                     .iter()
                     .find(|&item| item.name == target_name)
-                    .ok_or(RenderError::new(format!(
-                        "target with name {} not found",
-                        target_name
-                    )))?;
+                    .ok_or_else(|| {
+                        RenderError::new(format!("target with name {} not found", target_name))
+                    })?;
 
                 let variable_value = target
                     .variables
                     .iter()
                     .find(|&item| item.key == variable_name)
-                    .and_then(|var| Some(var.value.clone()))
+                    .map(|var| var.value.clone())
                     .or_else(|| default_value)
-                    .ok_or(RenderError::new("variable_value not found"))?;
+                    .ok_or_else(|| RenderError::new("variable_value not found"))?;
 
                 out.write(variable_value.as_str())?;
                 Ok(())
@@ -414,18 +412,18 @@ pub fn create_project_from_config<P: AsRef<Path>>(
              -> HelperResult {
                 let variable_name = h
                     .param(0)
-                    .ok_or(RenderError::new("variable_name not found"))?
+                    .ok_or_else(|| RenderError::new("variable_name not found"))?
                     .value()
                     .render();
-                let default_value = h.param(1).and_then(|item| Some(item.value().render()));
+                let default_value = h.param(1).map(|item| item.value().render());
 
                 let variable_value = project_config
                     .variables
                     .iter()
                     .find(|&item| item.key == variable_name)
-                    .and_then(|var| Some(var.value.clone()))
+                    .map(|var| var.value.clone())
                     .or_else(|| default_value)
-                    .ok_or(RenderError::new("variable_value not found"))?;
+                    .ok_or_else(|| RenderError::new("variable_value not found"))?;
 
                 out.write(variable_value.as_str())?;
                 Ok(())

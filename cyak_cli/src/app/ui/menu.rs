@@ -62,10 +62,10 @@ macro_rules! menu {
                 stringify!($menu_name)
             }
 
-            #[allow(dead_code)]
+            #[allow(dead_code, unreachable_patterns, clippy::redundant_closure_call)]
             fn make(ui: &std::rc::Rc<std::cell::RefCell<Ui>>) -> Self::View {
                 use cursive::view::{Nameable, Scrollable, Resizable};
-                use cursive::views::{SelectView, Dialog, ResizedView, LinearLayout};
+                use cursive::views::{SelectView, Dialog};
                 use cursive::align::HAlign;
                 use cursive::Cursive;
 

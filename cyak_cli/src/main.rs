@@ -20,7 +20,7 @@ fn main() {
 }
 
 fn init_logger() {
-    let log_filters = std::env::var("RUST_LOG").unwrap_or("error".to_string());
+    let log_filters = std::env::var("RUST_LOG").unwrap_or_else(|_| "error".to_string());
 
     env_logger::Builder::new()
         .parse_filters(&log_filters)

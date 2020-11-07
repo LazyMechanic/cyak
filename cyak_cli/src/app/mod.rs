@@ -5,26 +5,18 @@ mod ui;
 
 pub use error::Error;
 
-use crate::cli;
 use crate::cli::{Cli, PresetPath, SubCommand};
 
 use ui::Menu;
 use ui::Ui;
 
-use cursive::align::HAlign;
-use cursive::traits::Resizable;
-use cursive::view::{Nameable, Scrollable};
-use cursive::views::{Dialog, SelectView, TextView, ViewRef};
-use cursive::{Cursive, With};
-use cyak_core::context::Context;
-use cyak_core::PresetConfig;
+use cyak_core::Context;
 use cyak_core::ProjectConfig;
-use fs_extra::dir::{CopyOptions, DirOptions};
+
+use fs_extra::dir::CopyOptions;
 use std::cell::RefCell;
-use std::ops::Deref;
 use std::path::PathBuf;
 use std::rc::Rc;
-use std::sync::Arc;
 
 pub fn run(cli: Cli) -> anyhow::Result<()> {
     // If share dir not exists
@@ -42,19 +34,19 @@ crate::menu! {
     MainMenu,
     title: "Main menu",
     elements: {
-        "Ok" => |siv, ui| {
-            siv.add_layer(SelectPresetMenu::make(ui))
+        "Ok" => |_siv, _ui| {
+            _siv.add_layer(SelectPresetMenu::make(_ui))
         },
-        "A1-- r-8q wq6876786c" => |siv, ui| {},
-        "A2 qwfmqkwficv jhe" => |siv, ui| {},
-        "A3 ioqoq" => |siv, ui| {},
-        "A4" => |siv, ui| {},
-        "A5" => |siv, ui| {},
-        "A6 ff qf qwf qf saca" => |siv, ui| {},
-        "A7" => |siv, ui| {},
-        "A8" => |siv, ui| {},
-        "A8" => |siv, ui| {},
-        "Exit" => |siv, ui| {
+        "A1-- r-8q wq6876786c" => |_siv, _ui| {},
+        "A2 qwfmqkwficv jhe" => |_siv, _ui| {},
+        "A3 ioqoq" => |_siv, _ui| {},
+        "A4" => |_siv, _ui| {},
+        "A5" => |_siv, _ui| {},
+        "A6 ff qf qwf qf saca" => |_siv, _ui| {},
+        "A7" => |_siv, _ui| {},
+        "A8" => |_siv, _ui| {},
+        "A8" => |_siv, _ui| {},
+        "Exit" => |_siv, _ui| {
             std::process::exit(0);
         }
     }
@@ -64,11 +56,11 @@ crate::menu! {
     SelectPresetMenu,
     title: "Select preset",
     elements: {
-        "Ahoj" => |siv, ui| {
-            siv.add_layer(Dialog::text("Ahoj").dismiss_button("ahoj"));
+        "Ahoj" => |_siv, _ui| {
+            _siv.add_layer(Dialog::text("Ahoj").dismiss_button("ahoj"));
         },
-        "Back" => |siv, ui| {
-            siv.pop_layer();
+        "Back" => |_siv, _ui| {
+            _siv.pop_layer();
         }
     }
 }
@@ -89,7 +81,7 @@ fn new_project(cli: Cli) -> anyhow::Result<()> {
 
         // If project dir already exist
         if project_dir.exists() {
-            return Error::ProjectDirExists(project_dir.clone()).anyhow_fail();
+            return Error::ProjectDirExists(project_dir).anyhow_fail();
         }
 
         let project_config = ProjectConfig::default();
@@ -148,7 +140,7 @@ fn install_preset(cli: Cli) -> anyhow::Result<()> {
 
             // Copy preset dir
             {
-                let mut opts = CopyOptions::new();
+                let opts = CopyOptions::new();
                 fs_extra::dir::copy(&in_dir, &out_dir, &opts)?;
             }
         }

@@ -1,6 +1,5 @@
 use anyhow::Result;
 use fs_extra::dir::{CopyOptions, DirOptions};
-use std::env;
 use std::path::PathBuf;
 
 const SHARE_DIR: &str = "../share";
