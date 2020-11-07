@@ -287,6 +287,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "cursive-aligned-view"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1b4955abf3b6ad31f2f55132f5596637216ca87a07caa9ae5fb9d50dafc86513"
+dependencies = [
+ "cursive_core",
+]
+
+[[package]]
 name = "cursive_core"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -317,6 +326,7 @@ dependencies = [
  "clap",
  "config",
  "cursive",
+ "cursive-aligned-view",
  "cyak_core",
  "env_logger",
  "fs_extra",

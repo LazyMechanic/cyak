@@ -1,14 +1,27 @@
 pub mod error;
 
+mod traits;
+mod ui;
+
 pub use error::Error;
 
 use crate::cli;
 use crate::cli::{Cli, PresetPath, SubCommand};
 
+use cursive::align::HAlign;
+use cursive::traits::Resizable;
+use cursive::view::{Nameable, Scrollable};
+use cursive::views::{Dialog, SelectView, TextView, ViewRef};
+use cursive::{Cursive, With};
+use cyak_core::context::Context;
 use cyak_core::PresetConfig;
 use cyak_core::ProjectConfig;
 use fs_extra::dir::{CopyOptions, DirOptions};
+use std::cell::RefCell;
+use std::ops::Deref;
 use std::path::PathBuf;
+use std::rc::Rc;
+use std::sync::Arc;
 
 pub fn run(cli: Cli) -> anyhow::Result<()> {
     // If share dir not exists
@@ -42,13 +55,17 @@ fn new_project(cli: Cli) -> anyhow::Result<()> {
 
     let project_config = ProjectConfig::default();
 
+    // ************************************************************************************** //
+
+    let ctx = Rc::new(RefCell::new(Context {
+        project_dir,
+        preset_dir,
+        git: false,
+        license: None,
+        project_config,
+    }));
+
     let mut siv = cursive::default();
-
-    siv.add_global_callback('q', |s| s.quit());
-
-    siv.add_layer(cursive::views::TextView::new(
-        "Hello cursive! Press <q> to quit.",
-    ));
 
     siv.run();
 
