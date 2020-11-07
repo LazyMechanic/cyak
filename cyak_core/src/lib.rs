@@ -15,10 +15,9 @@ use handlebars::{
     Handlebars, Helper, HelperResult, JsonRender, Output, RenderContext, RenderError,
 };
 
-use context::Context;
-
 use crate::utils::Case;
 pub use consts::*;
+pub use context::Context;
 pub use error::Error;
 pub use preset::PresetConfig;
 pub use project::{ProjectConfig, Target, TargetKind, Variable};
