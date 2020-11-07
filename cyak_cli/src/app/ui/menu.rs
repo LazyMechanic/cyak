@@ -1,3 +1,11 @@
+use super::Ui;
+
+pub trait Menu {
+    type View: cursive::view::View;
+    fn name() -> &'static str;
+    fn make(ui: &std::rc::Rc<std::cell::RefCell<Ui>>) -> Self::View;
+}
+
 /// # Example
 ///
 /// ```rust
@@ -37,23 +45,25 @@
 ///     siv.run();
 /// }
 /// ```
-
 #[macro_export]
 macro_rules! menu {
-    ($menu_name:ident, title: $title:literal, $($display:literal => |$siv:pat, $ctx:pat, $preset_config:pat| $body:expr),+) => {
+    ($menu_name:ident
+     ,title: $title:literal
+     ,elements: {$($el_display:literal => |$el_siv:pat, $el_ui:pat| $el_body:expr),+}
+     $(,buttons: {$($bt_display:literal => |$bt_siv:pat| $bt_body:expr),+})?
+     $(,dismiss_button: $dbt_display:literal)?) => {
         pub struct $menu_name;
 
-        impl $menu_name {
+        impl Menu for $menu_name {
+            type View = cursive::views::NamedView<cursive::views::ResizedView<cursive::views::Dialog>>;
+
             #[allow(dead_code)]
-            pub fn name() -> &'static str {
+            fn name() -> &'static str {
                 stringify!($menu_name)
             }
 
             #[allow(dead_code)]
-            pub fn make(
-                ctx: &std::rc::Rc<std::cell::RefCell<cyak_core::Context>>,
-                preset_config: &std::rc::Rc<std::cell::RefCell<cyak_core::PresetConfig>>,
-            ) -> impl cursive::view::View {
+            fn make(ui: &std::rc::Rc<std::cell::RefCell<Ui>>) -> Self::View {
                 use cursive::view::{Nameable, Scrollable, Resizable};
                 use cursive::views::{SelectView, Dialog, ResizedView, LinearLayout};
                 use cursive::align::HAlign;
@@ -64,22 +74,17 @@ macro_rules! menu {
                 use std::cell::RefCell;
                 use std::rc::Rc;
 
-                use cyak_core::Context;
-                use cyak_core::PresetConfig;
-
                 Dialog::around(
                     SelectView::new()
-                        .with_all_str(vec![$($display),*])
+                        .with_all_str(vec![$($el_display),*])
                         .h_align(HAlign::Center)
                         .on_submit({
-                            let ctx = Rc::clone(ctx);
-                            let preset_config = Rc::clone(preset_config);
+                            let ui = Rc::clone(ui);
                             move |siv: &mut Cursive, item: &str| match item {
                             $(
-                                $display => {
-                                    (|$siv: &mut Cursive,
-                                      $ctx: &Rc<RefCell<Context>>,
-                                      $preset_config: &Rc<RefCell<PresetConfig>>| $body)(siv, &ctx, &preset_config)
+                                $el_display => {
+                                    (|$el_siv: &mut Cursive,
+                                      $el_ui: &Rc<RefCell<Ui>>| $el_body)(siv, &ui)
                                 }
                             ),+,
                                 _ => unreachable!(),
@@ -91,6 +96,15 @@ macro_rules! menu {
                         .align_top_center()
                     )
                     .title($title)
+                    $(
+                    .h_align(HAlign::Center)
+                    $(
+                    .button($bt_display, |$bt_siv: &mut Cursive| $bt_body)
+                    )+
+                    )?
+                    $(
+                    .dismiss_button($dbt_display)
+                    )?
                     .max_size((50, 20))
                     .with_name($menu_name::name())
             }

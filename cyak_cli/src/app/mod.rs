@@ -8,6 +8,9 @@ pub use error::Error;
 use crate::cli;
 use crate::cli::{Cli, PresetPath, SubCommand};
 
+use ui::Menu;
+use ui::Ui;
+
 use cursive::align::HAlign;
 use cursive::traits::Resizable;
 use cursive::view::{Nameable, Scrollable};
@@ -35,37 +38,82 @@ pub fn run(cli: Cli) -> anyhow::Result<()> {
     }
 }
 
+crate::menu! {
+    MainMenu,
+    title: "Main menu",
+    elements: {
+        "Ok" => |siv, ui| {
+            siv.add_layer(SelectPresetMenu::make(ui))
+        },
+        "A1-- r-8q wq6876786c" => |siv, ui| {},
+        "A2 qwfmqkwficv jhe" => |siv, ui| {},
+        "A3 ioqoq" => |siv, ui| {},
+        "A4" => |siv, ui| {},
+        "A5" => |siv, ui| {},
+        "A6 ff qf qwf qf saca" => |siv, ui| {},
+        "A7" => |siv, ui| {},
+        "A8" => |siv, ui| {},
+        "A8" => |siv, ui| {},
+        "Exit" => |siv, ui| {
+            std::process::exit(0);
+        }
+    }
+}
+
+crate::menu! {
+    SelectPresetMenu,
+    title: "Select preset",
+    elements: {
+        "Ahoj" => |siv, ui| {
+            siv.add_layer(Dialog::text("Ahoj").dismiss_button("ahoj"));
+        },
+        "Back" => |siv, ui| {
+            siv.pop_layer();
+        }
+    }
+}
+
 fn new_project(cli: Cli) -> anyhow::Result<()> {
-    let project_dir = match cli.subcommand {
-        SubCommand::New(c) => c.project_dir,
-        _ => return Error::InvalidCliSubCommand("new".to_string()).anyhow_fail(),
+    let ui = {
+        let project_dir = match cli.subcommand {
+            SubCommand::New(c) => c.project_dir,
+            _ => return Error::InvalidCliSubCommand("new".to_string()).anyhow_fail(),
+        };
+
+        cyak_core::utils::check_dir_existence(&cli.share_dir)?;
+
+        let preset_dir = cli.share_dir.join("presets").join("default");
+        cyak_core::utils::check_dir_existence(&preset_dir)?;
+
+        let preset_config = cyak_core::load_preset_config(&preset_dir)?;
+
+        // If project dir already exist
+        if project_dir.exists() {
+            return Error::ProjectDirExists(project_dir.clone()).anyhow_fail();
+        }
+
+        let project_config = ProjectConfig::default();
+
+        // ************************************************************************************** //
+
+        let ctx = Context {
+            project_dir,
+            preset_dir,
+            git: false,
+            license: None,
+            project_config,
+        };
+
+        Rc::new(RefCell::new(Ui {
+            ctx,
+            share_dir: cli.share_dir,
+            preset_config,
+        }))
     };
 
-    cyak_core::utils::check_dir_existence(&cli.share_dir)?;
-
-    let preset_dir = cli.share_dir.join("presets").join("default");
-    cyak_core::utils::check_dir_existence(&preset_dir)?;
-
-    let preset_config = cyak_core::load_preset_config(&preset_dir)?;
-
-    // If project dir already exist
-    if project_dir.exists() {
-        return Error::ProjectDirExists(project_dir.clone()).anyhow_fail();
-    }
-
-    let project_config = ProjectConfig::default();
-
-    // ************************************************************************************** //
-
-    let ctx = Rc::new(RefCell::new(Context {
-        project_dir,
-        preset_dir,
-        git: false,
-        license: None,
-        project_config,
-    }));
-
     let mut siv = cursive::default();
+
+    siv.add_layer(MainMenu::make(&ui));
 
     siv.run();
 
