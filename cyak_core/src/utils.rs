@@ -59,6 +59,14 @@ pub fn format_test_target_name(name: &str) -> String {
     }
 }
 
+pub fn format_presets_dir<P: AsRef<Path>>(share_dir: P) -> PathBuf {
+    share_dir.as_ref().join(PRESETS_DIR)
+}
+
+pub fn format_licenses_dir<P: AsRef<Path>>(share_dir: P) -> PathBuf {
+    share_dir.as_ref().join(LICENSES_DIR)
+}
+
 pub fn format_config_template<P: AsRef<Path>>(preset_dir: P) -> PathBuf {
     preset_dir
         .as_ref()
