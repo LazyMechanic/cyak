@@ -19,6 +19,8 @@ pub enum Error {
     GitError(#[from] git2::Error),
     #[error(transparent)]
     IoError(#[from] std::io::Error),
+    #[error(transparent)]
+    UiError(#[from] super::ui::Error),
 }
 
 impl Error {

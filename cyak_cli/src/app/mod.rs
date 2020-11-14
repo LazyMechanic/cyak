@@ -1,20 +1,21 @@
 pub mod error;
 
-mod traits;
 mod ui;
 
 pub use error::Error;
 
 use crate::cli::{Cli, PresetPath, SubCommand};
 
-use ui::Menu;
 use ui::Ui;
 
 use cyak_core::Context;
 use cyak_core::ProjectConfig;
 
 use fs_extra::dir::CopyOptions;
+
 use std::cell::RefCell;
+use std::fs;
+use std::ops::Deref;
 use std::path::PathBuf;
 use std::rc::Rc;
 
@@ -32,37 +33,63 @@ pub fn run(cli: Cli) -> anyhow::Result<()> {
 
 crate::menu! {
     MainMenu,
-    title: "Main menu",
-    elements: {
-        "Ok" => |_siv, _ui| {
-            _siv.add_layer(SelectPresetMenu::make(_ui))
+    title: { "Main" },
+    items: { from_submit },
+    on_submit: {
+        "Select preset" => |siv, _item, ui| -> Result<(), Error> {
+            siv.add_layer(SelectPresetMenu::make(ui)?);
+            Ok(())
         },
-        "A1-- r-8q wq6876786c" => |_siv, _ui| {},
-        "A2 qwfmqkwficv jhe" => |_siv, _ui| {},
-        "A3 ioqoq" => |_siv, _ui| {},
-        "A4" => |_siv, _ui| {},
-        "A5" => |_siv, _ui| {},
-        "A6 ff qf qwf qf saca" => |_siv, _ui| {},
-        "A7" => |_siv, _ui| {},
-        "A8" => |_siv, _ui| {},
-        "A8" => |_siv, _ui| {},
-        "Exit" => |_siv, _ui| {
+        "Exit" => |_, _, _| -> Result<(), Error> {
             std::process::exit(0);
+            Ok(())
         }
-    }
+    },
+    on_select: {},
+    buttons: {},
+    size: { default }
 }
 
 crate::menu! {
     SelectPresetMenu,
-    title: "Select preset",
-    elements: {
-        "Ahoj" => |_siv, _ui| {
-            _siv.add_layer(Dialog::text("Ahoj").dismiss_button("ahoj"));
-        },
-        "Back" => |_siv, _ui| {
-            _siv.pop_layer();
+    title: { "Main" },
+    items: {
+        |ui| -> Result<Vec<(String, String)>, Error> {
+            let ui_mut = ui.deref().borrow();
+            let preset_dir = cyak_core::utils::format_presets_dir(&ui_mut.share_dir);
+            let paths = fs::read_dir(&preset_dir).map_err(|e| ui::Error::Fatal(e.to_string()))?;
+
+            let mut res = Vec::new();
+            for p in paths.into_iter() {
+                let p = p.map_err(|e| ui::Error::Fatal(e.to_string()))?;
+                let full_path = p.path().into_os_string().into_string().map_err(|e| ui::Error::Fatal(format!("{:?}", e)))?;
+                let filename = p.file_name().into_string().map_err(|e| ui::Error::Fatal(format!("{:?}", e)))?;
+                res.push((filename, full_path));
+            }
+
+            res.push(("Back".to_string(), "Back".to_string()));
+            Ok(res)
         }
-    }
+    },
+    on_submit: {
+        |siv, item, ui| -> Result<(), Error> {
+            let mut ui_mut = ui.deref().borrow_mut();
+            match item {
+                "Back" => {
+                    siv.pop_layer();
+                }
+                other => {
+                    let preset_dir = PathBuf::from(other);
+                    ui_mut.preset_config = cyak_core::load_preset_config(&preset_dir).map_err(|e| ui::Error::Regular(format!("{}", e)))?;
+                    ui_mut.ctx.preset_dir = preset_dir;
+                }
+            };
+            Ok(())
+        }
+    },
+    on_select: {},
+    buttons: {},
+    size: { default }
 }
 
 fn new_project(cli: Cli) -> anyhow::Result<()> {
@@ -105,7 +132,7 @@ fn new_project(cli: Cli) -> anyhow::Result<()> {
 
     let mut siv = cursive::default();
 
-    siv.add_layer(MainMenu::make(&ui));
+    siv.add_layer(MainMenu::make(&ui)?);
 
     siv.run();
 
