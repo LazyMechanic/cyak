@@ -14,3 +14,5 @@ pub struct Ui {
     pub share_dir: PathBuf,
     pub preset_config: PresetConfig,
 }
+
+pub const DEFAULT_VIEW_SIZE: (usize, usize) = (30, 15);

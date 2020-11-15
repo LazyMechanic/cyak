@@ -20,9 +20,10 @@ anyhow = { version = "1.0" }
 config = { version = "0.10" }
 cursive = { version = "0.15.0", default-features = false }
 cursive-aligned-view = { version = "0.3" }
+cursive_table_view = { version = "0.12" }
 clap = { version = "2.33" }
 chrono = { version = "0.4", features = ["serde"] }
-env_logger = "0.7"
+env_logger = { version = "0.7" }
 git2 = { version = "0.13" }
 serde = { version = "1.0", features = ["derive"] }
 thiserror = { version = "1.0" }

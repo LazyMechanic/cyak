@@ -175,10 +175,9 @@ macro_rules! menu {
     ($menu_name:ident
      ,title: { $title:literal }
      ,items: { |$items_ui:pat| -> Result<$items_ok:ty, Error> $items_body:expr }
-     ,on_submit: { $($on_submit_display:literal => |$on_submit_siv:pat, $on_submit_item:pat, $on_submit_ui:pat| -> Result<(), Error> $on_submit_body:expr),+ }
-     ,on_select: { $($($on_select_display:literal => |$on_select_siv:pat, $on_select_item:pat, $on_select_ui:pat| -> Result<(), Error> $on_select_body:expr),+)? }
+     ,on_submit: { $($on_submit_display:pat => |$on_submit_siv:pat, $on_submit_item:pat, $on_submit_ui:pat| -> Result<(), Error> $on_submit_body:expr),+ }
+     ,on_select: { $($($on_select_display:pat => |$on_select_siv:pat, $on_select_item:pat, $on_select_ui:pat| -> Result<(), Error> $on_select_body:expr),+)? }
      ,buttons: { $($bt_display:literal => |$bt_siv:pat, $bt_ui:pat| -> Result<(), Error> $bt_body:expr),* }
-     ,size: { default }
     ) => {
         $crate::menu!{
             $menu_name
@@ -196,7 +195,6 @@ macro_rules! menu {
                               $on_submit_ui: &std::rc::Rc<std::cell::RefCell<$crate::app::ui::Ui>>| -> Result<(), $crate::app::ui::Error> { $on_submit_body })(siv, item, &ui)?
                         }
                     )+
-                        _ => unreachable!(),
                     }
                     Ok(())
                 }
@@ -212,7 +210,6 @@ macro_rules! menu {
                               $on_select_ui: &std::rc::Rc<std::cell::RefCell<$crate::app::ui::Ui>>| -> Result<(), $crate::app::ui::Error> { $on_select_body })(siv, item, &ui)?
                         }
                     )+
-                        _ => unreachable!(),
                     }
                     )?
                     Ok(())
@@ -223,62 +220,6 @@ macro_rules! menu {
                     $bt_display => |$bt_siv, $bt_ui| -> Result<(), Error> $bt_body
                 ),*
             }
-            , size: { default }
-        }
-    };
-
-    ($menu_name:ident
-     ,title: { $title:literal }
-     ,items: { |$items_ui:pat| -> Result<$items_ok:ty, Error> $items_body:expr }
-     ,on_submit: { $($on_submit_display:literal => |$on_submit_siv:pat, $on_submit_item:pat, $on_submit_ui:pat| -> Result<(), Error> $on_submit_body:expr),+ }
-     ,on_select: { $($($on_select_display:literal => |$on_select_siv:pat, $on_select_item:pat, $on_select_ui:pat| -> Result<(), Error> $on_select_body:expr),+)? }
-     ,buttons: { $($bt_display:literal => |$bt_siv:pat, $bt_ui:pat| -> Result<(), Error> $bt_body:expr),* }
-     ,size: { $(($size_x:expr, $size_y:expr))? }
-    ) => {
-        $crate::menu!{
-            $menu_name
-            , title: { $title }
-            , items: {
-                |$items_ui| -> Result<$items_ok, Error> $items_body
-            }
-            , on_submit: {
-                |siv, item, ui| -> Result<(), Error> {
-                    match item {
-                    $(
-                        $on_submit_display => {
-                            (|$on_submit_siv: &mut cursive::Cursive,
-                              $on_submit_item: &_,
-                              $on_submit_ui: &std::rc::Rc<std::cell::RefCell<$crate::app::ui::Ui>>| -> Result<(), $crate::app::ui::Error> { $on_submit_body })(siv, item, &ui)?
-                        }
-                    )+
-                        _ => unreachable!(),
-                    }
-                    Ok(())
-                }
-            }
-            , on_select: {
-                |siv, item, ui| -> Result<(), Error> {
-                    $(
-                    match item {
-                    $(
-                        $on_select_display => {
-                            (|$on_select_siv: &mut cursive::Cursive,
-                              $on_select_item: &_,
-                              $on_select_ui: &std::rc::Rc<std::cell::RefCell<$crate::app::ui::Ui>>| -> Result<(), $crate::app::ui::Error> { $on_select_body })(siv, item, &ui)?
-                        }
-                    )+
-                        _ => unreachable!(),
-                    }
-                    )?
-                    Ok(())
-                }
-            }
-            , buttons: {
-                $(
-                    $bt_display => |$bt_siv, $bt_ui| -> Result<(), Error> $bt_body
-                ),*
-            }
-            , size: { $(($size_x, $size_y))? }
         }
     };
 
@@ -286,9 +227,8 @@ macro_rules! menu {
      ,title: { $title:literal }
      ,items: { from_submit }
      ,on_submit: { $($on_submit_display:literal => |$on_submit_siv:pat, $on_submit_item:pat, $on_submit_ui:pat| -> Result<(), Error> $on_submit_body:expr),+ }
-     ,on_select: { $($($on_select_display:literal => |$on_select_siv:pat, $on_select_item:pat, $on_select_ui:pat| -> Result<(), Error> $on_select_body:expr),+)? }
+     ,on_select: { $($($on_select_display:pat => |$on_select_siv:pat, $on_select_item:pat, $on_select_ui:pat| -> Result<(), Error> $on_select_body:expr),+)? }
      ,buttons: { $($bt_display:literal => |$bt_siv:pat, $bt_ui:pat| -> Result<(), Error> $bt_body:expr),* }
-     ,size: { default }
     ) => {
         $crate::menu!{
             $menu_name
@@ -322,7 +262,6 @@ macro_rules! menu {
                               $on_select_ui: &std::rc::Rc<std::cell::RefCell<$crate::app::ui::Ui>>| -> Result<(), $crate::app::ui::Error> { $on_select_body })(siv, item, &ui)?
                         }
                     )+
-                        _ => unreachable!(),
                     }
                     )?
                     Ok(())
@@ -333,62 +272,6 @@ macro_rules! menu {
                     $bt_display => |$bt_siv, $bt_ui| -> Result<(), Error> $bt_body
                 ),*
             }
-            , size: { default }
-        }
-    };
-
-    ($menu_name:ident
-     ,title: { $title:literal }
-     ,items: { from_submit }
-     ,on_submit: { $($on_submit_display:literal => |$on_submit_siv:pat, $on_submit_item:pat, $on_submit_ui:pat| -> Result<(), Error> $on_submit_body:expr),+ }
-     ,on_select: { $($($on_select_display:literal => |$on_select_siv:pat, $on_select_item:pat, $on_select_ui:pat| -> Result<(), Error> $on_select_body:expr),+)? }
-     ,buttons: { $($bt_display:literal => |$bt_siv:pat, $bt_ui:pat| -> Result<(), Error> $bt_body:expr),* }
-     ,size: { $(($size_x:expr, $size_y:expr))? }
-    ) => {
-        $crate::menu!{
-            $menu_name
-            , title: { $title }
-            , items: {
-                |_ui| -> Result<Vec<(String, String)>, Error> { Ok(vec![$(($on_submit_display.to_string(), $on_submit_display.to_string())),+]) }
-            }
-            , on_submit: {
-                |siv, item, ui| -> Result<(), Error> {
-                    match item {
-                    $(
-                        $on_submit_display => {
-                            (|$on_submit_siv: &mut cursive::Cursive,
-                              $on_submit_item: &_,
-                              $on_submit_ui: &std::rc::Rc<std::cell::RefCell<$crate::app::ui::Ui>>| -> Result<(), $crate::app::ui::Error> { $on_submit_body })(siv, item, &ui)?
-                        }
-                    )+
-                        _ => unreachable!(),
-                    }
-                    Ok(())
-                }
-            }
-            , on_select: {
-                |siv, item, ui| -> Result<(), Error> {
-                    $(
-                    match item {
-                    $(
-                        $on_select_display => {
-                            (|$on_select_siv: &mut cursive::Cursive,
-                              $on_select_item: &_,
-                              $on_select_ui: &std::rc::Rc<std::cell::RefCell<$crate::app::ui::Ui>>| -> Result<(), $crate::app::ui::Error> { $on_select_body })(siv, item, &ui)?
-                        }
-                    )+
-                        _ => unreachable!(),
-                    }
-                    )?
-                    Ok(())
-                }
-            }
-            , buttons: {
-                $(
-                    $bt_display => |$bt_siv, $bt_ui| -> Result<(), Error> $bt_body
-                ),*
-            }
-            , size: { $(($size_x, $size_y))? }
         }
     };
 
@@ -398,7 +281,6 @@ macro_rules! menu {
      ,on_submit: { $(|$on_submit_siv:pat, $on_submit_item:pat, $on_submit_ui:pat| -> Result<(), Error> $on_submit_body:expr)? }
      ,on_select: { $(|$on_select_siv:pat, $on_select_item:pat, $on_select_ui:pat| -> Result<(), Error> $on_select_body:expr)? }
      ,buttons: { $($bt_display:literal => |$bt_siv:pat, $bt_ui:pat| -> Result<(), Error> $bt_body:expr),* }
-     ,size: { default }
     ) => {
         $crate::menu!{
             @impl
@@ -427,46 +309,7 @@ macro_rules! menu {
                                     $bt_ui: &std::rc::Rc<std::cell::RefCell<$crate::app::ui::Ui>>| -> Result<(), $crate::app::ui::Error> {$bt_body}
                 ),*
             }
-            , size: { (30, 15) }
-        }
-    };
-
-    ($menu_name:ident
-     ,title: {$title:literal}
-     ,items: { |$items_ui:pat| -> Result<$items_ok:ty, Error> $items_body:expr }
-     ,on_submit: { $(|$on_submit_siv:pat, $on_submit_item:pat, $on_submit_ui:pat| -> Result<(), Error> $on_submit_body:expr)? }
-     ,on_select: { $(|$on_select_siv:pat, $on_select_item:pat, $on_select_ui:pat| -> Result<(), Error> $on_select_body:expr)? }
-     ,buttons: { $($bt_display:literal => |$bt_siv:pat, $bt_ui:pat| -> Result<(), Error> $bt_body:expr),* }
-     ,size: { $(($size_x:expr, $size_y:expr))? }
-    ) => {
-        $crate::menu!{
-            @impl
-            $menu_name
-            , title: { $title }
-            , items: {
-                |$items_ui: &std::rc::Rc<std::cell::RefCell<$crate::app::ui::Ui>>| -> Result<$items_ok, $crate::app::ui::Error> {$items_body}
-            }
-            , on_submit: {
-                $(
-                    |$on_submit_siv: &mut cursive::Cursive,
-                     $on_submit_item: &_,
-                     $on_submit_ui: &std::rc::Rc<std::cell::RefCell<$crate::app::ui::Ui>>| -> Result<(), $crate::app::ui::Error> {$on_submit_body}
-                )?
-            }
-            , on_select: {
-                $(
-                    |$on_select_siv: &mut cursive::Cursive,
-                     $on_select_item: &_,
-                     $on_select_ui: &std::rc::Rc<std::cell::RefCell<$crate::app::ui::Ui>>| -> Result<(), $crate::app::ui::Error> {$on_select_body}
-                )?
-            }
-            , buttons: {
-                $(
-                    $bt_display => |$bt_siv: &mut cursive::Cursive,
-                                    $bt_ui: &std::rc::Rc<std::cell::RefCell<$crate::app::ui::Ui>>| -> Result<(), $crate::app::ui::Error> {$bt_body}
-                ),*
-            }
-            , size: { $(($size_x, $size_y))? }
+            , size: { ($crate::app::ui::DEFAULT_VIEW_SIZE.0, $crate::app::ui::DEFAULT_VIEW_SIZE.1) }
         }
     };
 
@@ -504,6 +347,7 @@ macro_rules! menu {
                     )?
 
                     s.h_align(cursive::align::HAlign::Center)
+                        .with_name($menu_name::name())
                         .scrollable()
                         .scroll_x(true)
                         .scroll_y(true)
@@ -520,7 +364,7 @@ macro_rules! menu {
                     let d = $crate::menu!(@max_size d ($size_x, $size_y));
                     )?
 
-                    d.with_name($menu_name::name())
+                    d
                 };
 
                 Ok(dialog)
