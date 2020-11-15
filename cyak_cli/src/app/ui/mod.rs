@@ -1,8 +1,10 @@
 pub mod error;
 pub mod menu;
+pub mod views;
 
 pub use error::*;
 pub use menu::*;
+pub use views::*;
 
 use cyak_core::{Context, PresetConfig};
 use std::path::PathBuf;

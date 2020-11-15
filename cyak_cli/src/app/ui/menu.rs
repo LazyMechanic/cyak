@@ -483,12 +483,12 @@ macro_rules! menu {
 
         impl $menu_name {
             #[allow(dead_code)]
-            fn name() -> &'static str {
+            pub fn name() -> &'static str {
                 stringify!($menu_name)
             }
 
             #[allow(dead_code, unused, unreachable_patterns, clippy::redundant_closure_call)]
-            fn make(ui: &std::rc::Rc<std::cell::RefCell<Ui>>) -> Result<impl cursive::View, $crate::app::ui::Error> {
+            pub fn make(ui: &std::rc::Rc<std::cell::RefCell<$crate::app::ui::Ui>>) -> Result<impl cursive::View, $crate::app::ui::Error> {
                 use cursive::view::{Nameable, Scrollable};
 
                 use cursive_aligned_view::Alignable;
