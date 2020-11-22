@@ -12,15 +12,6 @@ dependencies = [
 
 [[package]]
 name = "ahash"
-version = "0.2.19"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "29661b60bec623f0586702976ff4d0c9942dcb6723161c2df0eea78455cfedfb"
-dependencies = [
- "const-random",
-]
-
-[[package]]
-name = "ahash"
 version = "0.3.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e8fd72866655d1904d6b0997d0b07ba561047d070fbe29de039031c641b61217"
@@ -272,29 +263,6 @@ dependencies = [
 
 [[package]]
 name = "cursive"
-version = "0.14.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d62b2fdb98a428e33442612fba04fc7f5a5b67989f0cd3abcfd754dbbec88a85"
-dependencies = [
- "ahash 0.2.19",
- "cfg-if",
- "chrono",
- "crossbeam-channel",
- "enum-map",
- "enumset 0.4.5",
- "lazy_static",
- "libc",
- "log",
- "num 0.2.1",
- "owning_ref",
- "signal-hook",
- "unicode-segmentation",
- "unicode-width",
- "xi-unicode",
-]
-
-[[package]]
-name = "cursive"
 version = "0.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7a9f12332ab2bca26979ef00cfef9a1c2e287db03b787a83d892ad9961f81374"
@@ -304,7 +272,7 @@ dependencies = [
  "crossbeam-channel",
  "crossterm",
  "cursive_core",
- "enumset 1.0.1",
+ "enumset",
  "lazy_static",
  "libc",
  "log",
@@ -337,25 +305,16 @@ dependencies = [
  "chrono",
  "crossbeam-channel",
  "enum-map",
- "enumset 1.0.1",
+ "enumset",
  "lazy_static",
  "libc",
  "log",
- "num 0.3.0",
+ "num",
  "owning_ref",
  "signal-hook",
  "unicode-segmentation",
  "unicode-width",
  "xi-unicode",
-]
-
-[[package]]
-name = "cursive_table_view"
-version = "0.12.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "231e0067bf17e5702474bd3039d6d9d6fb8cb552f6ae333db69cf4f89fc941fb"
-dependencies = [
- "cursive 0.14.1",
 ]
 
 [[package]]
@@ -366,9 +325,8 @@ dependencies = [
  "chrono",
  "clap",
  "config",
- "cursive 0.15.0",
+ "cursive",
  "cursive-aligned-view",
- "cursive_table_view",
  "cyak_core",
  "env_logger",
  "fs_extra",
@@ -480,34 +438,12 @@ dependencies = [
 
 [[package]]
 name = "enumset"
-version = "0.4.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "93182dcb6530c757e5879b22ebc5cfbd034861585b442819389614e223ac1c47"
-dependencies = [
- "enumset_derive 0.4.4",
- "num-traits 0.2.12",
-]
-
-[[package]]
-name = "enumset"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "959a80a2062fedd66ed41d99736212de987b3a8c83a4c2cef243968075256bd1"
 dependencies = [
- "enumset_derive 0.5.0",
+ "enumset_derive",
  "num-traits 0.2.12",
-]
-
-[[package]]
-name = "enumset_derive"
-version = "0.4.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "751a786cfcc7d5ceb9e0fe06f0e911da6ce3a3044633e029df4c370193c86a62"
-dependencies = [
- "darling",
- "proc-macro2",
- "quote",
- "syn",
 ]
 
 [[package]]
@@ -843,37 +779,14 @@ dependencies = [
 
 [[package]]
 name = "num"
-version = "0.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b8536030f9fea7127f841b45bb6243b27255787fb4eb83958aa1ef9d2fdc0c36"
-dependencies = [
- "num-complex 0.2.4",
- "num-integer",
- "num-iter",
- "num-rational 0.2.4",
- "num-traits 0.2.12",
-]
-
-[[package]]
-name = "num"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ab3e176191bc4faad357e3122c4747aa098ac880e88b168f106386128736cf4a"
 dependencies = [
- "num-complex 0.3.0",
+ "num-complex",
  "num-integer",
  "num-iter",
- "num-rational 0.3.0",
- "num-traits 0.2.12",
-]
-
-[[package]]
-name = "num-complex"
-version = "0.2.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b6b19411a9719e753aff12e5187b74d60d3dc449ec3f4dc21e3989c3f554bc95"
-dependencies = [
- "autocfg",
+ "num-rational",
  "num-traits 0.2.12",
 ]
 
@@ -901,17 +814,6 @@ name = "num-iter"
 version = "0.1.41"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7a6e6b7c748f995c4c29c5f5ae0248536e04a5739927c74ec0fa564805094b9f"
-dependencies = [
- "autocfg",
- "num-integer",
- "num-traits 0.2.12",
-]
-
-[[package]]
-name = "num-rational"
-version = "0.2.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5c000134b5dbf44adc5cb772486d335293351644b801551abe8f75c84cfa4aef"
 dependencies = [
  "autocfg",
  "num-integer",

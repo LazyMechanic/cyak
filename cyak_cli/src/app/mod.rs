@@ -8,8 +8,8 @@ use crate::cli::{Cli, PresetPath, SubCommand};
 
 use ui::Ui;
 
-use cyak_core::Context;
 use cyak_core::ProjectConfig;
+use cyak_core::{Context, PresetConfig};
 
 use fs_extra::dir::CopyOptions;
 
@@ -36,40 +36,10 @@ fn new_project(cli: Cli) -> anyhow::Result<()> {
             _ => return Error::InvalidCliSubCommand("new".to_string()).anyhow_fail(),
         };
 
-        cyak_core::utils::check_dir_existence(&cli.share_dir)?;
-
-        let preset_dir = cli.share_dir.join("presets").join("default");
-        cyak_core::utils::check_dir_existence(&preset_dir)?;
-
-        let preset_config = cyak_core::load_preset_config(&preset_dir)?;
-
-        // If project dir already exist
-        if project_dir.exists() {
-            return Error::ProjectDirExists(project_dir).anyhow_fail();
-        }
-
-        let project_config = ProjectConfig::default();
-
-        // ************************************************************************************** //
-
-        let ctx = Context {
-            project_dir,
-            preset_dir,
-            git: false,
-            license: None,
-            project_config,
-        };
-
-        Rc::new(RefCell::new(Ui {
-            ctx,
-            share_dir: cli.share_dir,
-            preset_config,
-        }))
+        Ui::new(&cli.share_dir, &project_dir)?
     };
 
     let mut siv = cursive::default();
-
-    siv.add_layer(ui::MainMenu::make(&ui)?);
 
     siv.run();
 
