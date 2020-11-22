@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
 
-use super::version::Version;
+use super::preset::VariableStorage;
+use super::PresetConfig;
+use super::Version;
 
 #[derive(Debug, Default, Deserialize, Serialize)]
 pub struct ProjectConfig {
@@ -10,11 +12,47 @@ pub struct ProjectConfig {
     pub variables: Vec<Variable>,
 }
 
+impl ProjectConfig {
+    pub fn init_variables(&mut self, preset_config: &PresetConfig) {
+        self.variables = preset_config
+            .variables
+            .iter()
+            .filter(|v| v.storages.contains(&VariableStorage::Project))
+            .map(|v| Variable {
+                key: v.key.clone(),
+                value: v.default.clone(),
+            })
+            .collect();
+    }
+}
+
 #[derive(Debug, Default, Deserialize, Serialize)]
 pub struct Target {
     pub kind: TargetKind,
     pub name: String,
     pub variables: Vec<Variable>,
+}
+
+impl Target {
+    pub fn init_variables(&mut self, preset_config: &PresetConfig) {
+        self.variables = preset_config
+            .variables
+            .iter()
+            .filter(|v| {
+                let storage = match &self.kind {
+                    TargetKind::Executable => VariableStorage::Executable,
+                    TargetKind::Library => VariableStorage::Library,
+                    TargetKind::Interface => VariableStorage::Interface,
+                    TargetKind::Test => VariableStorage::Test,
+                };
+                v.storages.contains(&storage)
+            })
+            .map(|v| Variable {
+                key: v.key.clone(),
+                value: v.default.clone(),
+            })
+            .collect();
+    }
 }
 
 #[derive(Debug, Deserialize, Serialize, Copy, Clone, Eq, PartialEq, Hash)]
